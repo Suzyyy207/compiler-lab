@@ -22,7 +22,9 @@ extern int  yywrap();
   A_programElementList programElementList;
   A_programElement programElement;
   A_arithExpr arithExpr;
+  A_boolExpr boolExpr;
   A_exprUnit exprUnit;
+  A_boolUnit boolUnit;
   A_structDef structDef;
   A_varDeclStmt varDeclStmt;
   A_fnDeclStmt fnDeclStmt;
@@ -31,6 +33,7 @@ extern int  yywrap();
   A_leftVal leftVal;
   A_tokenNum tokenNum;
   A_tokenId tokenId;
+  A_assignStmt assignStmt;
 }
 
 %token <tokenNum> NUM
@@ -45,10 +48,21 @@ extern int  yywrap();
 %token <pos> LBRACKET
 %token <pos> RBRACKET
 %token <pos> DOT
+%token <pos> AND
+%token <pos> OR
+%token <pos> NOT
+%token <pos> GT
+%token <pos> LT
+%token <pos> GE
+%token <pos> LE
+%token <pos> EQ
+%token <pos> NE
 %token <pos> SEMICOLON // ;
 
 %type <program> Program
 %type <arithExpr> ArithExpr
+%type <boolExpr> BoolExpr
+%type <boolUnit> BoolUnit
 %type <programElementList> ProgramElementList
 %type <programElement> ProgramElement
 %type <exprUnit> ExprUnit
@@ -58,6 +72,7 @@ extern int  yywrap();
 %type <fnDef> FnDef
 %type <fnCall> FnCall
 %type <leftVal> LeftVal
+%type <assignStmt> AssignStmt
 
 %start Program
 
@@ -102,7 +117,7 @@ ProgramElement: VarDeclStmt
 }
 ;
 
-
+//arith expression
 ArithExpr: ArithExpr ADD ArithExpr
 {
   $$ = A_ArithBiOp_Expr($1->pos, A_ArithBiOpExpr($1->pos, A_add, $1, $3));
@@ -125,6 +140,7 @@ ArithExpr: ArithExpr ADD ArithExpr
 }
 ;
 
+//expression
 ExprUnit: NUM
 {
   $$ = A_NumExprUnit($1->pos, $1->num);
@@ -158,6 +174,58 @@ ExprUnit: NUM
 {
   $$ = A_ArithUExprUnit($1->pos, A_ArithUExpr($1->pos, A_neg, $2));
 }
+;
+
+// boolen expression
+BoolExpr: BoolExpr AND BoolExpr
+{
+  $$ = A_BoolBiOp_Expr($1->pos, A_BoolBiOpExpr($1->pos, A_and, $1, $3));
+}
+| BoolExpr OR BoolExpr
+{
+  $$ = A_BoolBiOp_Expr($1->pos, A_BoolBiOpExpr($1->pos, A_or, $1, $3));
+}
+| BoolUnit
+{
+  $$ = A_BoolExpr($1->pos, $1);
+}
+;
+
+//boolen unit
+BoolUnit: ExprUnit GT ExprUnit
+{
+  $$ = A_ComExprUnit($1->pos, A_ComExpr($1->pos, A_gt, $1, $3));
+}
+| ExprUnit LT ExprUnit
+{
+  $$ = A_ComExprUnit($1->pos, A_ComExpr($1->pos, A_lt, $1, $3));
+}
+| ExprUnit GE ExprUnit
+{
+  $$ = A_ComExprUnit($1->pos, A_ComExpr($1->pos, A_ge, $1, $3));
+}
+| ExprUnit LE ExprUnit
+{
+  $$ = A_ComExprUnit($1->pos, A_ComExpr($1->pos, A_le, $1, $3));
+}
+| ExprUnit EQ ExprUnit
+{
+  $$ = A_ComExprUnit($1->pos, A_ComExpr($1->pos, A_eq, $1, $3));
+}
+| ExprUnit NE ExprUnit
+{
+  $$ = A_ComExprUnit($1->pos, A_ComExpr($1->pos, A_ne, $1, $3));
+}
+| LPAREN BoolExpr RPAREN
+{
+  $$ = A_BoolExprUnit($1->pos, $2);
+}
+| NOT BoolUnit
+{
+  $$ = A_BoolUOpExprUnit($1->pos, A_BoolUOpExpr($1->pos, A_not, $3))
+}
+;
+
 %%
 
 extern "C"{

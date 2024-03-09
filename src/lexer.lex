@@ -26,56 +26,102 @@ int calc(char *s, int len);
     col+=yyleng;
     return ID;
 }
-<INITIAL>[+] {
+<INITIAL>"+" {
     yylval.pos = A_Pos(line, col);
     ++col;
     return ADD;
 }
-<INITIAL>[-] {
+<INITIAL>"-" {
     yylval.pos = A_Pos(line, col);
     ++col;
     return SUB;
 }
-<INITIAL>[\*] {
+<INITIAL>"*" {
     yylval.pos = A_Pos(line, col);
     ++col;
     return MUL;
 }
-<INITIAL>[\/] {
+<INITIAL>"/" {
     yylval.pos = A_Pos(line, col);
     ++col;
     return MUL;
 }
-<INITIAL>[;] {
+<INITIAL>";" {
     yylval.pos = A_Pos(line, col);
     ++col;
     return SEMICOLON;
 }
-<INITIAL>[(] {
+<INITIAL>"(" {
     yylval.pos = A_Pos(line, col);
     ++col;
     return LPAREN;
 }
-<INITIAL>[)] {
+<INITIAL>")" {
     yylval.pos = A_Pos(line, col);
     ++col;
     return RPAREN;
 }
-<INITIAL>[\[] {
+<INITIAL>"[" {
     yylval.pos = A_Pos(line, col);
     ++col;
     return LBRACKET;
 }
-<INITIAL>[\]] {
+<INITIAL>"]" {
     yylval.pos = A_Pos(line, col);
     ++col;
     return RBRACKET;
 }
-<INITIAL>[\.] {
+<INITIAL>"." {
     yylval.pos = A_Pos(line, col);
     ++col;
     return DOT;
 }
+<INITIAL>"&&" {
+    yylval.pos = A_Pos(line, col);
+    col+=2;
+    return AND;
+}
+<INITIAL>"||" {
+    yylval.pos = A_Pos(line, col);
+    col+=2;
+    return OR;
+}
+<INITIAL>"!" {
+    yylval.pos = A_Pos(line, col);
+    ++col;
+    return NOT;
+}
+<INITIAL>">" {
+    yylval.pos = A_Pos(line, col);
+    ++col;
+    return GT;
+}
+<INITIAL>"<" {
+    yylval.pos = A_Pos(line, col);
+    ++col;
+    return LT;
+}
+<INITIAL>">=" {
+    yylval.pos = A_Pos(line, col);
+    col+=2;
+    return GE;
+}
+<INITIAL>"<=" {
+    yylval.pos = A_Pos(line, col);
+    col+=2;
+    return LE;
+}
+<INITIAL>"==" {
+    yylval.pos = A_Pos(line, col);
+    col+=2;
+    return EQ;
+}
+<INITIAL>"!=" {
+    yylval.pos = A_Pos(line, col);
+    col+=2;
+    return NE;
+}
+
 %%
 
 // This function takes a string of digits and its length as input, and returns the integer value of the string.
