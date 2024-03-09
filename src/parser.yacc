@@ -32,9 +32,10 @@ extern int  yywrap();
   A_fnCall fnCall;
   A_leftVal leftVal;
   A_rightVal rightVal;
+  A_rightValList rightValList;
+  A_assignStmt assignStmt;
   A_tokenNum tokenNum;
   A_tokenId tokenId;
-  A_assignStmt assignStmt;
 }
 
 %token <tokenNum> NUM
@@ -59,6 +60,7 @@ extern int  yywrap();
 %token <pos> EQ
 %token <pos> NE
 %token <pos> ASS
+%token <pos> COMMA
 %token <pos> SEMICOLON // ;
 
 %type <program> Program
@@ -75,6 +77,7 @@ extern int  yywrap();
 %type <fnCall> FnCall
 %type <leftVal> LeftVal
 %type <rightVal> RightVal
+%type <rightValList> RightValList
 %type <assignStmt> AssignStmt
 
 %start Program
@@ -264,6 +267,24 @@ LeftVal: ID
 | LeftVal DOT ID
 {
   $$ = A_MemberExprLVal($1->pos, A_MemberExpr($1->pos, $1, $3->id));
+}
+;
+
+//right value list
+RightValList: RightVal
+{
+  $$ = A_RightValList($1, nullptr);
+}
+| RightVal COMMA RightValList
+{
+  $$ = A_RightValList($1, $3);
+}
+;
+
+// function call
+FnCall: ID LPAREN RightValList RPAREN
+{
+  $$ = A_FnCall($1->pos, $1->id, $3);
 }
 ;
 %%

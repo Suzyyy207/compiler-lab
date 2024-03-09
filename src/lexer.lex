@@ -51,6 +51,11 @@ int calc(char *s, int len);
     ++col;
     return SEMICOLON;
 }
+<INITIAL>"," {
+    yylval.pos = A_Pos(line, col);
+    ++col;
+    return COMMA;
+}
 <INITIAL>"(" {
     yylval.pos = A_Pos(line, col);
     ++col;
