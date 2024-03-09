@@ -27,6 +27,8 @@ extern int  yywrap();
   A_varDeclStmt varDeclStmt;
   A_fnDeclStmt fnDeclStmt;
   A_fnDef fnDef;
+  A_fnCall fnCall;
+  A_leftVal leftVal;
   A_tokenNum tokenNum;
   A_tokenId tokenId;
 }
@@ -38,6 +40,11 @@ extern int  yywrap();
 %token <pos> SUB
 %token <pos> MUL
 %token <pos> DIV
+%token <pos> LPAREN
+%token <pos> RPAREN
+%token <pos> LBRACKET
+%token <pos> RBRACKET
+%token <pos> DOT
 %token <pos> SEMICOLON // ;
 
 %type <program> Program
@@ -49,6 +56,8 @@ extern int  yywrap();
 %type <varDeclStmt> VarDeclStmt
 %type <fnDeclStmt> FnDeclStmt
 %type <fnDef> FnDef
+%type <fnCall> FnCall
+%type <leftVal> LeftVal
 
 %start Program
 
@@ -116,6 +125,39 @@ ArithExpr: ArithExpr ADD ArithExpr
 }
 ;
 
+ExprUnit: NUM
+{
+  $$ = A_NumExprUnit($1->pos, $1->num);
+}
+| ID
+{
+  $$ = A_IdExprUnit($1->pos, $1->id);
+}
+| LPAREN ArithExpr RPAREN
+{
+  //? $2->pos
+  $$ = A_ArithExprUnit($1->pos, $2);
+}
+| FnCall
+{
+  $$ = A_CallExprUnit($1->pos, $1);
+}
+| LeftVal LBRACKET ID RBRACKET
+{
+  $$ = A_ArrayExprUnit($1->pos,A_ArrayExpr($1->pos, $1, A_IdIndexExpr($3->pos, $3->id)));
+}
+| LeftVal LBRACKET NUM RBRACKET
+{
+  $$ = A_ArrayExprUnit($1->pos,A_ArrayExpr($1->pos, $1, A_NumIndexExpr($3->pos, $3->num)));
+}
+| LeftVal DOT ID
+{
+  $$ = A_MemberExprUnit($1->pos, A_MemberExpr($1->pos, $1, $3->num));
+}
+| SUB ExprUnit
+{
+  $$ = A_ArithUExprUnit($1->pos, A_ArithUExpr($1->pos, A_neg, $2));
+}
 %%
 
 extern "C"{

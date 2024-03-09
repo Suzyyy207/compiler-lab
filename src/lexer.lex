@@ -46,6 +46,36 @@ int calc(char *s, int len);
     ++col;
     return MUL;
 }
+<INITIAL>[;] {
+    yylval.pos = A_Pos(line, col);
+    ++col;
+    return SEMICOLON;
+}
+<INITIAL>[(] {
+    yylval.pos = A_Pos(line, col);
+    ++col;
+    return LPAREN;
+}
+<INITIAL>[)] {
+    yylval.pos = A_Pos(line, col);
+    ++col;
+    return RPAREN;
+}
+<INITIAL>[\[] {
+    yylval.pos = A_Pos(line, col);
+    ++col;
+    return LBRACKET;
+}
+<INITIAL>[\]] {
+    yylval.pos = A_Pos(line, col);
+    ++col;
+    return RBRACKET;
+}
+<INITIAL>[\.] {
+    yylval.pos = A_Pos(line, col);
+    ++col;
+    return DOT;
+}
 %%
 
 // This function takes a string of digits and its length as input, and returns the integer value of the string.
