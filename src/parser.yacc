@@ -57,6 +57,7 @@ extern int  yywrap();
 %token <pos> LE
 %token <pos> EQ
 %token <pos> NE
+%token <pos> ASS
 %token <pos> SEMICOLON // ;
 
 %type <program> Program
@@ -226,6 +227,7 @@ BoolUnit: ExprUnit GT ExprUnit
 }
 ;
 
+AssignStmt: LeftVal 
 %%
 
 extern "C"{

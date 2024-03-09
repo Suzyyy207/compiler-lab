@@ -121,7 +121,11 @@ int calc(char *s, int len);
     col+=2;
     return NE;
 }
-
+<INITIAL>"=" {
+    yylval.pos = A_Pos(line, col);
+    ++col;
+    return ASS;
+}
 %%
 
 // This function takes a string of digits and its length as input, and returns the integer value of the string.
