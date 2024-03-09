@@ -257,7 +257,7 @@ LeftVal: ID
 {
   $$ = A_ArrExprLVal($1->pos, A_ArrayExpr($1->pos, $1, A_IdIndexExpr($3->pos, $3->id)));
 }
-| LeftVal LBRACKET ID RBRACKET
+| LeftVal LBRACKET NUM RBRACKET
 {
   $$ = A_ArrExprLVal($1->pos, A_ArrayExpr($1->pos, $1,A_NumIndexExpr($3->pos, $3->num)));
 }
