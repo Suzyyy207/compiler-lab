@@ -27,7 +27,12 @@ extern int  yywrap();
   A_varDeclStmt varDeclStmt;
   A_fnDeclStmt fnDeclStmt;
   A_fnDef fnDef;
+  A_tokenNum tokenNum;
+  A_tokenId tokenId;
 }
+
+%token <tokenNum> NUM
+%token <tokenId> ID
 
 %token <pos> ADD
 %token <pos> SUB

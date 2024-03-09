@@ -2,14 +2,12 @@
 #include <stdio.h>
 #include <string.h>
 #include "TeaplAst.h"
-#include "y.tab.hpp"
+#include "y.tab.h"
 extern int line, col;
 int c;
 int calc(char *s, int len);
 %}
 
-// TODO:
-// your lexer
 
 %%
 <INITIAL>"\t" { col+=4; }
@@ -22,6 +20,11 @@ int calc(char *s, int len);
     yylval.tokenNum = A_TokenNum(A_Pos(line, col), 0);
     ++col;
     return NUM;
+}
+<INITIAL>[a-z_A-Z][a-z_A-Z0-9]* {
+    yylval.tokenId = A_TokenId(A_Pos(line, col), yytext);
+    col+=yyleng;
+    return ID;
 }
 %%
 
