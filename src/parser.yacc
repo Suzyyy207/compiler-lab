@@ -31,6 +31,7 @@ extern int  yywrap();
   A_fnDef fnDef;
   A_fnCall fnCall;
   A_leftVal leftVal;
+  A_rightVal rightVal;
   A_tokenNum tokenNum;
   A_tokenId tokenId;
   A_assignStmt assignStmt;
@@ -73,6 +74,7 @@ extern int  yywrap();
 %type <fnDef> FnDef
 %type <fnCall> FnCall
 %type <leftVal> LeftVal
+%type <rightVal> RightVal
 %type <assignStmt> AssignStmt
 
 %start Program
@@ -223,11 +225,30 @@ BoolUnit: ExprUnit GT ExprUnit
 }
 | NOT BoolUnit
 {
-  $$ = A_BoolUOpExprUnit($1->pos, A_BoolUOpExpr($1->pos, A_not, $3))
+  $$ = A_BoolUOpExprUnit($1->pos, A_BoolUOpExpr($1->pos, A_not, $3));
 }
 ;
 
-AssignStmt: LeftVal 
+
+// assign statement
+AssignStmt: LeftVal ASS RightVal SEMICOLON
+{
+  $$ = A_AssignStmt($1->pos, $1, $3);
+}
+;
+
+// right value
+RightVal: ArithExpr
+{
+  $$ = A_ArithExprRVal($1->pos, $1);
+}
+| BoolExpr
+{
+  $$ = A_BoolExprRVal($1->pos, $1);
+}
+;
+
+
 %%
 
 extern "C"{
