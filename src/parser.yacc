@@ -171,7 +171,7 @@ ExprUnit: NUM
 }
 | LeftVal DOT ID
 {
-  $$ = A_MemberExprUnit($1->pos, A_MemberExpr($1->pos, $1, $3->num));
+  $$ = A_MemberExprUnit($1->pos, A_MemberExpr($1->pos, $1, $3->id));
 }
 | SUB ExprUnit
 {
@@ -248,7 +248,24 @@ RightVal: ArithExpr
 }
 ;
 
-
+// left value
+LeftVal: ID
+{
+  $$ = A_IdExprLVal($1->pos, $1->id);
+}
+| LeftVal LBRACKET ID RBRACKET
+{
+  $$ = A_ArrExprLVal($1->pos, A_ArrayExpr($1->pos, $1, A_IdIndexExpr($3->pos, $3->id)));
+}
+| LeftVal LBRACKET ID RBRACKET
+{
+  $$ = A_ArrExprLVal($1->pos, A_ArrayExpr($1->pos, $1,A_NumIndexExpr($3->pos, $3->num)));
+}
+| LeftVal DOT ID
+{
+  $$ = A_MemberExprLVal($1->pos, A_MemberExpr($1->pos, $1, $3->id));
+}
+;
 %%
 
 extern "C"{
