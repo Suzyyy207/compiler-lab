@@ -26,6 +26,26 @@ int calc(char *s, int len);
     col+=yyleng;
     return ID;
 }
+<INITIAL>[+] {
+    yylval.pos = A_Pos(line, col);
+    ++col;
+    return ADD;
+}
+<INITIAL>[-] {
+    yylval.pos = A_Pos(line, col);
+    ++col;
+    return SUB;
+}
+<INITIAL>[\*] {
+    yylval.pos = A_Pos(line, col);
+    ++col;
+    return MUL;
+}
+<INITIAL>[\/] {
+    yylval.pos = A_Pos(line, col);
+    ++col;
+    return MUL;
+}
 %%
 
 // This function takes a string of digits and its length as input, and returns the integer value of the string.
