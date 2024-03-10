@@ -434,21 +434,40 @@ FnDeclStmt: FnDecl SEMICOLON
 // if statement
 IfStmt: IF LPAREN BoolExpr RPAREN CodeBlockStmtList
 {
-  $$ =  A_IfStmt($1->pos, $3, $5, nullptr);
+  $$ = A_IfStmt($1->pos, $3, $5, nullptr);
 }
 | IF LPAREN BoolExpr RPAREN CodeBlockStmtList ELSE CodeBlockStmtList
 {
-  $$ =  A_IfStmt($1->pos, $3, $5, $7);
+  $$ = A_IfStmt($1->pos, $3, $5, $7);
 }
 ;
 
 // while statement
 WhileStmt: WHILE LPAREN BoolExpr RPAREN CodeBlockStmtList
 {
-  $$ =  A_WhileStmt($1->pos, $3, $5);
+  $$ = A_WhileStmt($1->pos, $3, $5);
 }
+;
 
-//
+// call statement
+CallStmt: FnCall SEMICOLON
+{
+  $$ = A_CallStmt($1->pos, $1);
+}
+;
+
+// return statement
+ReturnStmt: RET RightVal SEMICOLON
+{
+  $$ = A_returnStmt($1->pos, $2);
+}
+| RET SEMICOLON
+{
+  $$ = A_returnStmt($1->pos, nullptr);
+}
+;
+
+
 %%
 
 extern "C"{
