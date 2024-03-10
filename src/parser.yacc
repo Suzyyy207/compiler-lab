@@ -517,7 +517,12 @@ CodeBlockStmtList: CodeBlockStmt
 }
 ;
 
-
+//function definition
+FnDef: FnDecl LBRACE CodeBlockStmtList RBRACE
+{
+  $$ = A_FnDef($1->pos, $1, $3);
+}
+;
 
 %%
 
