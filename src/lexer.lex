@@ -146,6 +146,11 @@ int calc(char *s, int len);
     ++col;
     return RBRACE;
 }
+<INITIAL>"->" {
+    yylval.pos = A_Pos(line, col);
+    col+=2;
+    return POINT;
+}
 <INITIAL>"let" {
     yylval.pos = A_Pos(line, col);
     col+=3;
@@ -160,6 +165,11 @@ int calc(char *s, int len);
     yylval.pos = A_Pos(line, col);
     col+=6;
     return STRUCT;
+}
+<INITIAL>"fn" {
+    yylval.pos = A_Pos(line, col);
+    col+=2;
+    return FN;
 }
 %%
 %%

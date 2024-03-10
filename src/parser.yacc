@@ -30,6 +30,7 @@ extern int  yywrap();
   A_varDeclStmt varDeclStmt;
   A_varDecl varDecl;
   A_varDef varDef;
+  A_fnDecl fnDecl;
   A_fnDeclStmt fnDeclStmt;
   A_fnDef fnDef;
   A_fnCall fnCall;
@@ -47,6 +48,7 @@ extern int  yywrap();
 %token <pos> LET
 %token <pos> INT
 %token <pos> STRUCT
+%token <pos> FN
 
 %token <pos> ADD
 %token <pos> SUB
@@ -72,6 +74,7 @@ extern int  yywrap();
 %token <pos> LBRACE
 %token <pos> RBRACE
 %token <pos> COLON
+%token <pos> POINT
 %token <pos> SEMICOLON // ;
 
 %type <program> Program
@@ -86,6 +89,7 @@ extern int  yywrap();
 %type <varDeclStmt> VarDeclStmt
 %type <varDecl> VarDecl
 %type <varDef> VarDef
+%type <fnDecl> FnDecl
 %type <fnDeclStmt> FnDeclStmt
 %type <fnDef> FnDef
 %type <fnCall> FnCall
@@ -384,6 +388,23 @@ StructDef: STRUCT ID LBRACE VarDeclList RBRACE
 {
   $$ = A_structDef($1->pos, $2->id, $4);
 }
+;
+
+//function declare
+FnDecl: FN ID LPAREN VarDeclList RPAREN
+{
+  //? 无返回值
+  $$ = A_FnDecl($1->pos, $2->id, A_ParamDecl($4), nullptr);
+}
+| FN ID LPAREN VarDeclList RPAREN POINT INT
+{
+  $$ = A_FnDecl($1->pos, $2->id, A_ParamDecl($4), A_NativeType($7->pos, A_intTypeKind));
+}
+| FN ID LPAREN VarDeclList RPAREN POINT ID
+{
+  $$ = A_FnDecl($1->pos, $2->id, A_ParamDecl($4), A_StructType($7->pos,$7->id));
+}
+;
 %%
 
 extern "C"{
