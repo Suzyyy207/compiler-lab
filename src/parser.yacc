@@ -64,6 +64,8 @@ extern int  yywrap();
 %token <pos> ASS
 %token <pos> COMMA
 %token <pos> LET
+%token <pos> LBRACE
+%token <pos> RBRACE
 %token <pos> INT
 %token <pos> COLON
 %token <pos> SEMICOLON // ;
@@ -323,7 +325,31 @@ VarDecl: ID COLON INT
 }
 ;
 
-
+VarDef: ID COLON INT ASS RightVal
+{
+  $$ = A_VarDef_Scalar($1->pos, A_VarDefScalar($1->pos, $1->id, A_NativeType($3->pos, A_intTypeKind), $5));
+}
+| ID COLON ID ASS RightVal
+{
+  $$ = A_VarDef_Scalar($1->pos, A_VarDefScalar($1->pos, $1->id, A_StructType($3->pos,$3->id), $5));
+}
+| ID ASS RightVal
+{
+  $$ = A_VarDef_Scalar($1->pos, A_VarDefScalar($1->pos, $1->id, A_NativeType(A_pos(nullptr, nullptr), A_intTypeKind), $3));
+}
+| ID LBRACKET NUM RBRACKET COLON INT ASS LBRACE RightValList RBRACE
+{
+  $$ = A_VarDef_Array($1->pos, A_VarDefArray($1->pos, $1->id, $3->num, A_NativeType($6->pos, A_intTypeKind), $9));
+}
+| ID LBRACKET NUM RBRACKET COLON ID ASS LBRACE RightValList RBRACE
+{
+  $$ = A_VarDef_Array($1->pos, A_VarDefArray($1->pos, $1->id, $3->num, A_StructType($6->pos,$6->id), $9));
+}
+| ID LBRACKET NUM RBRACKET ASS LBRACE RightValList RBRACE
+{
+  $$ = A_VarDef_Array($1->pos, A_VarDefArray($1->pos, $1->id, $3->num, A_NativeType(nullptr, nullptr), $7));
+}
+;
 %%
 
 extern "C"{

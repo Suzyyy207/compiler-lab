@@ -136,6 +136,16 @@ int calc(char *s, int len);
     ++col;
     return COLON;
 }
+<INITIAL>"{" {
+    yylval.pos = A_Pos(line, col);
+    ++col;
+    return LBRACE;
+}
+<INITIAL>"}" {
+    yylval.pos = A_Pos(line, col);
+    ++col;
+    return RBRACE;
+}
 <INITIAL>"let" {
     yylval.pos = A_Pos(line, col);
     col+=3;
