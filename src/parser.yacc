@@ -120,7 +120,6 @@ extern int  yywrap();
 
 %left ADD SUB
 %left MUL DIV
-%left SUB
 
 %start Program
 
@@ -270,7 +269,7 @@ BoolUnit: ExprUnit GT ExprUnit
 }
 | NOT BoolUnit
 {
-  $$ = A_BoolUOpExprUnit($1, A_BoolUOpExpr($1, A_not, $3));
+  $$ = A_BoolUOpExprUnit($1, A_BoolUOpExpr($1, A_not, $2));
 }
 ;
 
@@ -381,7 +380,7 @@ VarDef: ID COLON INT ASS RightVal
 }
 | ID LBRACKET NUM RBRACKET ASS LBRACE RightValList RBRACE
 {
-  $$ = A_VarDef_Array($1->pos, A_VarDefArray($1->pos, $1->id, $3->num, A_NativeType(nullptr, nullptr), $7));
+  $$ = A_VarDef_Array($1->pos, A_VarDefArray($1->pos, $1->id, $3->num, A_NativeType(A_pos(nullptr, nullptr), A_intTypeKind), $7));
 }
 ;
 
@@ -403,14 +402,14 @@ VarDeclList: VarDecl
 }
 | VarDecl COMMA VarDeclList
 {
-  $$ = varDeclList($1, $3);
+  $$ = A_varDeclList($1, $3);  //？
 }
 ;
 
 //structure definition
 StructDef: STRUCT ID LBRACE VarDeclList RBRACE
 {
-  $$ = A_structDef($1, $2->id, $4);
+  $$ = A_structDef($1, $2->id, $4);  //?
 }
 ;
 
@@ -465,7 +464,7 @@ CallStmt: FnCall SEMICOLON
 // return statement
 ReturnStmt: RET RightVal SEMICOLON
 {
-  $$ = A_returnStmt($1, $2);
+  $$ = A_returnStmt($1, $2);  //?
 }
 | RET SEMICOLON
 {
