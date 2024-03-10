@@ -131,6 +131,22 @@ int calc(char *s, int len);
     ++col;
     return ASS;
 }
+<INITIAL>":" {
+    yylval.pos = A_Pos(line, col);
+    ++col;
+    return COLON;
+}
+<INITIAL>"let" {
+    yylval.pos = A_Pos(line, col);
+    col+=3;
+    return LET;
+}
+<INITIAL>"int" {
+    yylval.pos = A_Pos(line, col);
+    col+=3;
+    return INT;
+}
+%%
 %%
 
 // This function takes a string of digits and its length as input, and returns the integer value of the string.

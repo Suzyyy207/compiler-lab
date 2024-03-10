@@ -27,6 +27,8 @@ extern int  yywrap();
   A_boolUnit boolUnit;
   A_structDef structDef;
   A_varDeclStmt varDeclStmt;
+  A_varDecl varDecl;
+  A_varDef varDef;
   A_fnDeclStmt fnDeclStmt;
   A_fnDef fnDef;
   A_fnCall fnCall;
@@ -61,6 +63,9 @@ extern int  yywrap();
 %token <pos> NE
 %token <pos> ASS
 %token <pos> COMMA
+%token <pos> LET
+%token <pos> INT
+%token <pos> COLON
 %token <pos> SEMICOLON // ;
 
 %type <program> Program
@@ -72,6 +77,8 @@ extern int  yywrap();
 %type <exprUnit> ExprUnit
 %type <structDef> StructDef
 %type <varDeclStmt> VarDeclStmt
+%type <varDecl> VarDecl
+%type <varDef> VarDef
 %type <fnDeclStmt> FnDeclStmt
 %type <fnDef> FnDef
 %type <fnCall> FnCall
@@ -287,6 +294,36 @@ FnCall: ID LPAREN RightValList RPAREN
   $$ = A_FnCall($1->pos, $1->id, $3);
 }
 ;
+
+// variable
+VarDecl: ID COLON INT
+{
+  $$ = A_VarDecl_Scalar($1->pos, A_VarDeclScalar($1->pos, $1->id, A_NativeType($3->pos, A_intTypeKind)));
+}
+| ID COLON ID
+{
+  $$ = A_VarDecl_Scalar($1->pos, A_VarDeclScalar($1->pos, $1->id, A_StructType($3->pos,$3->id)));
+}
+| ID LBRACKET NUM RBRACKET COLON INT
+{
+  $$ = A_VarDecl_Array($1->pos, A_VarDeclArray($1->pos, $1->id, $3->num, A_NativeType($6->pos, A_intTypeKind)));
+}
+| ID LBRACKET NUM RBRACKET COLON ID
+{
+  $$ = A_VarDecl_Array($1->pos, A_VarDeclArray($1->pos, $1->id, $3->num,A_StructType($6->pos,$6->id)));
+}
+| ID
+{
+  //default 类型？
+  $$ = A_VarDecl_Scalar($1->pos, A_VarDeclScalar($1->pos, $1->id, A_NativeType(A_pos(nullptr, nullptr), A_intTypeKind)));
+}
+| ID LBRACKET NUM RBRACKET
+{
+  $$ = A_VarDecl_Array($1->pos, A_VarDeclArray($1->pos, $1->id, $3->num, A_NativeType(A_pos(nullptr, nullptr), A_intTypeKind)));
+}
+;
+
+
 %%
 
 extern "C"{
