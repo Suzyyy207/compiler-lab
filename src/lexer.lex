@@ -171,6 +171,36 @@ int calc(char *s, int len);
     col+=2;
     return FN;
 }
+<INITIAL>"ret" {
+    yylval.pos = A_Pos(line, col);
+    col+=3;
+    return RET;
+}
+<INITIAL>"break" {
+    yylval.pos = A_Pos(line, col);
+    col+=5;
+    return BREAK;
+}
+<INITIAL>"continue" {
+    yylval.pos = A_Pos(line, col);
+    col+=8;
+    return CONTINUE;
+}
+<INITIAL>"if" {
+    yylval.pos = A_Pos(line, col);
+    col+=2;
+    return IF;
+}
+<INITIAL>"else" {
+    yylval.pos = A_Pos(line, col);
+    col+=4;
+    return ELSE;
+}
+<INITIAL>"while" {
+    yylval.pos = A_Pos(line, col);
+    col+=5;
+    return WHILE;
+}
 %%
 %%
 

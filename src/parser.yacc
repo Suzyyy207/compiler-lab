@@ -32,6 +32,12 @@ extern int  yywrap();
   A_varDef varDef;
   A_fnDecl fnDecl;
   A_fnDeclStmt fnDeclStmt;
+  A_codeBlockStmt codeBlockStmt;
+  A_codeBlockStmtList codeBlockStmtList;
+  A_ifStmt ifStmt;
+  A_whileStmt whileStmt;
+  A_callStmt callStmt;
+  A_returnStmt returnStmt;
   A_fnDef fnDef;
   A_fnCall fnCall;
   A_leftVal leftVal;
@@ -49,6 +55,12 @@ extern int  yywrap();
 %token <pos> INT
 %token <pos> STRUCT
 %token <pos> FN
+%token <pos> RET
+%token <pos> IF
+%token <pos> ELSE
+%token <pos> WHILE
+%token <pos> BREAK
+%token <pos> CONTINUE
 
 %token <pos> ADD
 %token <pos> SUB
@@ -91,6 +103,12 @@ extern int  yywrap();
 %type <varDef> VarDef
 %type <fnDecl> FnDecl
 %type <fnDeclStmt> FnDeclStmt
+%type <codeBlockStmt> CodeBlockStmt
+%type <codeBlockStmtList> CodeBlockStmtList
+%type <ifStmt> IfStmt
+%type <whileStmt> WhileStmt
+%type <returnStmt> ReturnStmt
+%type <callStmt> CallStmt
 %type <fnDef> FnDef
 %type <fnCall> FnCall
 %type <leftVal> LeftVal
@@ -412,6 +430,18 @@ FnDeclStmt: FnDecl SEMICOLON
   $$ = A_FnDeclStmt($1->pos, $1);
 }  
 ;
+
+// if statement
+IfStmt: IF LPAREN BoolExpr RPAREN CodeBlockStmtList
+{
+  $$ =  A_IfStmt($1->pos, $3, $5, nullptr);
+}
+| IF LPAREN BoolExpr RPAREN CodeBlockStmtList ELSE CodeBlockStmtList
+{
+  $$ =  A_IfStmt($1->pos, $3, $5, $7);
+}
+;
+
 
 %%
 
