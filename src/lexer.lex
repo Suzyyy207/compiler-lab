@@ -156,6 +156,11 @@ int calc(char *s, int len);
     col+=3;
     return INT;
 }
+<INITIAL>"struct" {
+    yylval.pos = A_Pos(line, col);
+    col+=6;
+    return STRUCT;
+}
 %%
 %%
 

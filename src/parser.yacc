@@ -44,15 +44,14 @@ extern int  yywrap();
 %token <tokenNum> NUM
 %token <tokenId> ID
 
+%token <pos> LET
+%token <pos> INT
+%token <pos> STRUCT
+
 %token <pos> ADD
 %token <pos> SUB
 %token <pos> MUL
 %token <pos> DIV
-%token <pos> LPAREN
-%token <pos> RPAREN
-%token <pos> LBRACKET
-%token <pos> RBRACKET
-%token <pos> DOT
 %token <pos> AND
 %token <pos> OR
 %token <pos> NOT
@@ -63,11 +62,15 @@ extern int  yywrap();
 %token <pos> EQ
 %token <pos> NE
 %token <pos> ASS
+
+%token <pos> LPAREN
+%token <pos> RPAREN
+%token <pos> LBRACKET
+%token <pos> RBRACKET
+%token <pos> DOT
 %token <pos> COMMA
-%token <pos> LET
 %token <pos> LBRACE
 %token <pos> RBRACE
-%token <pos> INT
 %token <pos> COLON
 %token <pos> SEMICOLON // ;
 
@@ -375,6 +378,12 @@ VarDeclList: VarDecl
   $$ = varDeclList($1, $3);
 }
 ;
+
+//structure definition
+StructDef: STRUCT ID LBRACE VarDeclList RBRACE
+{
+  $$ = A_structDef($1->pos, $2->id, $4);
+}
 %%
 
 extern "C"{
