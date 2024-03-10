@@ -467,6 +467,57 @@ ReturnStmt: RET RightVal SEMICOLON
 }
 ;
 
+//code block statement
+CodeBlockStmt: VarDeclStmt
+{
+  $$ = A_BlockVarDeclStmt($1->pos, $1);
+}
+| AssignStmt
+{
+  $$ = A_BlockAssignStmt($1->pos, $1);
+}
+| CallStmt
+{
+  $$ = A_BlockCallStmt($1->pos, $1);
+}
+| IfStmt
+{
+  $$ = A_BlockIfStmt($1->pos, $1);
+}
+| WhileStmt
+{
+  $$ = A_BlockWhileStmt($1->pos, $1);
+}
+| ReturnStmt
+{
+  $$ = A_BlockReturnStmt($1->pos, $1);
+}
+| CONTINUE SEMICOLON
+{
+  $$ =A_BlockContinueStmt($1);
+}
+| BREAK SEMICOLON
+{
+  $$ = A_BlockBreakStmt($1);
+}
+| SEMICOLON
+{
+  $$ = A_BlockNullStmt($1);
+}
+;
+
+//code block statement list
+CodeBlockStmtList: CodeBlockStmt
+{
+  $$ = A_CodeBlockStmtList($1, nullptr);
+}
+| CodeBlockStmt CodeBlockStmtList
+{
+  $$ = A_CodeBlockStmtList($1, $2);
+}
+;
+
+
 
 %%
 
