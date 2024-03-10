@@ -350,6 +350,16 @@ VarDef: ID COLON INT ASS RightVal
   $$ = A_VarDef_Array($1->pos, A_VarDefArray($1->pos, $1->id, $3->num, A_NativeType(nullptr, nullptr), $7));
 }
 ;
+
+VarDeclStmt: LET VarDecl SEMICOLON
+{
+  $$ = A_VarDeclStmt($1->pos, $2);
+}
+| LET VarDef SEMICOLON
+{
+  $$ = A_VarDefStmt($1->pos, $2);
+}
+;
 %%
 
 extern "C"{
