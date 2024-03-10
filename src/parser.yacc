@@ -405,6 +405,14 @@ FnDecl: FN ID LPAREN VarDeclList RPAREN
   $$ = A_FnDecl($1->pos, $2->id, A_ParamDecl($4), A_StructType($7->pos,$7->id));
 }
 ;
+
+//function declare statement
+FnDeclStmt: FnDecl SEMICOLON
+{
+  $$ = A_FnDeclStmt($1->pos, $1);
+}  
+;
+
 %%
 
 extern "C"{
