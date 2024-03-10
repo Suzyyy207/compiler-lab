@@ -442,7 +442,13 @@ IfStmt: IF LPAREN BoolExpr RPAREN CodeBlockStmtList
 }
 ;
 
+// while statement
+WhileStmt: WHILE LPAREN BoolExpr RPAREN CodeBlockStmtList
+{
+  $$ =  A_WhileStmt($1->pos, $3, $5);
+}
 
+//
 %%
 
 extern "C"{
