@@ -194,7 +194,7 @@ ExprUnit: NUM
 | LPAREN ArithExpr RPAREN
 {
   //? $2->pos
-  $$ = A_ArithExprUnit($1->pos, $2);
+  $$ = A_ArithExprUnit($2->pos, $2);
 }
 | FnCall
 {
@@ -214,7 +214,7 @@ ExprUnit: NUM
 }
 | SUB ExprUnit
 {
-  $$ = A_ArithUExprUnit($1->pos, A_ArithUExpr($1->pos, A_neg, $2));
+  $$ = A_ArithUExprUnit($1, A_ArithUExpr($1, A_neg, $2));
 }
 ;
 
@@ -260,11 +260,11 @@ BoolUnit: ExprUnit GT ExprUnit
 }
 | LPAREN BoolExpr RPAREN
 {
-  $$ = A_BoolExprUnit($1->pos, $2);
+  $$ = A_BoolExprUnit($1, $2);
 }
 | NOT BoolUnit
 {
-  $$ = A_BoolUOpExprUnit($1->pos, A_BoolUOpExpr($1->pos, A_not, $3));
+  $$ = A_BoolUOpExprUnit($1, A_BoolUOpExpr($1, A_not, $3));
 }
 ;
 
@@ -327,7 +327,7 @@ FnCall: ID LPAREN RightValList RPAREN
 // variable
 VarDecl: ID COLON INT
 {
-  $$ = A_VarDecl_Scalar($1->pos, A_VarDeclScalar($1->pos, $1->id, A_NativeType($3->pos, A_intTypeKind)));
+  $$ = A_VarDecl_Scalar($1->pos, A_VarDeclScalar($1->pos, $1->id, A_NativeType($3, A_intTypeKind)));
 }
 | ID COLON ID
 {
@@ -335,7 +335,7 @@ VarDecl: ID COLON INT
 }
 | ID LBRACKET NUM RBRACKET COLON INT
 {
-  $$ = A_VarDecl_Array($1->pos, A_VarDeclArray($1->pos, $1->id, $3->num, A_NativeType($6->pos, A_intTypeKind)));
+  $$ = A_VarDecl_Array($1->pos, A_VarDeclArray($1->pos, $1->id, $3->num, A_NativeType($6, A_intTypeKind)));
 }
 | ID LBRACKET NUM RBRACKET COLON ID
 {
@@ -355,7 +355,7 @@ VarDecl: ID COLON INT
 //variable definition
 VarDef: ID COLON INT ASS RightVal
 {
-  $$ = A_VarDef_Scalar($1->pos, A_VarDefScalar($1->pos, $1->id, A_NativeType($3->pos, A_intTypeKind), $5));
+  $$ = A_VarDef_Scalar($1->pos, A_VarDefScalar($1->pos, $1->id, A_NativeType($3, A_intTypeKind), $5));
 }
 | ID COLON ID ASS RightVal
 {
@@ -367,7 +367,7 @@ VarDef: ID COLON INT ASS RightVal
 }
 | ID LBRACKET NUM RBRACKET COLON INT ASS LBRACE RightValList RBRACE
 {
-  $$ = A_VarDef_Array($1->pos, A_VarDefArray($1->pos, $1->id, $3->num, A_NativeType($6->pos, A_intTypeKind), $9));
+  $$ = A_VarDef_Array($1->pos, A_VarDefArray($1->pos, $1->id, $3->num, A_NativeType($6, A_intTypeKind), $9));
 }
 | ID LBRACKET NUM RBRACKET COLON ID ASS LBRACE RightValList RBRACE
 {
@@ -382,11 +382,11 @@ VarDef: ID COLON INT ASS RightVal
 //variable declare statement
 VarDeclStmt: LET VarDecl SEMICOLON
 {
-  $$ = A_VarDeclStmt($1->pos, $2);
+  $$ = A_VarDeclStmt($1, $2);
 }
 | LET VarDef SEMICOLON
 {
-  $$ = A_VarDefStmt($1->pos, $2);
+  $$ = A_VarDefStmt($1, $2);
 }
 ;
 
@@ -404,7 +404,7 @@ VarDeclList: VarDecl
 //structure definition
 StructDef: STRUCT ID LBRACE VarDeclList RBRACE
 {
-  $$ = A_structDef($1->pos, $2->id, $4);
+  $$ = A_structDef($1, $2->id, $4);
 }
 ;
 
@@ -412,15 +412,15 @@ StructDef: STRUCT ID LBRACE VarDeclList RBRACE
 FnDecl: FN ID LPAREN VarDeclList RPAREN
 {
   //? 无返回值
-  $$ = A_FnDecl($1->pos, $2->id, A_ParamDecl($4), nullptr);
+  $$ = A_FnDecl($1, $2->id, A_ParamDecl($4), nullptr);
 }
 | FN ID LPAREN VarDeclList RPAREN POINT INT
 {
-  $$ = A_FnDecl($1->pos, $2->id, A_ParamDecl($4), A_NativeType($7->pos, A_intTypeKind));
+  $$ = A_FnDecl($1, $2->id, A_ParamDecl($4), A_NativeType($7, A_intTypeKind));
 }
 | FN ID LPAREN VarDeclList RPAREN POINT ID
 {
-  $$ = A_FnDecl($1->pos, $2->id, A_ParamDecl($4), A_StructType($7->pos,$7->id));
+  $$ = A_FnDecl($1, $2->id, A_ParamDecl($4), A_StructType($7->pos,$7->id));
 }
 ;
 
@@ -434,18 +434,18 @@ FnDeclStmt: FnDecl SEMICOLON
 // if statement
 IfStmt: IF LPAREN BoolExpr RPAREN CodeBlockStmtList
 {
-  $$ = A_IfStmt($1->pos, $3, $5, nullptr);
+  $$ = A_IfStmt($1, $3, $5, nullptr);
 }
 | IF LPAREN BoolExpr RPAREN CodeBlockStmtList ELSE CodeBlockStmtList
 {
-  $$ = A_IfStmt($1->pos, $3, $5, $7);
+  $$ = A_IfStmt($1, $3, $5, $7);
 }
 ;
 
 // while statement
 WhileStmt: WHILE LPAREN BoolExpr RPAREN CodeBlockStmtList
 {
-  $$ = A_WhileStmt($1->pos, $3, $5);
+  $$ = A_WhileStmt($1, $3, $5);
 }
 ;
 
@@ -459,11 +459,11 @@ CallStmt: FnCall SEMICOLON
 // return statement
 ReturnStmt: RET RightVal SEMICOLON
 {
-  $$ = A_returnStmt($1->pos, $2);
+  $$ = A_returnStmt($1, $2);
 }
 | RET SEMICOLON
 {
-  $$ = A_returnStmt($1->pos, nullptr);
+  $$ = A_returnStmt($1, nullptr);
 }
 ;
 
