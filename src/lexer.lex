@@ -6,11 +6,68 @@
 extern int line, col;
 int c;
 int calc(char *s, int len);
+
 %}
 
+%start COMMENT1 COMMENT2
 
 %%
 <INITIAL>"\t" { col+=4; }
+<INITIAL>" " { col+=1; }
+<INITIAL>"\n" { 
+    col=1;
+    line+=1; 
+}
+<INITIAL>"let" {
+    yylval.pos = A_Pos(line, col);
+    col+=3;
+    return LET;
+}
+<INITIAL>"int" {
+    yylval.pos = A_Pos(line, col);
+    col+=3;
+    return INT;
+}
+<INITIAL>"struct" {
+    yylval.pos = A_Pos(line, col);
+    col+=6;
+    return STRUCT;
+}
+<INITIAL>"fn" {
+    yylval.pos = A_Pos(line, col);
+    col+=2;
+    return FN;
+}
+<INITIAL>"ret" {
+    yylval.pos = A_Pos(line, col);
+    col+=3;
+    return RET;
+}
+<INITIAL>"break" {
+    yylval.pos = A_Pos(line, col);
+    col+=5;
+    return BREAK;
+}
+<INITIAL>"continue" {
+    yylval.pos = A_Pos(line, col);
+    col+=8;
+    return CONTINUE;
+}
+<INITIAL>"if" {
+    yylval.pos = A_Pos(line, col);
+    col+=2;
+    return IF;
+}
+<INITIAL>"else" {
+    yylval.pos = A_Pos(line, col);
+    col+=4;
+    return ELSE;
+}
+<INITIAL>"while" {
+    yylval.pos = A_Pos(line, col);
+    col+=5;
+    return WHILE;
+}
 <INITIAL>[1-9][0-9]* {
     yylval.tokenNum = A_TokenNum(A_Pos(line, col), calc(yytext, yyleng));
     col+=yyleng;
@@ -151,55 +208,31 @@ int calc(char *s, int len);
     col+=2;
     return POINT;
 }
-<INITIAL>"let" {
-    yylval.pos = A_Pos(line, col);
-    col+=3;
-    return LET;
+<INITIAL>"//" {
+    BEGIN COMMENT1;
 }
-<INITIAL>"int" {
-    yylval.pos = A_Pos(line, col);
-    col+=3;
-    return INT;
-}
-<INITIAL>"struct" {
-    yylval.pos = A_Pos(line, col);
-    col+=6;
-    return STRUCT;
-}
-<INITIAL>"fn" {
-    yylval.pos = A_Pos(line, col);
+<INITIAL>"/*" {
     col+=2;
-    return FN;
+    BEGIN COMMENT2;
 }
-<INITIAL>"ret" {
-    yylval.pos = A_Pos(line, col);
-    col+=3;
-    return RET;
+<COMMENT1>"\n" {
+    line+=1;
+    col=1;
+    BEGIN INITIAL;
 }
-<INITIAL>"break" {
-    yylval.pos = A_Pos(line, col);
-    col+=5;
-    return BREAK;
-}
-<INITIAL>"continue" {
-    yylval.pos = A_Pos(line, col);
-    col+=8;
-    return CONTINUE;
-}
-<INITIAL>"if" {
-    yylval.pos = A_Pos(line, col);
+<COMMENT1>.|\n ; 
+<COMMENT2>"*/" {
     col+=2;
-    return IF;
+    BEGIN INITIAL;
 }
-<INITIAL>"else" {
-    yylval.pos = A_Pos(line, col);
-    col+=4;
-    return ELSE;
-}
-<INITIAL>"while" {
-    yylval.pos = A_Pos(line, col);
-    col+=5;
-    return WHILE;
+<COMMENT2>. {
+    if(yytext[0] == '\n'){
+        line++;
+        col=1;
+    }
+    else{
+        col++;
+    }
 }
 %%
 %%
