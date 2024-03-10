@@ -13,6 +13,8 @@ extern int  yywrap();
 
 %}
 
+
+
 // TODO:
 // your parser
 
@@ -115,6 +117,10 @@ extern int  yywrap();
 %type <rightVal> RightVal
 %type <rightValList> RightValList
 %type <assignStmt> AssignStmt
+
+%left ADD SUB
+%left MUL DIV
+%left SUB
 
 %start Program
 
