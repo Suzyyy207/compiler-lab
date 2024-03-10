@@ -25,6 +25,7 @@ extern int  yywrap();
   A_boolExpr boolExpr;
   A_exprUnit exprUnit;
   A_boolUnit boolUnit;
+  A_varDeclList varDeclList;
   A_structDef structDef;
   A_varDeclStmt varDeclStmt;
   A_varDecl varDecl;
@@ -77,6 +78,7 @@ extern int  yywrap();
 %type <programElementList> ProgramElementList
 %type <programElement> ProgramElement
 %type <exprUnit> ExprUnit
+%type <varDeclList> VarDeclList
 %type <structDef> StructDef
 %type <varDeclStmt> VarDeclStmt
 %type <varDecl> VarDecl
@@ -325,6 +327,7 @@ VarDecl: ID COLON INT
 }
 ;
 
+//variable definition
 VarDef: ID COLON INT ASS RightVal
 {
   $$ = A_VarDef_Scalar($1->pos, A_VarDefScalar($1->pos, $1->id, A_NativeType($3->pos, A_intTypeKind), $5));
@@ -351,6 +354,7 @@ VarDef: ID COLON INT ASS RightVal
 }
 ;
 
+//variable declare statement
 VarDeclStmt: LET VarDecl SEMICOLON
 {
   $$ = A_VarDeclStmt($1->pos, $2);
@@ -358,6 +362,17 @@ VarDeclStmt: LET VarDecl SEMICOLON
 | LET VarDef SEMICOLON
 {
   $$ = A_VarDefStmt($1->pos, $2);
+}
+;
+
+// variable declare list
+VarDeclList: VarDecl
+{
+  $$ = A_varDeclList($1, nullptr);
+}
+| VarDecl COMMA VarDeclList
+{
+  $$ = varDeclList($1, $3);
 }
 ;
 %%
