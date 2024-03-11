@@ -419,13 +419,25 @@ FnDecl: FN ID LPAREN VarDeclList RPAREN
   //? 无返回值
   $$ = A_FnDecl($1, $2->id, A_ParamDecl($4), nullptr);
 }
+| FN ID LPAREN RPAREN
+{
+  $$ = A_FnDecl($1, $2->id, nullptr, nullptr);
+}
 | FN ID LPAREN VarDeclList RPAREN POINT INT
 {
   $$ = A_FnDecl($1, $2->id, A_ParamDecl($4), A_NativeType($7, A_intTypeKind));
 }
+| FN ID LPAREN RPAREN POINT INT
+{
+  $$ = A_FnDecl($1, $2->id, nullptr, A_NativeType($6, A_intTypeKind));
+}
 | FN ID LPAREN VarDeclList RPAREN POINT ID
 {
   $$ = A_FnDecl($1, $2->id, A_ParamDecl($4), A_StructType($7->pos,$7->id));
+}
+| FN ID LPAREN RPAREN POINT ID
+{
+  $$ = A_FnDecl($1, $2->id, nullptr, A_NativeType($6, A_intTypeKind));
 }
 ;
 
