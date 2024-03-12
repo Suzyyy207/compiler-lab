@@ -281,17 +281,6 @@ AssignStmt: LeftVal ASS RightVal SEMICOLON
 }
 ;
 
-// right value
-RightVal: ArithExpr
-{
-  $$ = A_ArithExprRVal($1->pos, $1);
-}
-| BoolExpr
-{
-  $$ = A_BoolExprRVal($1->pos, $1);
-}
-;
-
 // left value
 LeftVal: ID
 {
@@ -322,10 +311,43 @@ RightValList: RightVal
 }
 ;
 
+// right value
+RightVal: ArithExpr
+{
+  $$ = A_ArithExprRVal($1->pos, $1);
+}
+| BoolExpr
+{
+  $$ = A_BoolExprRVal($1->pos, $1);
+}
+;
+
 // function call
 FnCall: ID LPAREN RightValList RPAREN
 {
   $$ = A_FnCall($1->pos, $1->id, $3);
+}
+;
+
+//variable declare statement
+VarDeclStmt: LET VarDecl SEMICOLON
+{
+  $$ = A_VarDeclStmt($1, $2);
+}
+| LET VarDef SEMICOLON
+{
+  $$ = A_VarDefStmt($1, $2);
+}
+;
+
+// variable declare list
+VarDeclList: VarDecl
+{
+  $$ = A_varDeclList($1, nullptr);
+}
+| VarDecl COMMA VarDeclList
+{
+  $$ = A_varDeclList($1, $3);  //？
 }
 ;
 
@@ -384,33 +406,19 @@ VarDef: ID COLON INT ASS RightVal
 }
 ;
 
-//variable declare statement
-VarDeclStmt: LET VarDecl SEMICOLON
-{
-  $$ = A_VarDeclStmt($1, $2);
-}
-| LET VarDef SEMICOLON
-{
-  $$ = A_VarDefStmt($1, $2);
-}
-;
-
-// variable declare list
-VarDeclList: VarDecl
-{
-  $$ = A_varDeclList($1, nullptr);
-}
-| VarDecl COMMA VarDeclList
-{
-  $$ = A_varDeclList($1, $3);  //？
-}
-;
 
 //structure definition
 StructDef: STRUCT ID LBRACE VarDeclList RBRACE
 {
   $$ = A_structDef($1, $2->id, $4);  //?
 }
+;
+
+//function declare statement
+FnDeclStmt: FnDecl SEMICOLON
+{
+  $$ = A_FnDeclStmt($1->pos, $1);
+}  
 ;
 
 //function declare
@@ -441,46 +449,21 @@ FnDecl: FN ID LPAREN VarDeclList RPAREN
 }
 ;
 
-//function declare statement
-FnDeclStmt: FnDecl SEMICOLON
+//function definition
+FnDef: FnDecl LBRACE CodeBlockStmtList RBRACE
 {
-  $$ = A_FnDeclStmt($1->pos, $1);
-}  
-;
-
-// if statement
-IfStmt: IF LPAREN BoolExpr RPAREN CodeBlockStmtList
-{
-  $$ = A_IfStmt($1, $3, $5, nullptr);
-}
-| IF LPAREN BoolExpr RPAREN CodeBlockStmtList ELSE CodeBlockStmtList
-{
-  $$ = A_IfStmt($1, $3, $5, $7);
+  $$ = A_FnDef($1->pos, $1, $3);
 }
 ;
 
-// while statement
-WhileStmt: WHILE LPAREN BoolExpr RPAREN CodeBlockStmtList
+//code block statement list
+CodeBlockStmtList: CodeBlockStmt
 {
-  $$ = A_WhileStmt($1, $3, $5);
+  $$ = A_CodeBlockStmtList($1, nullptr);
 }
-;
-
-// call statement
-CallStmt: FnCall SEMICOLON
+| CodeBlockStmt CodeBlockStmtList
 {
-  $$ = A_CallStmt($1->pos, $1);
-}
-;
-
-// return statement
-ReturnStmt: RET RightVal SEMICOLON
-{
-  $$ = A_returnStmt($1, $2);  //?
-}
-| RET SEMICOLON
-{
-  $$ = A_returnStmt($1, nullptr);
+  $$ = A_CodeBlockStmtList($1, $2);
 }
 ;
 
@@ -523,21 +506,39 @@ CodeBlockStmt: VarDeclStmt
 }
 ;
 
-//code block statement list
-CodeBlockStmtList: CodeBlockStmt
+// return statement
+ReturnStmt: RET RightVal SEMICOLON
 {
-  $$ = A_CodeBlockStmtList($1, nullptr);
+  $$ = A_returnStmt($1, $2);  //?
 }
-| CodeBlockStmt CodeBlockStmtList
+| RET SEMICOLON
 {
-  $$ = A_CodeBlockStmtList($1, $2);
+  $$ = A_returnStmt($1, nullptr);
 }
 ;
 
-//function definition
-FnDef: FnDecl LBRACE CodeBlockStmtList RBRACE
+// call statement
+CallStmt: FnCall SEMICOLON
 {
-  $$ = A_FnDef($1->pos, $1, $3);
+  $$ = A_CallStmt($1->pos, $1);
+}
+;
+
+// if statement
+IfStmt: IF LPAREN BoolExpr RPAREN CodeBlockStmtList
+{
+  $$ = A_IfStmt($1, $3, $5, nullptr);
+}
+| IF LPAREN BoolExpr RPAREN CodeBlockStmtList ELSE CodeBlockStmtList
+{
+  $$ = A_IfStmt($1, $3, $5, $7);
+}
+;
+
+// while statement
+WhileStmt: WHILE LPAREN BoolExpr RPAREN CodeBlockStmtList
+{
+  $$ = A_WhileStmt($1, $3, $5);
 }
 ;
 
