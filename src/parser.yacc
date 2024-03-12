@@ -301,13 +301,13 @@ LeftVal: ID
 ;
 
 //right value list
-RightValList: RightVal
-{
-  $$ = A_RightValList($1, nullptr);
-}
-| RightVal COMMA RightValList
+RightValList: RightVal COMMA RightValList
 {
   $$ = A_RightValList($1, $3);
+}
+| 
+{
+  $$ = nullptr;
 }
 ;
 
@@ -341,13 +341,13 @@ VarDeclStmt: LET VarDecl SEMICOLON
 ;
 
 // variable declare list
-VarDeclList: VarDecl
-{
-  $$ = A_varDeclList($1, nullptr);
-}
-| VarDecl COMMA VarDeclList
+VarDeclList: VarDecl COMMA VarDeclList
 {
   $$ = A_varDeclList($1, $3);  //？
+}
+| 
+{
+  $$ = nullptr;
 }
 ;
 
@@ -457,13 +457,13 @@ FnDef: FnDecl LBRACE CodeBlockStmtList RBRACE
 ;
 
 //code block statement list
-CodeBlockStmtList: CodeBlockStmt
-{
-  $$ = A_CodeBlockStmtList($1, nullptr);
-}
-| CodeBlockStmt CodeBlockStmtList
+CodeBlockStmtList: CodeBlockStmt CodeBlockStmtList
 {
   $$ = A_CodeBlockStmtList($1, $2);
+}
+|
+{
+  $$ = nullptr;
 }
 ;
 
