@@ -164,6 +164,13 @@ ProgramElement: VarDeclStmt
 }
 ;
 
+//structure definition
+StructDef: STRUCT ID LBRACE VarDeclList RBRACE
+{
+  $$ = A_structDef($1, $2->id, $4);
+}
+;
+
 //arith expression
 ArithExpr: ArithExpr ADD ArithExpr
 {
@@ -301,13 +308,13 @@ LeftVal: ID
 ;
 
 //right value list
-RightValList: RightVal COMMA RightValList
+RightValList: RightValList COMMA RightVal
 {
-  $$ = A_RightValList($1, $3);
+  $$ = A_RightValList($3, $1);
 }
-| 
+| RightVal
 {
-  $$ = nullptr;
+  $$ = A_RightValList($1, nullptr);
 }
 ;
 
@@ -341,11 +348,15 @@ VarDeclStmt: LET VarDecl SEMICOLON
 ;
 
 // variable declare list
-VarDeclList: VarDecl COMMA VarDeclList
+VarDeclList: VarDeclList COMMA VarDecl
 {
-  $$ = A_varDeclList($1, $3);  //？
+  $$ = A_varDeclList($3, $1);
 }
-| 
+| VarDecl
+{
+  $$ = A_varDeclList($1, nullptr);
+}
+|
 {
   $$ = nullptr;
 }
@@ -407,10 +418,10 @@ VarDef: ID COLON INT ASS RightVal
 ;
 
 
-//structure definition
-StructDef: STRUCT ID LBRACE VarDeclList RBRACE
+//function definition
+FnDef: FnDecl LBRACE CodeBlockStmtList RBRACE
 {
-  $$ = A_structDef($1, $2->id, $4);  //?
+  $$ = A_FnDef($1->pos, $1, $3);
 }
 ;
 
@@ -427,43 +438,26 @@ FnDecl: FN ID LPAREN VarDeclList RPAREN
   //? 无返回值
   $$ = A_FnDecl($1, $2->id, A_ParamDecl($4), nullptr);
 }
-| FN ID LPAREN RPAREN
-{
-  $$ = A_FnDecl($1, $2->id, nullptr, nullptr);
-}
 | FN ID LPAREN VarDeclList RPAREN POINT INT
 {
   $$ = A_FnDecl($1, $2->id, A_ParamDecl($4), A_NativeType($7, A_intTypeKind));
-}
-| FN ID LPAREN RPAREN POINT INT
-{
-  $$ = A_FnDecl($1, $2->id, nullptr, A_NativeType($6, A_intTypeKind));
 }
 | FN ID LPAREN VarDeclList RPAREN POINT ID
 {
   $$ = A_FnDecl($1, $2->id, A_ParamDecl($4), A_StructType($7->pos,$7->id));
 }
-| FN ID LPAREN RPAREN POINT ID
-{
-  $$ = A_FnDecl($1, $2->id, nullptr, A_NativeType($6, A_intTypeKind));
-}
 ;
 
-//function definition
-FnDef: FnDecl LBRACE CodeBlockStmtList RBRACE
-{
-  $$ = A_FnDef($1->pos, $1, $3);
-}
-;
+
 
 //code block statement list
-CodeBlockStmtList: CodeBlockStmt CodeBlockStmtList
+CodeBlockStmtList: CodeBlockStmtList CodeBlockStmt
 {
-  $$ = A_CodeBlockStmtList($1, $2);
+  $$ = A_CodeBlockStmtList($2, $1);
 }
-|
+|  CodeBlockStmt
 {
-  $$ = nullptr;
+  $$ = A_CodeBlockStmtList($1, nullptr);
 }
 ;
 
