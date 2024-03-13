@@ -118,6 +118,8 @@ extern int  yywrap();
 %type <rightValList> RightValList
 %type <assignStmt> AssignStmt
 
+%left OR
+%left AND
 %left ADD SUB
 %left MUL DIV
 
@@ -519,20 +521,20 @@ CallStmt: FnCall SEMICOLON
 ;
 
 // if statement
-IfStmt: IF LPAREN BoolExpr RPAREN CodeBlockStmtList
+IfStmt: IF LPAREN BoolExpr RPAREN LBRACE CodeBlockStmtList RBRACE
 {
-  $$ = A_IfStmt($1, $3, $5, nullptr);
+  $$ = A_IfStmt($1, $3, $6, nullptr);
 }
-| IF LPAREN BoolExpr RPAREN CodeBlockStmtList ELSE CodeBlockStmtList
+| IF LPAREN BoolExpr RPAREN LBRACE CodeBlockStmtList RBRACE LBRACE ELSE CodeBlockStmtList RBRACE
 {
-  $$ = A_IfStmt($1, $3, $5, $7);
+  $$ = A_IfStmt($1, $3, $6, $10);
 }
 ;
 
 // while statement
-WhileStmt: WHILE LPAREN BoolExpr RPAREN CodeBlockStmtList
+WhileStmt: WHILE LPAREN BoolExpr RPAREN LBRACE CodeBlockStmtList RBRACE
 {
-  $$ = A_WhileStmt($1, $3, $5);
+  $$ = A_WhileStmt($1, $3, $6);
 }
 ;
 
