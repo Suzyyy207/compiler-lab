@@ -547,14 +547,18 @@ CallStmt: FnCall SEMICOLON
 ;
 
 // if statement
-IfStmt: IF LPAREN BoolExpr RPAREN LBRACE CodeBlockStmtList RBRACE
-{
-  $$ = A_IfStmt($1, $3, $6, nullptr);
-}
-| IF LPAREN BoolExpr RPAREN LBRACE CodeBlockStmtList RBRACE LBRACE ELSE CodeBlockStmtList RBRACE
+IfStmt: IF LPAREN BoolExpr RPAREN LBRACE CodeBlockStmtList RBRACE ELSE LBRACE CodeBlockStmtList RBRACE
 {
   $$ = A_IfStmt($1, $3, $6, $10);
 }
+| IF LPAREN BoolExpr RPAREN LBRACE CodeBlockStmtList RBRACE
+{
+  $$ = A_IfStmt($1, $3, $6, nullptr);
+}
+//IF LPAREN BoolExpr RPAREN LBRACE CodeBlockStmtList RBRACE LBRACE ELSE CodeBlockStmtList RBRACE
+//{
+//  $$ = A_IfStmt($1, $3, $6, $10);
+//}
 ;
 
 // while statement
