@@ -101,7 +101,7 @@ int calc(char *s, int len);
 <INITIAL>"/" {
     yylval.pos = A_Pos(line, col);
     ++col;
-    return MUL;
+    return DIV;
 }
 <INITIAL>";" {
     yylval.pos = A_Pos(line, col);

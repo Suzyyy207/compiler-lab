@@ -145,17 +145,19 @@ typedef union YYSTYPE
   A_whileStmt whileStmt;
   A_callStmt callStmt;
   A_returnStmt returnStmt;
+  A_paramDecl paramDecl;
   A_fnDef fnDef;
   A_fnCall fnCall;
   A_leftVal leftVal;
   A_rightVal rightVal;
   A_rightValList rightValList;
   A_assignStmt assignStmt;
+  A_type type;
   A_tokenNum tokenNum;
   A_tokenId tokenId;
 }
 /* Line 1529 of yacc.c.  */
-#line 159 "y.tab.hpp"
+#line 161 "y.tab.hpp"
 	YYSTYPE;
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
 # define YYSTYPE_IS_DECLARED 1

@@ -40,12 +40,14 @@ extern int  yywrap();
   A_whileStmt whileStmt;
   A_callStmt callStmt;
   A_returnStmt returnStmt;
+  A_paramDecl paramDecl;
   A_fnDef fnDef;
   A_fnCall fnCall;
   A_leftVal leftVal;
   A_rightVal rightVal;
   A_rightValList rightValList;
   A_assignStmt assignStmt;
+  A_type type;
   A_tokenNum tokenNum;
   A_tokenId tokenId;
 }
@@ -111,36 +113,33 @@ extern int  yywrap();
 %type <whileStmt> WhileStmt
 %type <returnStmt> ReturnStmt
 %type <callStmt> CallStmt
+%type <paramDecl> ParamDecl
 %type <fnDef> FnDef
 %type <fnCall> FnCall
 %type <leftVal> LeftVal
 %type <rightVal> RightVal
 %type <rightValList> RightValList
 %type <assignStmt> AssignStmt
+%type <type> Type
 
 %left SEMICOLON
 %left COMMA
 %left WHILE
-%left IF
-%left ELSE
+%left IF ELSE
+%left LBRACE RBRACE
+%left LET
 %left ASS
-%left EQ
-%left NE
-%left GT
-%left LT
-%left GE
-%left LE
 %left OR
 %left AND
+%left EQ NE
+%left GT LT GE LE
 %left ADD SUB
 %left MUL DIV
 %left NOT
 %left DOT
 %left POINT
-%left LPAREN
-%left RPAREN
-%left LBRACKET
-%left RBRACKET
+%left LPAREN RPAREN
+%left LBRACKET RBRACKET
 
 %start Program
 
@@ -189,6 +188,16 @@ ProgramElement: VarDeclStmt
 StructDef: STRUCT ID LBRACE VarDeclList RBRACE
 {
   $$ = A_StructDef($1, $2->id, $4);
+}
+;
+
+Type: INT
+{
+  $$ = A_NativeType($1,A_intTypeKind);
+}
+| ID
+{
+  $$ = A_StructType($1->pos, $1->id);
 }
 ;
 
@@ -364,11 +373,11 @@ FnCall: ID LPAREN RightValList RPAREN
 //variable declare statement
 VarDeclStmt: LET VarDecl SEMICOLON
 {
-  $$ = A_VarDeclStmt($1, $2);
+  $$ = A_VarDeclStmt($2->pos, $2);
 }
 | LET VarDef SEMICOLON
 {
-  $$ = A_VarDefStmt($1, $2);
+  $$ = A_VarDefStmt($2->pos, $2);
 }
 ;
 
@@ -388,21 +397,13 @@ VarDeclList: VarDeclList COMMA VarDecl
 ;
 
 // variable
-VarDecl: ID COLON INT
+VarDecl: ID COLON Type
 {
-  $$ = A_VarDecl_Scalar($1->pos, A_VarDeclScalar($1->pos, $1->id, A_NativeType($3, A_intTypeKind)));
+  $$ = A_VarDecl_Scalar($1->pos, A_VarDeclScalar($1->pos, $1->id, $3));
 }
-| ID COLON ID
+| ID LBRACKET NUM RBRACKET COLON Type
 {
-  $$ = A_VarDecl_Scalar($1->pos, A_VarDeclScalar($1->pos, $1->id, A_StructType($3->pos,$3->id)));
-}
-| ID LBRACKET NUM RBRACKET COLON INT
-{
-  $$ = A_VarDecl_Array($1->pos, A_VarDeclArray($1->pos, $1->id, $3->num, A_NativeType($6, A_intTypeKind)));
-}
-| ID LBRACKET NUM RBRACKET COLON ID
-{
-  $$ = A_VarDecl_Array($1->pos, A_VarDeclArray($1->pos, $1->id, $3->num,A_StructType($6->pos,$6->id)));
+  $$ = A_VarDecl_Array($1->pos, A_VarDeclArray($1->pos, $1->id, $3->num, $6));
 }
 | ID
 {
@@ -457,18 +458,23 @@ FnDeclStmt: FnDecl SEMICOLON
 }  
 ;
 
+ParamDecl: VarDeclList
+{
+  $$ = A_ParamDecl($1);
+}
+
 //function declare
-FnDecl: FN ID LPAREN VarDeclList RPAREN
+FnDecl: FN ID LPAREN ParamDecl RPAREN
 {
-  $$ = A_FnDecl($1, $2->id, A_ParamDecl($4), nullptr);
+  $$ = A_FnDecl($1, $2->id, $4, nullptr);
 }
-| FN ID LPAREN VarDeclList RPAREN POINT INT
+| FN ID LPAREN ParamDecl RPAREN POINT INT
 {
-  $$ = A_FnDecl($1, $2->id, A_ParamDecl($4), A_NativeType($7, A_intTypeKind));
+  $$ = A_FnDecl($1, $2->id, $4, A_NativeType($7, A_intTypeKind));
 }
-| FN ID LPAREN VarDeclList RPAREN POINT ID
+| FN ID LPAREN ParamDecl RPAREN POINT ID
 {
-  $$ = A_FnDecl($1, $2->id, A_ParamDecl($4), A_StructType($7->pos,$7->id));
+  $$ = A_FnDecl($1, $2->id, $4, A_StructType($7->pos,$7->id));
 }
 ;
 
@@ -479,13 +485,10 @@ CodeBlockStmtList: CodeBlockStmtList CodeBlockStmt
 {
   $$ = A_CodeBlockStmtList($2, $1);
 }
+// 删除了空的
 | CodeBlockStmt
 {
   $$ = A_CodeBlockStmtList($1, nullptr);
-}
-| 
-{
-  $$ = nullptr;
 }
 ;
 
