@@ -337,6 +337,10 @@ RightValList: RightValList COMMA RightVal
 {
   $$ = A_RightValList($1, nullptr);
 }
+|
+{
+  $$ = nullptr;
+}
 ;
 
 // right value
@@ -456,7 +460,6 @@ FnDeclStmt: FnDecl SEMICOLON
 //function declare
 FnDecl: FN ID LPAREN VarDeclList RPAREN
 {
-  //? 无返回值
   $$ = A_FnDecl($1, $2->id, A_ParamDecl($4), nullptr);
 }
 | FN ID LPAREN VarDeclList RPAREN POINT INT
@@ -476,9 +479,13 @@ CodeBlockStmtList: CodeBlockStmtList CodeBlockStmt
 {
   $$ = A_CodeBlockStmtList($2, $1);
 }
-|  CodeBlockStmt
+| CodeBlockStmt
 {
   $$ = A_CodeBlockStmtList($1, nullptr);
+}
+| 
+{
+  $$ = nullptr;
 }
 ;
 
