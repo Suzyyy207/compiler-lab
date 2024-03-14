@@ -118,10 +118,29 @@ extern int  yywrap();
 %type <rightValList> RightValList
 %type <assignStmt> AssignStmt
 
+%left SEMICOLON
+%left COMMA
+%left WHILE
+%left IF
+%left ELSE
+%left ASS
+%left EQ
+%left NE
+%left GT
+%left LT
+%left GE
+%left LE
 %left OR
 %left AND
 %left ADD SUB
 %left MUL DIV
+%left NOT
+%left DOT
+%left POINT
+%left LPAREN
+%left RPAREN
+%left LBRACKET
+%left RBRACKET
 
 %start Program
 
@@ -169,7 +188,7 @@ ProgramElement: VarDeclStmt
 //structure definition
 StructDef: STRUCT ID LBRACE VarDeclList RBRACE
 {
-  $$ = A_structDef($1, $2->id, $4);
+  $$ = A_StructDef($1, $2->id, $4);
 }
 ;
 
@@ -352,11 +371,11 @@ VarDeclStmt: LET VarDecl SEMICOLON
 // variable declare list
 VarDeclList: VarDeclList COMMA VarDecl
 {
-  $$ = A_varDeclList($3, $1);
+  $$ = A_VarDeclList($3, $1);
 }
 | VarDecl
 {
-  $$ = A_varDeclList($1, nullptr);
+  $$ = A_VarDeclList($1, nullptr);
 }
 |
 {
@@ -505,11 +524,11 @@ CodeBlockStmt: VarDeclStmt
 // return statement
 ReturnStmt: RET RightVal SEMICOLON
 {
-  $$ = A_returnStmt($1, $2);  //?
+  $$ = A_ReturnStmt($1, $2);  //?
 }
 | RET SEMICOLON
 {
-  $$ = A_returnStmt($1, nullptr);
+  $$ = A_ReturnStmt($1, nullptr);
 }
 ;
 

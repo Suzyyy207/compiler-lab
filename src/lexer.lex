@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <string.h>
 #include "TeaplAst.h"
-#include "y.tab.h"
+#include "y.tab.hpp"
 extern int line, col;
 int c;
 int calc(char *s, int len);
@@ -234,7 +234,6 @@ int calc(char *s, int len);
         col++;
     }
 }
-%%
 %%
 
 // This function takes a string of digits and its length as input, and returns the integer value of the string.
