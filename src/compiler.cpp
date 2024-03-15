@@ -21,7 +21,7 @@ aA_program aroot;
 int main(int argc, char * argv[]) {
 
     #if YACCDEBUG
-        yydebug = 1;
+        yydebug = 0;
     #endif
 
     line = 1;

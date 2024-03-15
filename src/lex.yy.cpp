@@ -923,7 +923,7 @@ case 16:
 YY_RULE_SETUP
 #line 81 "lexer.lex"
 {
-    yylval.tokenId = A_TokenId(A_Pos(line, col), yytext);
+    yylval.tokenId = A_TokenId(A_Pos(line, col), strdup(yytext));
     col+=yyleng;
     return ID;
 }

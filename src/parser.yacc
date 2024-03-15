@@ -236,7 +236,7 @@ ExprUnit: NUM
 | LPAREN ArithExpr RPAREN
 {
   //? $2->pos
-  $$ = A_ArithExprUnit($2->pos, $2);
+  $$ = A_ArithExprUnit($1, $2);
 }
 | FnCall
 {
@@ -338,9 +338,9 @@ LeftVal: ID
 ;
 
 //right value list
-RightValList: RightValList COMMA RightVal
+RightValList: RightVal COMMA RightValList
 {
-  $$ = A_RightValList($3, $1);
+  $$ = A_RightValList($1, $3);
 }
 | RightVal
 {
@@ -417,25 +417,17 @@ VarDecl: ID COLON Type
 ;
 
 //variable definition
-VarDef: ID COLON INT ASS RightVal
+VarDef: ID COLON Type ASS RightVal
 {
-  $$ = A_VarDef_Scalar($1->pos, A_VarDefScalar($1->pos, $1->id, A_NativeType($3, A_intTypeKind), $5));
-}
-| ID COLON ID ASS RightVal
-{
-  $$ = A_VarDef_Scalar($1->pos, A_VarDefScalar($1->pos, $1->id, A_StructType($3->pos,$3->id), $5));
+  $$ = A_VarDef_Scalar($1->pos, A_VarDefScalar($1->pos, $1->id, $3, $5));
 }
 | ID ASS RightVal
 {
   $$ = A_VarDef_Scalar($1->pos, A_VarDefScalar($1->pos, $1->id, A_NativeType(nullptr, A_intTypeKind), $3));
 }
-| ID LBRACKET NUM RBRACKET COLON INT ASS LBRACE RightValList RBRACE
+| ID LBRACKET NUM RBRACKET COLON Type ASS LBRACE RightValList RBRACE
 {
-  $$ = A_VarDef_Array($1->pos, A_VarDefArray($1->pos, $1->id, $3->num, A_NativeType($6, A_intTypeKind), $9));
-}
-| ID LBRACKET NUM RBRACKET COLON ID ASS LBRACE RightValList RBRACE
-{
-  $$ = A_VarDef_Array($1->pos, A_VarDefArray($1->pos, $1->id, $3->num, A_StructType($6->pos,$6->id), $9));
+  $$ = A_VarDef_Array($1->pos, A_VarDefArray($1->pos, $1->id, $3->num, $6, $9));
 }
 | ID LBRACKET NUM RBRACKET ASS LBRACE RightValList RBRACE
 {
@@ -468,13 +460,9 @@ FnDecl: FN ID LPAREN ParamDecl RPAREN
 {
   $$ = A_FnDecl($1, $2->id, $4, nullptr);
 }
-| FN ID LPAREN ParamDecl RPAREN POINT INT
+| FN ID LPAREN ParamDecl RPAREN POINT Type
 {
-  $$ = A_FnDecl($1, $2->id, $4, A_NativeType($7, A_intTypeKind));
-}
-| FN ID LPAREN ParamDecl RPAREN POINT ID
-{
-  $$ = A_FnDecl($1, $2->id, $4, A_StructType($7->pos,$7->id));
+  $$ = A_FnDecl($1, $2->id, $4, $7);
 }
 ;
 

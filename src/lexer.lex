@@ -79,7 +79,7 @@ int calc(char *s, int len);
     return NUM;
 }
 <INITIAL>[a-z_A-Z][a-z_A-Z0-9]* {
-    yylval.tokenId = A_TokenId(A_Pos(line, col), yytext);
+    yylval.tokenId = A_TokenId(A_Pos(line, col), strdup(yytext));
     col+=yyleng;
     return ID;
 }
