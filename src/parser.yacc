@@ -128,14 +128,14 @@ extern int  yywrap();
 %left IF ELSE
 %left LBRACE RBRACE
 %left LET
-%left ASS
+%right ASS
 %left OR
 %left AND
 %left EQ NE
 %left GT LT GE LE
 %left ADD SUB
 %left MUL DIV
-%left NOT
+%right NOT
 %left DOT
 %left POINT
 %left LPAREN RPAREN
@@ -382,9 +382,9 @@ VarDeclStmt: LET VarDecl SEMICOLON
 ;
 
 // variable declare list
-VarDeclList: VarDeclList COMMA VarDecl
+VarDeclList: VarDecl COMMA VarDeclList
 {
-  $$ = A_VarDeclList($3, $1);
+  $$ = A_VarDeclList($1, $3);
 }
 | VarDecl
 {
@@ -481,14 +481,18 @@ FnDecl: FN ID LPAREN ParamDecl RPAREN
 
 
 //code block statement list
-CodeBlockStmtList: CodeBlockStmtList CodeBlockStmt
+CodeBlockStmtList: CodeBlockStmt CodeBlockStmtList
 {
-  $$ = A_CodeBlockStmtList($2, $1);
+  $$ = A_CodeBlockStmtList($1, $2);
 }
 // 删除了空的
 | CodeBlockStmt
 {
   $$ = A_CodeBlockStmtList($1, nullptr);
+}
+|
+{
+  $$ = nullptr;
 }
 ;
 
@@ -534,7 +538,7 @@ CodeBlockStmt: VarDeclStmt
 // return statement
 ReturnStmt: RET RightVal SEMICOLON
 {
-  $$ = A_ReturnStmt($1, $2);  //?
+  $$ = A_ReturnStmt($1, $2);
 }
 | RET SEMICOLON
 {

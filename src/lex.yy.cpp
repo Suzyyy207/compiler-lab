@@ -808,11 +808,12 @@ YY_RULE_SETUP
 #line 17 "lexer.lex"
 { 
     col=1;
+    line+=1; 
 }
 	YY_BREAK
 case 4:
 YY_RULE_SETUP
-#line 20 "lexer.lex"
+#line 21 "lexer.lex"
 {
     yylval.pos = A_Pos(line, col);
     col+=3;
@@ -821,7 +822,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 5:
 YY_RULE_SETUP
-#line 25 "lexer.lex"
+#line 26 "lexer.lex"
 {
     yylval.pos = A_Pos(line, col);
     col+=3;
@@ -830,7 +831,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 6:
 YY_RULE_SETUP
-#line 30 "lexer.lex"
+#line 31 "lexer.lex"
 {
     yylval.pos = A_Pos(line, col);
     col+=6;
@@ -839,7 +840,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 7:
 YY_RULE_SETUP
-#line 35 "lexer.lex"
+#line 36 "lexer.lex"
 {
     yylval.pos = A_Pos(line, col);
     col+=2;
@@ -848,7 +849,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 8:
 YY_RULE_SETUP
-#line 40 "lexer.lex"
+#line 41 "lexer.lex"
 {
     yylval.pos = A_Pos(line, col);
     col+=3;
@@ -857,7 +858,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 9:
 YY_RULE_SETUP
-#line 45 "lexer.lex"
+#line 46 "lexer.lex"
 {
     yylval.pos = A_Pos(line, col);
     col+=5;
@@ -866,7 +867,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 10:
 YY_RULE_SETUP
-#line 50 "lexer.lex"
+#line 51 "lexer.lex"
 {
     yylval.pos = A_Pos(line, col);
     col+=8;
@@ -875,7 +876,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 11:
 YY_RULE_SETUP
-#line 55 "lexer.lex"
+#line 56 "lexer.lex"
 {
     yylval.pos = A_Pos(line, col);
     col+=2;
@@ -884,7 +885,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 12:
 YY_RULE_SETUP
-#line 60 "lexer.lex"
+#line 61 "lexer.lex"
 {
     yylval.pos = A_Pos(line, col);
     col+=4;
@@ -893,7 +894,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 13:
 YY_RULE_SETUP
-#line 65 "lexer.lex"
+#line 66 "lexer.lex"
 {
     yylval.pos = A_Pos(line, col);
     col+=5;
@@ -902,7 +903,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 14:
 YY_RULE_SETUP
-#line 70 "lexer.lex"
+#line 71 "lexer.lex"
 {
     yylval.tokenNum = A_TokenNum(A_Pos(line, col), calc(yytext, yyleng));
     col+=yyleng;
@@ -911,7 +912,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 15:
 YY_RULE_SETUP
-#line 75 "lexer.lex"
+#line 76 "lexer.lex"
 {
     yylval.tokenNum = A_TokenNum(A_Pos(line, col), 0);
     ++col;
@@ -920,7 +921,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 16:
 YY_RULE_SETUP
-#line 80 "lexer.lex"
+#line 81 "lexer.lex"
 {
     yylval.tokenId = A_TokenId(A_Pos(line, col), yytext);
     col+=yyleng;
@@ -929,7 +930,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 17:
 YY_RULE_SETUP
-#line 85 "lexer.lex"
+#line 86 "lexer.lex"
 {
     yylval.pos = A_Pos(line, col);
     ++col;
@@ -938,7 +939,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 18:
 YY_RULE_SETUP
-#line 90 "lexer.lex"
+#line 91 "lexer.lex"
 {
     yylval.pos = A_Pos(line, col);
     ++col;
@@ -947,7 +948,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 19:
 YY_RULE_SETUP
-#line 95 "lexer.lex"
+#line 96 "lexer.lex"
 {
     yylval.pos = A_Pos(line, col);
     ++col;
@@ -956,7 +957,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 20:
 YY_RULE_SETUP
-#line 100 "lexer.lex"
+#line 101 "lexer.lex"
 {
     yylval.pos = A_Pos(line, col);
     ++col;
@@ -965,7 +966,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 21:
 YY_RULE_SETUP
-#line 105 "lexer.lex"
+#line 106 "lexer.lex"
 {
     yylval.pos = A_Pos(line, col);
     ++col;
@@ -974,7 +975,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 22:
 YY_RULE_SETUP
-#line 110 "lexer.lex"
+#line 111 "lexer.lex"
 {
     yylval.pos = A_Pos(line, col);
     ++col;
@@ -983,7 +984,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 23:
 YY_RULE_SETUP
-#line 115 "lexer.lex"
+#line 116 "lexer.lex"
 {
     yylval.pos = A_Pos(line, col);
     ++col;
@@ -992,7 +993,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 24:
 YY_RULE_SETUP
-#line 120 "lexer.lex"
+#line 121 "lexer.lex"
 {
     yylval.pos = A_Pos(line, col);
     ++col;
@@ -1001,7 +1002,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 25:
 YY_RULE_SETUP
-#line 125 "lexer.lex"
+#line 126 "lexer.lex"
 {
     yylval.pos = A_Pos(line, col);
     ++col;
@@ -1010,7 +1011,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 26:
 YY_RULE_SETUP
-#line 130 "lexer.lex"
+#line 131 "lexer.lex"
 {
     yylval.pos = A_Pos(line, col);
     ++col;
@@ -1019,7 +1020,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 27:
 YY_RULE_SETUP
-#line 135 "lexer.lex"
+#line 136 "lexer.lex"
 {
     yylval.pos = A_Pos(line, col);
     ++col;
@@ -1028,7 +1029,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 28:
 YY_RULE_SETUP
-#line 140 "lexer.lex"
+#line 141 "lexer.lex"
 {
     yylval.pos = A_Pos(line, col);
     col+=2;
@@ -1037,7 +1038,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 29:
 YY_RULE_SETUP
-#line 145 "lexer.lex"
+#line 146 "lexer.lex"
 {
     yylval.pos = A_Pos(line, col);
     col+=2;
@@ -1046,7 +1047,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 30:
 YY_RULE_SETUP
-#line 150 "lexer.lex"
+#line 151 "lexer.lex"
 {
     yylval.pos = A_Pos(line, col);
     ++col;
@@ -1055,7 +1056,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 31:
 YY_RULE_SETUP
-#line 155 "lexer.lex"
+#line 156 "lexer.lex"
 {
     yylval.pos = A_Pos(line, col);
     ++col;
@@ -1064,7 +1065,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 32:
 YY_RULE_SETUP
-#line 160 "lexer.lex"
+#line 161 "lexer.lex"
 {
     yylval.pos = A_Pos(line, col);
     ++col;
@@ -1073,7 +1074,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 33:
 YY_RULE_SETUP
-#line 165 "lexer.lex"
+#line 166 "lexer.lex"
 {
     yylval.pos = A_Pos(line, col);
     col+=2;
@@ -1082,7 +1083,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 34:
 YY_RULE_SETUP
-#line 170 "lexer.lex"
+#line 171 "lexer.lex"
 {
     yylval.pos = A_Pos(line, col);
     col+=2;
@@ -1091,7 +1092,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 35:
 YY_RULE_SETUP
-#line 175 "lexer.lex"
+#line 176 "lexer.lex"
 {
     yylval.pos = A_Pos(line, col);
     col+=2;
@@ -1100,7 +1101,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 36:
 YY_RULE_SETUP
-#line 180 "lexer.lex"
+#line 181 "lexer.lex"
 {
     yylval.pos = A_Pos(line, col);
     col+=2;
@@ -1109,7 +1110,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 37:
 YY_RULE_SETUP
-#line 185 "lexer.lex"
+#line 186 "lexer.lex"
 {
     yylval.pos = A_Pos(line, col);
     ++col;
@@ -1118,7 +1119,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 38:
 YY_RULE_SETUP
-#line 190 "lexer.lex"
+#line 191 "lexer.lex"
 {
     yylval.pos = A_Pos(line, col);
     ++col;
@@ -1127,7 +1128,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 39:
 YY_RULE_SETUP
-#line 195 "lexer.lex"
+#line 196 "lexer.lex"
 {
     yylval.pos = A_Pos(line, col);
     ++col;
@@ -1136,7 +1137,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 40:
 YY_RULE_SETUP
-#line 200 "lexer.lex"
+#line 201 "lexer.lex"
 {
     yylval.pos = A_Pos(line, col);
     ++col;
@@ -1145,7 +1146,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 41:
 YY_RULE_SETUP
-#line 205 "lexer.lex"
+#line 206 "lexer.lex"
 {
     yylval.pos = A_Pos(line, col);
     col+=2;
@@ -1154,14 +1155,14 @@ YY_RULE_SETUP
 	YY_BREAK
 case 42:
 YY_RULE_SETUP
-#line 210 "lexer.lex"
+#line 211 "lexer.lex"
 {
     BEGIN COMMENT1;
 }
 	YY_BREAK
 case 43:
 YY_RULE_SETUP
-#line 213 "lexer.lex"
+#line 214 "lexer.lex"
 {
     col+=2;
     BEGIN COMMENT2;
@@ -1170,7 +1171,7 @@ YY_RULE_SETUP
 case 44:
 /* rule 44 can match eol */
 YY_RULE_SETUP
-#line 217 "lexer.lex"
+#line 218 "lexer.lex"
 {
     line+=1;
     col=1;
@@ -1180,12 +1181,12 @@ YY_RULE_SETUP
 case 45:
 /* rule 45 can match eol */
 YY_RULE_SETUP
-#line 222 "lexer.lex"
+#line 223 "lexer.lex"
 ; 
 	YY_BREAK
 case 46:
 YY_RULE_SETUP
-#line 223 "lexer.lex"
+#line 224 "lexer.lex"
 {
     col+=2;
     BEGIN INITIAL;
@@ -1193,7 +1194,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 47:
 YY_RULE_SETUP
-#line 227 "lexer.lex"
+#line 228 "lexer.lex"
 {
     if(yytext[0] == '\n'){
         line++;
@@ -1206,10 +1207,10 @@ YY_RULE_SETUP
 	YY_BREAK
 case 48:
 YY_RULE_SETUP
-#line 236 "lexer.lex"
+#line 237 "lexer.lex"
 ECHO;
 	YY_BREAK
-#line 1212 "lex.yy.cpp"
+#line 1213 "lex.yy.cpp"
 case YY_STATE_EOF(INITIAL):
 case YY_STATE_EOF(COMMENT1):
 case YY_STATE_EOF(COMMENT2):
@@ -2216,7 +2217,7 @@ void yyfree (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 236 "lexer.lex"
+#line 237 "lexer.lex"
 
 
 // This function takes a string of digits and its length as input, and returns the integer value of the string.
