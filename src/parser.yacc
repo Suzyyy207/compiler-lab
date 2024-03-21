@@ -473,11 +473,6 @@ CodeBlockStmtList: CodeBlockStmt CodeBlockStmtList
 {
   $$ = A_CodeBlockStmtList($1, $2);
 }
-// 删除了空的
-| CodeBlockStmt
-{
-  $$ = A_CodeBlockStmtList($1, nullptr);
-}
 |
 {
   $$ = nullptr;
