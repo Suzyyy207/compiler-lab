@@ -14,6 +14,8 @@ vector<typeMap*> local_token2Type;
 paramMemberMap func2Param;
 paramMemberMap struct2Members;
 
+string space = "global";
+
 
 // private util functions
 void error_print(std::ostream& out, A_pos p, string info)
@@ -153,12 +155,52 @@ void check_VarDecl(std::ostream& out, aA_varDeclStmt vd)
     if (!vd)
         return;
     string name;
+    A_dataType type;
     if (vd->kind == A_varDeclStmtType::A_varDeclKind){
         // decl only
         aA_varDecl vdecl = vd->u.varDecl;
         if(vdecl->kind == A_varDeclType::A_varDeclScalarKind){
             name = *vdecl->u.declScalar->id;
-            /* fill code here*/
+            type = vdecl->u.declScalar->type->type;
+            if(type == A_dataType::A_structTypeKind){
+                if (struct2Members.find(name) == struct2Members.end()){
+                    error_print(out, vdecl->u.declScalar->type->pos, "Undefined Type");
+                    return;
+                }
+            }
+            if (local_token2Type.size() == 0){
+                if(g_token2Type.find(name) != g_token2Type.end() ){
+                    error_print(out, vdecl->u.declScalar->pos, "global variables duplicates with global params");
+                    return;
+                }
+                struct tc_type_ target_;
+                target_.isVarArrFunc = 0;
+                target_.type = vdecl->u.declScalar->type;
+                tc_type target = &(target_);
+                g_token2Type.insert({name,target});
+            }
+            else{
+                for (int i = local_token2Type.size()-1; i >= 0; i--){
+                    std::unordered_map<string, tc_type> map = *(local_token2Type[i]);
+                    if (map.find(name) != map.end()){
+                        error_print(out, vdecl->u.declScalar->pos, "local variables duplicates with local params");
+                        return;
+                    }
+                }
+                if(g_token2Type.find(name) != g_token2Type.end() ){
+                    error_print(out, vdecl->u.declScalar->pos, "local variables duplicates with global params");
+                    return;
+                }
+                struct tc_type_ target_;
+                target_.isVarArrFunc = 0;
+                target_.type = vdecl->u.declScalar->type;
+                tc_type target = &(target_);
+                std::unordered_map<string, tc_type> map = *(local_token2Type[local_token2Type.size()-1]);
+                map.insert({name,target});
+            }
+            
+            
+            
         }else if (vdecl->kind == A_varDeclType::A_varDeclArrayKind){
             name = *vdecl->u.declArray->id;
             /* fill code here*/
