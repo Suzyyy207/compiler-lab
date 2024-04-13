@@ -14,8 +14,6 @@ vector<typeMap*> local_token2Type;
 paramMemberMap func2Param;
 paramMemberMap struct2Members;
 
-string space = "global";
-
 
 // private util functions
 void error_print(std::ostream& out, A_pos p, string info)
@@ -172,14 +170,14 @@ void check_VarDecl(std::ostream& out, aA_varDeclStmt vd)
     if (!vd)
         return;
     string name;
-    A_dataType type;
+    aA_type type;
     if (vd->kind == A_varDeclStmtType::A_varDeclKind){
         // decl only
         aA_varDecl vdecl = vd->u.varDecl;
         if(vdecl->kind == A_varDeclType::A_varDeclScalarKind){
             name = *vdecl->u.declScalar->id;
-            type = vdecl->u.declScalar->type->type;
-            if(type == A_dataType::A_structTypeKind){
+            type = vdecl->u.declScalar->type;
+            if(!type && type->type == A_dataType::A_structTypeKind){
                 if (struct2Members.find(name) == struct2Members.end()){
                     error_print(out, vdecl->u.declScalar->type->pos, "Undefined Type");
                     return;
@@ -190,8 +188,8 @@ void check_VarDecl(std::ostream& out, aA_varDeclStmt vd)
                 if(check_global(name)){
                     error_print(out, vdecl->u.declScalar->pos, "global variables duplicates with global params");
                     return;
-                }
-                tc_type target = tc_Type(vdecl->u.declScalar->type,0);
+                }                
+                tc_type target = tc_Type(type,0);
                 g_token2Type.insert({name,target});
             }
             else{
@@ -203,25 +201,112 @@ void check_VarDecl(std::ostream& out, aA_varDeclStmt vd)
                     error_print(out, vdecl->u.declScalar->pos, "local variables duplicates with global params");
                     return;
                 }
-                tc_type target = tc_Type(vdecl->u.declScalar->type,0);
+                tc_type target = tc_Type(type,0);
                 std::unordered_map<string, tc_type> map = *(local_token2Type[local_token2Type.size()-1]);
                 map.insert({name,target});
             }
             
-        }else if (vdecl->kind == A_varDeclType::A_varDeclArrayKind){
+        }
+        else if (vdecl->kind == A_varDeclType::A_varDeclArrayKind){
             name = *vdecl->u.declArray->id;
-            /* fill code here*/
+            type = vdecl->u.declArray->type;
+            if(!type && type->type == A_dataType::A_structTypeKind){
+                if (struct2Members.find(name) == struct2Members.end()){
+                    error_print(out, vdecl->u.declArray->type->pos, "Undefined Type");
+                    return;
+                }
+            }            
+            // TODO: 这里可以考虑合并
+            if (local_token2Type.size() == 0){
+                if(check_global(name)){
+                    error_print(out, vdecl->u.declArray->pos, "global variables duplicates with global params");
+                    return;
+                }
+                tc_type target = tc_Type(type,0);
+                g_token2Type.insert({name,target});
             }
+            else{
+                if (check_local(name)){
+                    error_print(out, vdecl->u.declArray->pos, "local variables duplicates with local params");
+                    return;
+                }
+                if(check_global(name)){
+                    error_print(out, vdecl->u.declArray->pos, "local variables duplicates with global params");
+                    return;
+                }
+                tc_type target = tc_Type(type,0);
+                std::unordered_map<string, tc_type> map = *(local_token2Type[local_token2Type.size()-1]);
+                map.insert({name,target});
+            }
+        }
     }
     else if (vd->kind == A_varDeclStmtType::A_varDefKind){
         // decl and def
         aA_varDef vdef = vd->u.varDef;
         if (vdef->kind == A_varDefType::A_varDefScalarKind){
             name = *vdef->u.defScalar->id;
-            /* fill code here, allow omited type */
+            type = vdef->u.defScalar->type;
+            if(!type && type->type == A_dataType::A_structTypeKind){
+                if (struct2Members.find(name) == struct2Members.end()){
+                    error_print(out, vdef->u.defScalar->type->pos, "Undefined Type");
+                    return;
+                }
+            }        
+            if (check_local(name) || check_global(name)){
+                error_print(out, vdef->u.defScalar->type->pos, "duplicated variable");
+                return;
+            }
+            tc_type rightV_type;
+            // 原生类型只有int，所以不考虑布尔类型的变量
+            rightV_type = check_ArithExpr(out,vdef->u.defScalar->val->u.arithExpr);
+            if(type && ((rightV_type->isVarArrFunc != 0) || !(type, rightV_type->type))){
+                error_print(out, vdef->u.defScalar->val->pos, "wrong assignment in varDef");
+                return;
+            }
+            if (local_token2Type.size() == 0){
+                g_token2Type.insert({name, rightV_type});
+            }
+            else{
+                std::unordered_map<string, tc_type> map = *(local_token2Type[local_token2Type.size()-1]);
+                map.insert({name,rightV_type});
+            }
+            
+
         }else if (vdef->kind == A_varDefType::A_varDefArrayKind){
             name = *vdef->u.defArray->id;
-            /* fill code here, allow omited type */
+            type = vdef->u.defArray->type;
+            if(!type && type->type == A_dataType::A_structTypeKind){
+                if (struct2Members.find(name) == struct2Members.end()){
+                    error_print(out, vdef->u.defArray->type->pos, "Undefined Type");
+                    return;
+                }
+            }        
+            if (check_local(name) || check_global(name)){
+                error_print(out, vdef->u.defArray->type->pos, "duplicated variable");
+                return;
+            }
+            tc_type rightV_type;
+            // 原生类型只有int，所以不考虑布尔类型的变量
+            rightV_type = check_ArithExpr(out,(vdef->u.defArray->vals)[0]->u.arithExpr);
+            for (int i = 1; i < vdef->u.defArray->vals.size(); i++){
+                if(!comp_tc_type(rightV_type, check_ArithExpr(out,vdef->u.defArray->vals[i]->u.arithExpr))){
+                    error_print(out,vdef->u.defArray->pos, "wrong rightVal");
+                    return;
+                }
+            }
+            
+            if(type && ((rightV_type->isVarArrFunc != 1) || !(type, rightV_type->type))){
+                error_print(out, vdef->u.defScalar->val->pos, "wrong assignment in varDef");
+                return;
+            }
+            if (local_token2Type.size() == 0){
+                g_token2Type.insert({name, rightV_type});
+            }
+            else{
+                std::unordered_map<string, tc_type> map = *(local_token2Type[local_token2Type.size()-1]);
+                map.insert({name,rightV_type});
+            }
+            
         }
     }
     return;
