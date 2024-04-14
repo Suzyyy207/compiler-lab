@@ -12,6 +12,7 @@ vector<typeMap*> local_token2Type;
 
 //function defined or not
 flagMap fun_defined_record;
+vector<flagMap> variable_assigned; 
 
 
 paramMemberMap func2Param;
@@ -147,6 +148,27 @@ bool check_local(string name){
     return false;
 }
 
+tc_type find_name(string name){
+    for (int i = local_token2Type.size()-1; i >= 0; i--){
+        std::unordered_map<string, tc_type> map = *(local_token2Type[i]);
+        if (map.find(name) != map.end())
+            return map.find(name)->second;
+    }
+    return g_token2Type.find(name)->second;
+}
+
+void set_type(string name, tc_type target){
+    for (int i = local_token2Type.size()-1; i >= 0; i--){
+        std::unordered_map<string, tc_type> map = *(local_token2Type[i]);
+        if (map.find(name) != map.end()){
+           (*(local_token2Type[i]))[name] = target;
+            return;
+        }
+    }
+    g_token2Type[name] = target;
+    return;
+}
+
 void check_return(std::ostream& out, aA_codeBlockStmt stmt, tc_type target){
     switch (stmt->kind)
         {
@@ -180,6 +202,17 @@ void check_return(std::ostream& out, aA_codeBlockStmt stmt, tc_type target){
         }
     return;
 }
+
+bool check_used(std::ostream& out, string name){
+    for (int i = variable_assigned.size(); i >= 0; i++){
+        flagMap map = variable_assigned[i];
+        if (map.find(name) != map.end()){
+            return true;
+        }   
+    }
+    return false;
+}
+
 
 // public functions
 void check_Prog(std::ostream& out, aA_program p)
@@ -521,20 +554,41 @@ void check_AssignStmt(std::ostream& out, aA_assignStmt as){
         return;
     string name;
     tc_type deduced_type; // deduced type if type is omitted at decl
+    tc_type left_type;
+    tc_type right_type= check_ArithExpr(out, as->rightVal->u.arithExpr);
     switch (as->leftVal->kind)
     {
         case A_leftValType::A_varValKind:{
             name = *as->leftVal->u.id;
-            /* fill code here */
+            if (!check_local(name) && !check_global(name)){
+                error_print(out, as->leftVal->pos, "variable not declared");
+            }
+            left_type = find_name(name);
+            if (!left_type){
+                set_type(name, right_type);
+            }
+            else if(!comp_tc_type(left_type, right_type)){
+                error_print(out, as->rightVal->pos,"types not compatible");
+            }    
         }
             break;
         case A_leftValType::A_arrValKind:{
             name = *as->leftVal->u.arrExpr->arr->u.id;
-            /* fill code here */
+            check_ArrayExpr(out, as->leftVal->u.arrExpr);
+            left_type = find_name(name);
+            if (!left_type){
+                set_type(name, right_type);
+            }
+            else if(!comp_tc_type(left_type, right_type)){
+                error_print(out, as->rightVal->pos,"types not compatible");
+            }
         }
             break;
         case A_leftValType::A_memberValKind:{
-            /* fill code here */
+            left_type = check_MemberExpr(out, as->leftVal->u.memberExpr);
+            if(comp_tc_type(left_type, right_type)){
+                error_print(out, as->rightVal->pos,"types not compatible");
+            }
         }
             break;
     }
@@ -546,11 +600,21 @@ void check_ArrayExpr(std::ostream& out, aA_arrayExpr ae){
     if(!ae)
         return;
     string name = *ae->arr->u.id;
-    // check array name
-    /* fill code here */
-        
+    // check arr
+    if (!check_local(name) && !check_global(name)){
+        error_print(out, ae->arr->pos, "variable not declared");
+    }
+
     // check index
-    /* fill code here */
+    if (ae->idx->kind == A_indexExprKind::A_idIndexKind){
+        if(!check_used(out, *ae->idx->u.id)){
+            error_print(out, ae->idx->pos, "the index's variable is not assigned any value yet");
+        }
+        tc_type target = find_name(*ae->idx->u.id);
+        if (target->type->type != A_dataType::A_nativeTypeKind || target->isVarArrFunc != 0){
+            error_print(out, ae->idx->pos, "the index is not a num");
+        }
+    }
     return;
 }
 
@@ -561,11 +625,24 @@ tc_type check_MemberExpr(std::ostream& out, aA_memberExpr me){
         return nullptr;
     string name = *me->structId->u.id;
     // check struct name
-    /* fill code here */
-        
+    if (struct2Members.find(name) == struct2Members.end()){
+        error_print(out, me->pos, "struct not defined");
+    }
+    vector<aA_varDecl> params = *struct2Members.find(name)->second;
     // check member name
-    /* fill code here */
-        
+    for (int i = 0; i < params.size(); i++){
+        if (params[i]->kind == A_varDeclType::A_varDeclArrayKind){
+            if (*params[i]->u.declArray->id == *me->memberId){
+                return tc_Type(params[i]->u.declArray->type,1);
+            }
+        }
+        else if(params[i]->kind == A_varDeclType::A_varDeclScalarKind){
+            if (*params[i]->u.declScalar->id == *me->memberId){
+                return tc_Type(params[i]->u.declArray->type,0);
+            }
+        }
+    }
+    error_print(out, me->pos, "no such member");
     return nullptr;
 }
 
