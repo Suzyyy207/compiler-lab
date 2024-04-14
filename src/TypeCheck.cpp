@@ -10,6 +10,9 @@ typeMap g_token2Type;
 typeMap funcparam_token2Type;
 vector<typeMap*> local_token2Type;
 
+//function defined or not
+flagMap fun_defined_record;
+
 
 paramMemberMap func2Param;
 paramMemberMap struct2Members;
@@ -144,6 +147,39 @@ bool check_local(string name){
     return false;
 }
 
+void check_return(std::ostream& out, aA_codeBlockStmt stmt, tc_type target){
+    switch (stmt->kind)
+        {
+        case A_codeBlockStmtType::A_ifStmtKind:
+            for (int i = 0; i < stmt->u.ifStmt->ifStmts.size(); i++){
+                check_return(out, stmt->u.ifStmt->ifStmts[i], target);
+            }
+            for (int i = 0; i < stmt->u.ifStmt->elseStmts.size(); i++){
+                check_return(out, stmt->u.ifStmt->elseStmts[i], target);
+            }
+            break;
+        case A_codeBlockStmtType::A_whileStmtKind:
+            for (int i = 0; i < stmt->u.whileStmt->whileStmts.size(); i++){
+                check_return(out, stmt->u.whileStmt->whileStmts[i], target);
+            }
+            break;
+        case A_codeBlockStmtType::A_returnStmtKind:
+            if (!target && !check_ArithExpr(out, stmt->u.returnStmt->retVal->u.arithExpr)){
+                return;   //没有返回值的情况，且右值确实没有返回值
+            }
+            if (comp_tc_type(target, check_ArithExpr(out, stmt->u.returnStmt->retVal->u.arithExpr))){
+                return;
+            }
+            else{
+                error_print(out, stmt->pos, "return value type doesn't match");
+                return;
+            }
+            break;
+        default:
+            break;
+        }
+    return;
+}
 
 // public functions
 void check_Prog(std::ostream& out, aA_program p)
@@ -411,21 +447,39 @@ void check_FnDef(std::ostream& out, aA_fnDef fd)
 {
     if (!fd)
         return;
+    if (fun_defined_record.find(*fd->fnDecl->id)!=fun_defined_record.end()){
+        error_print(out, fd->pos, "function already defined");
+    }
+    
     // should match if declared
     check_FnDecl(out, fd->fnDecl);
-    // add params to local tokenmap, func params override global ones
-    for (aA_varDecl vd : fd->fnDecl->paramDecl->varDecls)
-    {
-        /* fill code here */
-    }
+    fun_defined_record[*fd->fnDecl->id] = true;
 
-    /* fill code here */
+    // add params to local tokenmap, func params override global ones
+    //函数定义是新的一块区域
+    typeMap new_location;
+    string param_name;
+    tc_type param_type;
+    for (aA_varDecl vd : fd->fnDecl->paramDecl->varDecls){
+        if (vd->kind == A_varDeclType::A_varDeclScalarKind){
+            param_name = *vd->u.declScalar->id;
+        }
+        else{
+            param_name = *vd->u.declArray->id;
+        }
+        param_type = tc_Type(vd);
+        new_location[param_name] = param_type;
+    }
+    local_token2Type.push_back(&(new_location));
+
+    tc_type ret_type = tc_Type(fd->fnDecl->type,0);
     for (aA_codeBlockStmt stmt : fd->stmts)
     {
         check_CodeblockStmt(out, stmt);
-        // return value type should match
-        /* fill code here */        
+        check_return(out, stmt, ret_type);
     }
+
+    local_token2Type.pop_back();
 
     return;
 }
