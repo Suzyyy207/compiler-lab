@@ -95,6 +95,21 @@ bool comp_tc_type(tc_type target, tc_type t){
     return comp_aA_type(target->type, t->type);
 }
 
+bool comp_aA_varDecl_type(aA_varDecl target, aA_varDecl t){
+    if(!target || !t)
+        return false;
+    
+    if (target->kind != t->kind){
+        return false;
+    }
+
+    if (target->kind == A_varDeclType::A_varDeclScalarKind){
+        return comp_aA_type(target->u.declScalar->type, t->u.declScalar->type);
+    }
+    else{
+        return comp_aA_type(target->u.declArray->type, t->u.declArray->type);
+    }
+}
 
 tc_type tc_Type(aA_type t, uint isVarArrFunc){
     tc_type ret = new tc_type_;
@@ -336,12 +351,43 @@ void check_FnDecl(std::ostream& out, aA_fnDecl fd)
     // if already declared, should match
     if (func2Param.find(name) != func2Param.end()){
         // is function ret val matches
-        /* fill code here */
+        tc_type retType = g_token2Type.find(name)->second;
+
+        if (!comp_aA_type(retType->type, fd->type)){
+            error_print(out, fd->pos, "function has been defined");
+        }
         // is function params matches decl
-        /* fill code here */
+        vector<aA_varDecl> params = *(func2Param.find(name)->second);
+        if (params.size() != fd->paramDecl->varDecls.size()){
+            error_print(out, fd->pos, "function has been defined");
+        }
+        
+        for (int i = 0; i < params.size(); i++){
+            if(!comp_aA_varDecl_type(params[i],fd->paramDecl->varDecls[i])){
+                error_print(out, fd->pos, "function has been defined");
+            }
+        }
+
     }else{
         // if not defined
-        /* fill code here */
+        for(int i=0; i<fd->paramDecl->varDecls.size();i++){
+            aA_type param_type;
+            if (fd->paramDecl->varDecls[i]->kind == A_varDeclType::A_varDeclArrayKind){
+                param_type = fd->paramDecl->varDecls[i]->u.declArray->type;
+            }
+            else{
+                param_type = fd->paramDecl->varDecls[i]->u.declScalar->type;
+            }
+            
+            if (param_type->type == A_dataType::A_structTypeKind){
+                if (struct2Members.find(name) == struct2Members.end()){
+                    error_print(out, fd->paramDecl->varDecls[i]->pos, "param struct not defined");
+                }
+            }   
+        }
+
+        func2Param[name]= &(fd->paramDecl->varDecls);
+        g_token2Type[name] = tc_Type(fd->type,2);
     }
     return;
 }
@@ -351,6 +397,11 @@ void check_FnDeclStmt(std::ostream& out, aA_fnDeclStmt fd)
 {
     if (!fd)
         return;
+    string name = *fd->fnDecl->id;
+    if (func2Param.find(name)!=func2Param.end()){
+        error_print(out, fd->fnDecl->pos,"function already declared or defined");
+    }
+    
     check_FnDecl(out, fd->fnDecl);
     return;
 }
