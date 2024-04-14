@@ -12,7 +12,7 @@ vector<typeMap*> local_token2Type;
 
 //function defined or not
 flagMap fun_defined_record;
-vector<flagMap> variable_assigned; 
+vector<flagMap*> variable_assigned;
 
 
 paramMemberMap func2Param;
@@ -205,7 +205,7 @@ void check_return(std::ostream& out, aA_codeBlockStmt stmt, tc_type target){
 
 bool check_used(std::ostream& out, string name){
     for (int i = variable_assigned.size(); i >= 0; i++){
-        flagMap map = variable_assigned[i];
+        flagMap map = *variable_assigned[i];
         if (map.find(name) != map.end()){
             return true;
         }   
@@ -217,6 +217,8 @@ bool check_used(std::ostream& out, string name){
 // public functions
 void check_Prog(std::ostream& out, aA_program p)
 {
+    flagMap* global = new flagMap;   
+    variable_assigned.push_back(global);
     for (auto ele : p->programElements)
     {
         if(ele->kind == A_programVarDeclStmtKind){
@@ -354,7 +356,7 @@ void check_VarDecl(std::ostream& out, aA_varDeclStmt vd)
                 std::unordered_map<string, tc_type> map = *(local_token2Type[local_token2Type.size()-1]);
                 map.insert({name,rightV_type});
             }
-            
+            (*variable_assigned[variable_assigned.size()-1])[name] = true;
 
         }else if (vdef->kind == A_varDefType::A_varDefArrayKind){
             name = *vdef->u.defArray->id;
@@ -392,7 +394,7 @@ void check_VarDecl(std::ostream& out, aA_varDeclStmt vd)
                 std::unordered_map<string, tc_type> map = *(local_token2Type[local_token2Type.size()-1]);
                 map.insert({name,rightV_type});
             }
-            
+            (*variable_assigned[variable_assigned.size()-1])[name] = true;
         }
     }
     return;
@@ -493,6 +495,8 @@ void check_FnDef(std::ostream& out, aA_fnDef fd)
     typeMap new_location;
     string param_name;
     tc_type param_type;
+    flagMap* map = new flagMap;
+    variable_assigned.push_back(map);
     for (aA_varDecl vd : fd->fnDecl->paramDecl->varDecls){
         if (vd->kind == A_varDeclType::A_varDeclScalarKind){
             param_name = *vd->u.declScalar->id;
@@ -502,6 +506,7 @@ void check_FnDef(std::ostream& out, aA_fnDef fd)
         }
         param_type = tc_Type(vd);
         new_location[param_name] = param_type;
+        (*map)[param_name] = true;  // 参数总认为已经被赋值，可以使用
     }
     local_token2Type.push_back(&(new_location));
 
@@ -569,7 +574,8 @@ void check_AssignStmt(std::ostream& out, aA_assignStmt as){
             }
             else if(!comp_tc_type(left_type, right_type)){
                 error_print(out, as->rightVal->pos,"types not compatible");
-            }    
+            }
+            (*variable_assigned[variable_assigned.size()-1])[*as->leftVal->u.id] = true;
         }
             break;
         case A_leftValType::A_arrValKind:{
@@ -582,6 +588,7 @@ void check_AssignStmt(std::ostream& out, aA_assignStmt as){
             else if(!comp_tc_type(left_type, right_type)){
                 error_print(out, as->rightVal->pos,"types not compatible");
             }
+            (*variable_assigned[variable_assigned.size()-1])[*as->leftVal->u.arrExpr->arr->u.id] = true;
         }
             break;
         case A_leftValType::A_memberValKind:{
@@ -589,9 +596,12 @@ void check_AssignStmt(std::ostream& out, aA_assignStmt as){
             if(comp_tc_type(left_type, right_type)){
                 error_print(out, as->rightVal->pos,"types not compatible");
             }
+            (*variable_assigned[variable_assigned.size()-1])[*as->leftVal->u.memberExpr->structId->u.id] = true;
         }
             break;
     }
+
+    
     return;
 }
 
