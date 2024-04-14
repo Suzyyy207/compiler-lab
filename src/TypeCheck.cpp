@@ -282,8 +282,11 @@ void check_VarDecl(std::ostream& out, aA_varDeclStmt vd)
                 }
             }        
             if (check_local(name) || check_global(name)){
-                error_print(out, vdef->u.defArray->type->pos, "duplicated variable");
+                error_print(out, vdef->u.defArray->pos, "duplicated variable");
                 return;
+            }
+            if (vdef->u.defArray->vals.size() != vdef->u.defArray->len){
+                error_print(out, vdef->u.defArray->pos, "the length is not compatible");
             }
             tc_type rightV_type;
             // 原生类型只有int，所以不考虑布尔类型的变量
@@ -294,7 +297,6 @@ void check_VarDecl(std::ostream& out, aA_varDeclStmt vd)
                     return;
                 }
             }
-            
             if(type && ((rightV_type->isVarArrFunc != 1) || !(type, rightV_type->type))){
                 error_print(out, vdef->u.defScalar->val->pos, "wrong assignment in varDef");
                 return;
