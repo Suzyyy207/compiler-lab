@@ -810,12 +810,36 @@ void check_FuncCall(std::ostream& out, aA_fnCall fc){
         return;
     // check if function defined
     string func_name = *fc->fn;
-    /* fill code here */
+    if (func2Param.find(func_name) != func2Param.end() || !fun_defined_record.find(func_name)->second){
+        error_print(out, fc->pos,"function not defined");
+    }
+    
         
     // check if parameter list matches
+    vector<aA_varDecl> fun_defined_param = *func2Param.find(func_name)->second;
     for(int i = 0; i < fc->vals.size(); i++){
-        /* fill code here */
+        tc_type param_type = check_ArithExpr(out, fc->vals[i]->u.arithExpr);
         
+        if (param_type->isVarArrFunc == 0){
+            if (fun_defined_param[i]->kind != A_varDeclType::A_varDeclScalarKind){
+                error_print(out,fc->vals[i]->pos,"this parameter type is not compatible");
+            }
+            if(!comp_aA_type(param_type->type, fun_defined_param[i]->u.declScalar->type)){
+                error_print(out,fc->vals[i]->pos,"this parameter type is not same as defined");
+            }  
+        }
+        else if (param_type->isVarArrFunc == 1){
+            if(fun_defined_param[i]->kind != A_varDeclType::A_varDeclArrayKind){
+                error_print(out,fc->vals[i]->pos,"this parameter type is not compatible");
+            }
+            if(!comp_aA_type(param_type->type, fun_defined_param[i]->u.declArray->type)){
+                error_print(out,fc->vals[i]->pos,"this parameter type is not same as defined");
+            } 
+            
+        }
+        else if(param_type->isVarArrFunc == 2){
+            error_print(out, fc->vals[i]->pos, "this parameter type is not compatible");
+        }
     }
     return ;
 }
