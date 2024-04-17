@@ -661,17 +661,28 @@ void check_IfStmt(std::ostream& out, aA_ifStmt is){
     if(!is)
         return;
     check_BoolExpr(out, is->boolExpr);
-    /* fill code here, take care of variable scope */
+    //if语句是新的一块区域
+    typeMap new_location_if;
+    flagMap* map = new flagMap;
+    variable_assigned.push_back(map);
+    local_token2Type.push_back(&(new_location_if));
 
     for(aA_codeBlockStmt s : is->ifStmts){
         check_CodeblockStmt(out, s);
     }
-    
-    /* fill code here */    
+    variable_assigned.pop_back();
+    local_token2Type.pop_back();    
+
+    typeMap new_location_else;
+    flagMap* map = new flagMap;
+    variable_assigned.push_back(map);
+    local_token2Type.push_back(&(new_location_else));
     for(aA_codeBlockStmt s : is->elseStmts){
         check_CodeblockStmt(out, s);
     }
-    /* fill code here */
+    variable_assigned.pop_back();
+    local_token2Type.pop_back(); 
+    
     return;
 }
 
