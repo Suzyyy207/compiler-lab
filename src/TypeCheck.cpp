@@ -682,7 +682,7 @@ void check_IfStmt(std::ostream& out, aA_ifStmt is){
     }
     variable_assigned.pop_back();
     local_token2Type.pop_back(); 
-    
+
     return;
 }
 
@@ -712,7 +712,15 @@ void check_BoolUnit(std::ostream& out, aA_boolUnit bu){
     switch (bu->kind)
     {
         case A_boolUnitType::A_comOpExprKind:{
-            /* fill code here */
+            tc_type left = check_ExprUnit(out, bu->u.comExpr->left);
+            tc_type right = check_ExprUnit(out, bu->u.comExpr->right);
+            // 交给check_ExprUnit检查是否赋值过
+            if (left->isVarArrFunc != 0 || left->type->type != A_dataType::A_nativeTypeKind){
+                error_print(out, bu->u.comExpr->left->pos, "left item is not int scalar");
+            }
+            else if(right->isVarArrFunc != 0 ||right->type->type != A_dataType::A_nativeTypeKind){
+                 error_print(out, bu->u.comExpr->left->pos, "right item is not int scalar");
+            }
         }
             break;
         case A_boolUnitType::A_boolExprKind:
