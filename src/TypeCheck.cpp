@@ -744,7 +744,7 @@ tc_type check_ExprUnit(std::ostream& out, aA_exprUnit eu){
     switch (eu->kind)
     {
         case A_exprUnitType::A_idExprKind:{
-            /* fill code here */
+            ret = find_name(*eu->u.id);
         }
             break;
         case A_exprUnitType::A_numExprKind:{
@@ -757,13 +757,13 @@ tc_type check_ExprUnit(std::ostream& out, aA_exprUnit eu){
             break;
         case A_exprUnitType::A_fnCallKind:{
             check_FuncCall(out, eu->u.callExpr);
-            // check_FuncCall will check if the function is defined
-            /* fill code here */
+            ret = find_name(*eu->u.callExpr->fn);
+            
         }
             break;
         case A_exprUnitType::A_arrayExprKind:{
             check_ArrayExpr(out, eu->u.arrayExpr);
-            /* fill code here */
+            ret = find_name(*eu->u.arrayExpr->arr->u.id);
         }
             break;
         case A_exprUnitType::A_memberExprKind:{
