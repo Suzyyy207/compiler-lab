@@ -148,13 +148,20 @@ bool check_local(string name){
     return false;
 }
 
-tc_type find_name(string name){
+tc_type find_name(std::ostream& out, string name, A_pos pos){
     for (int i = local_token2Type.size()-1; i >= 0; i--){
         std::unordered_map<string, tc_type> map = *(local_token2Type[i]);
         if (map.find(name) != map.end())
             return map.find(name)->second;
     }
-    return g_token2Type.find(name)->second;
+    if (g_token2Type.find(name) != g_token2Type.end()){
+        return g_token2Type.find(name)->second;
+    }
+    else{
+        error_print(out, pos, "this variable is not defined");
+    }
+    
+    
 }
 
 void set_type(string name, tc_type target){
@@ -565,10 +572,7 @@ void check_AssignStmt(std::ostream& out, aA_assignStmt as){
     {
         case A_leftValType::A_varValKind:{
             name = *as->leftVal->u.id;
-            if (!check_local(name) && !check_global(name)){
-                error_print(out, as->leftVal->pos, "variable not declared");
-            }
-            left_type = find_name(name);
+            left_type = find_name(out, name, as->leftVal->pos);
             if (!left_type){
                 set_type(name, right_type);
             }
@@ -581,7 +585,7 @@ void check_AssignStmt(std::ostream& out, aA_assignStmt as){
         case A_leftValType::A_arrValKind:{
             name = *as->leftVal->u.arrExpr->arr->u.id;
             check_ArrayExpr(out, as->leftVal->u.arrExpr);
-            left_type = find_name(name);
+            left_type = find_name(out, name, as->rightVal->pos);
             if (!left_type){
                 set_type(name, right_type);
             }
@@ -610,17 +614,14 @@ void check_ArrayExpr(std::ostream& out, aA_arrayExpr ae){
     if(!ae)
         return;
     string name = *ae->arr->u.id;
-    // check arr
-    if (!check_local(name) && !check_global(name)){
-        error_print(out, ae->arr->pos, "variable not declared");
-    }
+    tc_type target = find_name(out, *ae->idx->u.id, ae->idx->pos);
 
     // check index
     if (ae->idx->kind == A_indexExprKind::A_idIndexKind){
         if(!check_used(out, *ae->idx->u.id)){
             error_print(out, ae->idx->pos, "the index's variable is not assigned any value yet");
         }
-        tc_type target = find_name(*ae->idx->u.id);
+        
         if (target->type->type != A_dataType::A_nativeTypeKind || target->isVarArrFunc != 0){
             error_print(out, ae->idx->pos, "the index is not a num");
         }
@@ -744,7 +745,7 @@ tc_type check_ExprUnit(std::ostream& out, aA_exprUnit eu){
     switch (eu->kind)
     {
         case A_exprUnitType::A_idExprKind:{
-            ret = find_name(*eu->u.id);
+            ret = find_name(out,*eu->u.id,eu->pos);
         }
             break;
         case A_exprUnitType::A_numExprKind:{
@@ -757,13 +758,13 @@ tc_type check_ExprUnit(std::ostream& out, aA_exprUnit eu){
             break;
         case A_exprUnitType::A_fnCallKind:{
             check_FuncCall(out, eu->u.callExpr);
-            ret = find_name(*eu->u.callExpr->fn);
+            ret = find_name(out,*eu->u.callExpr->fn,eu->u.callExpr->pos);
             
         }
             break;
         case A_exprUnitType::A_arrayExprKind:{
             check_ArrayExpr(out, eu->u.arrayExpr);
-            ret = find_name(*eu->u.arrayExpr->arr->u.id);
+            ret = find_name(out, *eu->u.arrayExpr->arr->u.id, eu->u.arrayExpr->pos);
         }
             break;
         case A_exprUnitType::A_memberExprKind:{
