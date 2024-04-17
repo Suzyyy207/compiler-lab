@@ -825,12 +825,17 @@ void check_WhileStmt(std::ostream& out, aA_whileStmt ws){
     if(!ws)
         return;
     check_BoolExpr(out, ws->boolExpr);
-    /* fill code here, take care of variable scope */
+    //while语句是新的一块区域
+    typeMap new_location_if;
+    flagMap* map = new flagMap;
+    variable_assigned.push_back(map);
+    local_token2Type.push_back(&(new_location_if));
         
     for(aA_codeBlockStmt s : ws->whileStmts){
         check_CodeblockStmt(out, s);
     }
-    /* fill code here */
+    variable_assigned.pop_back();
+    local_token2Type.pop_back();
         
     return;
 }
