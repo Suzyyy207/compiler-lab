@@ -92,7 +92,7 @@ bool comp_tc_type(tc_type target, tc_type t){
         return false;
     
     // arr kind first
-    if (target->isVarArrFunc & t->isVarArrFunc == 0)
+    if (target->isVarArrFunc && t->isVarArrFunc == 0)
         return false;
     
     // if target type is nullptr, alwayse ok
@@ -160,7 +160,7 @@ tc_type find_name(std::ostream& out, string name, A_pos pos){
     else{
         error_print(out, pos, "this variable is not defined");
     }
-    
+    return nullptr;
     
 }
 
@@ -352,7 +352,7 @@ void check_VarDecl(std::ostream& out, aA_varDeclStmt vd)
             tc_type rightV_type;
             // 原生类型只有int，所以不考虑布尔类型的变量
             rightV_type = check_ArithExpr(out,vdef->u.defScalar->val->u.arithExpr);
-            if(type && ((rightV_type->isVarArrFunc != 0) || !(type, rightV_type->type))){
+            if(type && ((rightV_type->isVarArrFunc != 0) || !comp_aA_type(type, rightV_type->type))){
                 error_print(out, vdef->u.defScalar->val->pos, "wrong assignment in varDef");
                 return;
             }
@@ -664,8 +664,8 @@ void check_IfStmt(std::ostream& out, aA_ifStmt is){
     check_BoolExpr(out, is->boolExpr);
     //if语句是新的一块区域
     typeMap new_location_if;
-    flagMap* map = new flagMap;
-    variable_assigned.push_back(map);
+    flagMap* map_if = new flagMap;
+    variable_assigned.push_back(map_if);
     local_token2Type.push_back(&(new_location_if));
 
     for(aA_codeBlockStmt s : is->ifStmts){
@@ -675,8 +675,8 @@ void check_IfStmt(std::ostream& out, aA_ifStmt is){
     local_token2Type.pop_back();    
 
     typeMap new_location_else;
-    flagMap* map = new flagMap;
-    variable_assigned.push_back(map);
+    flagMap* map_else = new flagMap;
+    variable_assigned.push_back(map_else);
     local_token2Type.push_back(&(new_location_else));
     for(aA_codeBlockStmt s : is->elseStmts){
         check_CodeblockStmt(out, s);
