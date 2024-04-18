@@ -1957,14 +1957,14 @@ yyreduce:
 #line 409 "parser.yacc"
     {
   //default 类型？
-  (yyval.varDecl) = A_VarDecl_Scalar((yyvsp[(1) - (1)].tokenId)->pos, A_VarDeclScalar((yyvsp[(1) - (1)].tokenId)->pos, (yyvsp[(1) - (1)].tokenId)->id, A_NativeType(nullptr, A_intTypeKind)));
+  (yyval.varDecl) = A_VarDecl_Scalar((yyvsp[(1) - (1)].tokenId)->pos, A_VarDeclScalar((yyvsp[(1) - (1)].tokenId)->pos, (yyvsp[(1) - (1)].tokenId)->id, nullptr));
 }
     break;
 
   case 56:
 #line 414 "parser.yacc"
     {
-  (yyval.varDecl) = A_VarDecl_Array((yyvsp[(1) - (4)].tokenId)->pos, A_VarDeclArray((yyvsp[(1) - (4)].tokenId)->pos, (yyvsp[(1) - (4)].tokenId)->id, (yyvsp[(3) - (4)].tokenNum)->num, A_NativeType(nullptr, A_intTypeKind)));
+  (yyval.varDecl) = A_VarDecl_Array((yyvsp[(1) - (4)].tokenId)->pos, A_VarDeclArray((yyvsp[(1) - (4)].tokenId)->pos, (yyvsp[(1) - (4)].tokenId)->id, (yyvsp[(3) - (4)].tokenNum)->num, nullptr));
 }
     break;
 
@@ -1978,7 +1978,7 @@ yyreduce:
   case 58:
 #line 425 "parser.yacc"
     {
-  (yyval.varDef) = A_VarDef_Scalar((yyvsp[(1) - (3)].tokenId)->pos, A_VarDefScalar((yyvsp[(1) - (3)].tokenId)->pos, (yyvsp[(1) - (3)].tokenId)->id, A_NativeType(nullptr, A_intTypeKind), (yyvsp[(3) - (3)].rightVal)));
+  (yyval.varDef) = A_VarDef_Scalar((yyvsp[(1) - (3)].tokenId)->pos, A_VarDefScalar((yyvsp[(1) - (3)].tokenId)->pos, (yyvsp[(1) - (3)].tokenId)->id, nullptr, (yyvsp[(3) - (3)].rightVal)));
 }
     break;
 
@@ -1992,7 +1992,7 @@ yyreduce:
   case 60:
 #line 433 "parser.yacc"
     {
-  (yyval.varDef) = A_VarDef_Array((yyvsp[(1) - (8)].tokenId)->pos, A_VarDefArray((yyvsp[(1) - (8)].tokenId)->pos, (yyvsp[(1) - (8)].tokenId)->id, (yyvsp[(3) - (8)].tokenNum)->num, A_NativeType(nullptr, A_intTypeKind), (yyvsp[(7) - (8)].rightValList)));
+  (yyval.varDef) = A_VarDef_Array((yyvsp[(1) - (8)].tokenId)->pos, A_VarDefArray((yyvsp[(1) - (8)].tokenId)->pos, (yyvsp[(1) - (8)].tokenId)->id, (yyvsp[(3) - (8)].tokenNum)->num, nullptr, (yyvsp[(7) - (8)].rightValList)));
 }
     break;
 

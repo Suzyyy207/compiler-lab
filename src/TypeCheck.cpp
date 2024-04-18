@@ -150,6 +150,7 @@ bool check_local(string name){
 
 tc_type find_name(std::ostream& out, string name, A_pos pos){
     for (int i = local_token2Type.size()-1; i >= 0; i--){
+        
         std::unordered_map<string, tc_type> map = *(local_token2Type[i]);
         if (map.find(name) != map.end())
             return map.find(name)->second;
@@ -275,7 +276,7 @@ void check_VarDecl(std::ostream& out, aA_varDeclStmt vd)
                     error_print(out, vdecl->u.declScalar->type->pos, "Undefined Type");
                     return;
                 }
-            }            
+            }           
             // TODO: 这里可以考虑合并
             if (local_token2Type.size() == 0){
                 if(check_global(name)){
@@ -295,8 +296,7 @@ void check_VarDecl(std::ostream& out, aA_varDeclStmt vd)
                     return;
                 }
                 tc_type target = tc_Type(type,0);
-                std::unordered_map<string, tc_type> map = *(local_token2Type[local_token2Type.size()-1]);
-                map.insert({name,target});
+                (*local_token2Type[local_token2Type.size()-1])[name] = target;
             }
             
         }
@@ -328,8 +328,7 @@ void check_VarDecl(std::ostream& out, aA_varDeclStmt vd)
                     return;
                 }
                 tc_type target = tc_Type(type,0);
-                std::unordered_map<string, tc_type> map = *(local_token2Type[local_token2Type.size()-1]);
-                map.insert({name,target});
+                (*local_token2Type[local_token2Type.size()-1])[name] = target;
             }
         }
     }
@@ -360,8 +359,7 @@ void check_VarDecl(std::ostream& out, aA_varDeclStmt vd)
                 g_token2Type.insert({name, rightV_type});
             }
             else{
-                std::unordered_map<string, tc_type> map = *(local_token2Type[local_token2Type.size()-1]);
-                map.insert({name,rightV_type});
+                (*local_token2Type[local_token2Type.size()-1])[name] = rightV_type;
             }
             (*variable_assigned[variable_assigned.size()-1])[name] = true;
 
@@ -390,7 +388,7 @@ void check_VarDecl(std::ostream& out, aA_varDeclStmt vd)
                     return;
                 }
             }
-            if(type && ((rightV_type->isVarArrFunc != 1) || !(type, rightV_type->type))){
+            if(type && ((rightV_type->isVarArrFunc != 1) || !comp_aA_type(type, rightV_type->type))){
                 error_print(out, vdef->u.defScalar->val->pos, "wrong assignment in varDef");
                 return;
             }
@@ -398,8 +396,7 @@ void check_VarDecl(std::ostream& out, aA_varDeclStmt vd)
                 g_token2Type.insert({name, rightV_type});
             }
             else{
-                std::unordered_map<string, tc_type> map = *(local_token2Type[local_token2Type.size()-1]);
-                map.insert({name,rightV_type});
+                (*local_token2Type[local_token2Type.size()-1])[name] = rightV_type;
             }
             (*variable_assigned[variable_assigned.size()-1])[name] = true;
         }
@@ -516,8 +513,8 @@ void check_FnDef(std::ostream& out, aA_fnDef fd)
         (*map)[param_name] = true;  // 参数总认为已经被赋值，可以使用
     }
     local_token2Type.push_back(&(new_location));
-
     tc_type ret_type = tc_Type(fd->fnDecl->type,0);
+
     for (aA_codeBlockStmt stmt : fd->stmts)
     {
         check_CodeblockStmt(out, stmt);
@@ -631,15 +628,12 @@ void check_ArrayExpr(std::ostream& out, aA_arrayExpr ae){
 
  
 tc_type check_MemberExpr(std::ostream& out, aA_memberExpr me){
-    // check if the member exists and return the tyep of the member
+    // check if the member exists and return the type of the member
     if(!me)
         return nullptr;
-    string name = *me->structId->u.id;
-    // check struct name
-    if (struct2Members.find(name) == struct2Members.end()){
-        error_print(out, me->pos, "struct not defined");
-    }
-    vector<aA_varDecl> params = *struct2Members.find(name)->second;
+    string var_name = *me->structId->u.id;
+    tc_type var_type = find_name(out, var_name, me->pos);    
+    vector<aA_varDecl> params = *struct2Members.find(*var_type->type->u.structType)->second;
     // check member name
     for (int i = 0; i < params.size(); i++){
         if (params[i]->kind == A_varDeclType::A_varDeclArrayKind){
