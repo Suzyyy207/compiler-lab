@@ -513,6 +513,8 @@ void check_FnDef(std::ostream& out, aA_fnDef fd)
     }
     local_token2Type.push_back(&(new_location));
     tc_type ret_type = tc_Type(fd->fnDecl->type,0);
+    //TODO 检查ret如果是struct，struct是否存在
+    
 
     for (aA_codeBlockStmt stmt : fd->stmts)
     {
@@ -808,7 +810,7 @@ void check_FuncCall(std::ostream& out, aA_fnCall fc){
         return;
     // check if function defined
     string func_name = *fc->fn;
-    if (func2Param.find(func_name) != func2Param.end() || !fun_defined_record.find(func_name)->second){
+    if (func2Param.find(func_name) == func2Param.end() || !fun_defined_record.find(func_name)->second){
         error_print(out, fc->pos,"function not defined");
     }
     
