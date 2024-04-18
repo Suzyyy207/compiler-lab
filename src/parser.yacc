@@ -408,11 +408,11 @@ VarDecl: ID COLON Type
 | ID
 {
   //default 类型？
-  $$ = A_VarDecl_Scalar($1->pos, A_VarDeclScalar($1->pos, $1->id, A_NativeType(nullptr, A_intTypeKind)));
+  $$ = A_VarDecl_Scalar($1->pos, A_VarDeclScalar($1->pos, $1->id, nullptr));
 }
 | ID LBRACKET NUM RBRACKET
 {
-  $$ = A_VarDecl_Array($1->pos, A_VarDeclArray($1->pos, $1->id, $3->num, A_NativeType(nullptr, A_intTypeKind)));
+  $$ = A_VarDecl_Array($1->pos, A_VarDeclArray($1->pos, $1->id, $3->num, nullptr));
 }
 ;
 
@@ -423,7 +423,7 @@ VarDef: ID COLON Type ASS RightVal
 }
 | ID ASS RightVal
 {
-  $$ = A_VarDef_Scalar($1->pos, A_VarDefScalar($1->pos, $1->id, A_NativeType(nullptr, A_intTypeKind), $3));
+  $$ = A_VarDef_Scalar($1->pos, A_VarDefScalar($1->pos, $1->id, nullptr, $3));
 }
 | ID LBRACKET NUM RBRACKET COLON Type ASS LBRACE RightValList RBRACE
 {
@@ -431,7 +431,7 @@ VarDef: ID COLON Type ASS RightVal
 }
 | ID LBRACKET NUM RBRACKET ASS LBRACE RightValList RBRACE
 {
-  $$ = A_VarDef_Array($1->pos, A_VarDefArray($1->pos, $1->id, $3->num, A_NativeType(nullptr, A_intTypeKind), $7));
+  $$ = A_VarDef_Array($1->pos, A_VarDefArray($1->pos, $1->id, $3->num, nullptr, $7));
 }
 ;
 
