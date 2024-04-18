@@ -150,14 +150,13 @@ bool check_local(string name){
 
 tc_type find_name(std::ostream& out, string name, A_pos pos){
     for (int i = local_token2Type.size()-1; i >= 0; i--){
-        
         std::unordered_map<string, tc_type> map = *(local_token2Type[i]);
         if (map.find(name) != map.end())
             return map.find(name)->second;
     }
     if (g_token2Type.find(name) != g_token2Type.end()){
         return g_token2Type.find(name)->second;
-    }
+    }    
     else{
         error_print(out, pos, "this variable is not defined");
     }
@@ -570,6 +569,10 @@ void check_AssignStmt(std::ostream& out, aA_assignStmt as){
         case A_leftValType::A_varValKind:{
             name = *as->leftVal->u.id;
             left_type = find_name(out, name, as->leftVal->pos);
+            if (left_type->isVarArrFunc == 2){
+                error_print(out, as->leftVal->pos,"function can not be assigned");
+            }
+            
             if (!left_type){
                 set_type(name, right_type);
             }
