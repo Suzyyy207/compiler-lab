@@ -428,17 +428,17 @@ void check_FnDecl(std::ostream& out, aA_fnDecl fd)
         tc_type retType = g_token2Type.find(name)->second;
 
         if (!comp_aA_type(retType->type, fd->type)){
-            error_print(out, fd->pos, "function has been defined");
+            error_print(out, fd->pos, "the function with the same name has been declared");
         }
         // is function params matches decl
         vector<aA_varDecl> params = *(func2Param.find(name)->second);
         if (params.size() != fd->paramDecl->varDecls.size()){
-            error_print(out, fd->pos, "function has been defined");
+            error_print(out, fd->pos, "the function with the same name has been declared");
         }
         
         for (int i = 0; i < params.size(); i++){
             if(!comp_aA_varDecl_type(params[i],fd->paramDecl->varDecls[i])){
-                error_print(out, fd->pos, "function has been defined");
+                error_print(out, fd->pos, "the function with the same name has been declared");
             }
         }
 
