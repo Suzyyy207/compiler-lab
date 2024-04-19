@@ -599,7 +599,7 @@ void check_AssignStmt(std::ostream& out, aA_assignStmt as){
             break;
         case A_leftValType::A_memberValKind:{
             left_type = check_MemberExpr(out, as->leftVal->u.memberExpr);
-            if(comp_tc_type(left_type, right_type)){
+            if(!comp_tc_type(left_type, right_type)){
                 error_print(out, as->rightVal->pos,"types not compatible");
             }
             (*variable_assigned[variable_assigned.size()-1])[*as->leftVal->u.memberExpr->structId->u.id] = true;
@@ -635,7 +635,7 @@ void check_ArrayExpr(std::ostream& out, aA_arrayExpr ae){
 tc_type check_MemberExpr(std::ostream& out, aA_memberExpr me){
     // check if the member exists and return the type of the member
     if(!me)
-        return nullptr;   
+        return nullptr;
     string var_name = *me->structId->u.id;
     tc_type var_type = find_name(out, var_name, me->pos);
     if (var_type->isVarArrFunc != 0 || var_type->type->type != A_dataType::A_structTypeKind){
@@ -652,7 +652,7 @@ tc_type check_MemberExpr(std::ostream& out, aA_memberExpr me){
         }
         else if(params[i]->kind == A_varDeclType::A_varDeclScalarKind){
             if (*params[i]->u.declScalar->id == *me->memberId){
-                return tc_Type(params[i]->u.declArray->type,0);
+                return tc_Type(params[i]->u.declScalar->type,0);
             }
         }
     }
