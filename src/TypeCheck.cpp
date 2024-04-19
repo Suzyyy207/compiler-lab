@@ -635,9 +635,13 @@ void check_ArrayExpr(std::ostream& out, aA_arrayExpr ae){
 tc_type check_MemberExpr(std::ostream& out, aA_memberExpr me){
     // check if the member exists and return the type of the member
     if(!me)
-        return nullptr;
+        return nullptr;   
     string var_name = *me->structId->u.id;
-    tc_type var_type = find_name(out, var_name, me->pos);    
+    tc_type var_type = find_name(out, var_name, me->pos);
+    if (var_type->isVarArrFunc != 0 || var_type->type->type != A_dataType::A_structTypeKind){
+        error_print(out, me->structId->pos,"this variable is not a struct type");
+    }
+    
     vector<aA_varDecl> params = *struct2Members.find(*var_type->type->u.structType)->second;
     // check member name
     for (int i = 0; i < params.size(); i++){
