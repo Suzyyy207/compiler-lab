@@ -12,7 +12,6 @@ vector<typeMap*> local_token2Type;
 
 //function defined or not
 flagMap fun_defined_record;
-vector<flagMap*> variable_assigned;
 
 
 paramMemberMap func2Param;
@@ -210,22 +209,10 @@ void check_return(std::ostream& out, aA_codeBlockStmt stmt, tc_type target){
     return;
 }
 
-bool check_used(std::ostream& out, string name){    
-    for (int i = variable_assigned.size()-1; i >= 0; i--){
-        flagMap map = *variable_assigned[i];
-        if (map.find(name) != map.end()){
-            return true;
-        }   
-    }
-    return false;
-}
-
 
 // public functions
 void check_Prog(std::ostream& out, aA_program p)
 {
-    flagMap* global = new flagMap;   
-    variable_assigned.push_back(global);
     for (auto ele : p->programElements)
     {
         if(ele->kind == A_programVarDeclStmtKind){
@@ -253,7 +240,6 @@ void check_Prog(std::ostream& out, aA_program p)
         }
     }
 
-    delete global;
     out << "Typecheck passed!" << std::endl;
     return;
 }
@@ -361,7 +347,6 @@ void check_VarDecl(std::ostream& out, aA_varDeclStmt vd)
             else{
                 (*local_token2Type[local_token2Type.size()-1])[name] = rightV_type;
             }
-            (*variable_assigned[variable_assigned.size()-1])[name] = true;
 
         }else if (vdef->kind == A_varDefType::A_varDefArrayKind){
             name = *vdef->u.defArray->id;
@@ -398,7 +383,6 @@ void check_VarDecl(std::ostream& out, aA_varDeclStmt vd)
             else{
                 (*local_token2Type[local_token2Type.size()-1])[name] = rightV_type;
             }
-            (*variable_assigned[variable_assigned.size()-1])[name] = true;
         }
     }
     return;
@@ -499,8 +483,6 @@ void check_FnDef(std::ostream& out, aA_fnDef fd)
     typeMap new_location;
     string param_name;
     tc_type param_type;
-    flagMap* map = new flagMap;
-    variable_assigned.push_back(map);
     for (aA_varDecl vd : fd->fnDecl->paramDecl->varDecls){
         if (vd->kind == A_varDeclType::A_varDeclScalarKind){
             param_name = *vd->u.declScalar->id;
@@ -510,7 +492,6 @@ void check_FnDef(std::ostream& out, aA_fnDef fd)
         }
         param_type = tc_Type(vd);
         new_location[param_name] = param_type;
-        (*map)[param_name] = true;  // 参数总认为已经被赋值，可以使用
     }
     local_token2Type.push_back(&(new_location));
 
@@ -525,8 +506,6 @@ void check_FnDef(std::ostream& out, aA_fnDef fd)
         check_return(out, stmt, ret_type);
     }
 
-    variable_assigned.pop_back();
-    delete map;
     local_token2Type.pop_back();
 
     return;
@@ -586,7 +565,6 @@ void check_AssignStmt(std::ostream& out, aA_assignStmt as){
             else if(!comp_tc_type(left_type, right_type)){
                 error_print(out, as->rightVal->pos,"types not compatible");
             }
-            (*variable_assigned[variable_assigned.size()-1])[*as->leftVal->u.id] = true;
         }
             break;
         case A_leftValType::A_arrValKind:{
@@ -599,7 +577,6 @@ void check_AssignStmt(std::ostream& out, aA_assignStmt as){
             else if(!comp_tc_type(left_type, right_type)){
                 error_print(out, as->rightVal->pos,"types not compatible");
             }
-            (*variable_assigned[variable_assigned.size()-1])[*as->leftVal->u.arrExpr->arr->u.id] = true;
         }
             break;
         case A_leftValType::A_memberValKind:{
@@ -607,7 +584,6 @@ void check_AssignStmt(std::ostream& out, aA_assignStmt as){
             if(!comp_tc_type(left_type, right_type)){
                 error_print(out, as->rightVal->pos,"types not compatible");
             }
-            (*variable_assigned[variable_assigned.size()-1])[*as->leftVal->u.memberExpr->structId->u.id] = true;
         }
             break;
     }
@@ -624,11 +600,7 @@ void check_ArrayExpr(std::ostream& out, aA_arrayExpr ae){
     tc_type target = find_name(out, *ae->idx->u.id, ae->idx->pos);
 
     // check index
-    if (ae->idx->kind == A_indexExprKind::A_idIndexKind){
-        if(!check_used(out, *ae->idx->u.id)){
-            error_print(out, ae->idx->pos, "the index's variable is not assigned any value yet");
-        }
-        
+    if (ae->idx->kind == A_indexExprKind::A_idIndexKind){        
         if (target->type->type != A_dataType::A_nativeTypeKind || target->isVarArrFunc != 0){
             error_print(out, ae->idx->pos, "the index is not a num");
         }
@@ -672,26 +644,18 @@ void check_IfStmt(std::ostream& out, aA_ifStmt is){
     check_BoolExpr(out, is->boolExpr);
     //if语句是新的一块区域
     typeMap new_location_if;
-    flagMap* map_if = new flagMap;
-    variable_assigned.push_back(map_if);
     local_token2Type.push_back(&(new_location_if));
 
     for(aA_codeBlockStmt s : is->ifStmts){
         check_CodeblockStmt(out, s);
     }
-    variable_assigned.pop_back();
-    delete map_if;
     local_token2Type.pop_back();    
 
     typeMap new_location_else;
-    flagMap* map_else = new flagMap;
-    variable_assigned.push_back(map_else);
     local_token2Type.push_back(&(new_location_else));
     for(aA_codeBlockStmt s : is->elseStmts){
         check_CodeblockStmt(out, s);
     }
-    variable_assigned.pop_back();
-    delete map_else;
     local_token2Type.pop_back(); 
 
     return;
@@ -756,10 +720,6 @@ tc_type check_ExprUnit(std::ostream& out, aA_exprUnit eu){
     {
         case A_exprUnitType::A_idExprKind:{
             ret = find_name(out,*eu->u.id,eu->pos);
-            if (!check_used(out,*eu->u.id)){
-                error_print(out, eu->pos, "this variable is not assigned yet");
-            }
-            
         }
             break;
         case A_exprUnitType::A_numExprKind:{
@@ -864,16 +824,12 @@ void check_WhileStmt(std::ostream& out, aA_whileStmt ws){
     check_BoolExpr(out, ws->boolExpr);
     //while语句是新的一块区域
     typeMap new_location_if;
-    flagMap* map = new flagMap;
-    variable_assigned.push_back(map);
     local_token2Type.push_back(&(new_location_if));
         
     for(aA_codeBlockStmt s : ws->whileStmts){
         check_CodeblockStmt(out, s);
     }
-    variable_assigned.pop_back();
     local_token2Type.pop_back();
-    delete map;
         
     return;
 }
