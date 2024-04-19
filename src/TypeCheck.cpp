@@ -210,8 +210,8 @@ void check_return(std::ostream& out, aA_codeBlockStmt stmt, tc_type target){
     return;
 }
 
-bool check_used(std::ostream& out, string name){
-    for (int i = variable_assigned.size(); i >= 0; i++){
+bool check_used(std::ostream& out, string name){    
+    for (int i = variable_assigned.size()-1; i >= 0; i--){
         flagMap map = *variable_assigned[i];
         if (map.find(name) != map.end()){
             return true;
@@ -253,6 +253,7 @@ void check_Prog(std::ostream& out, aA_program p)
         }
     }
 
+    delete global;
     out << "Typecheck passed!" << std::endl;
     return;
 }
@@ -512,9 +513,11 @@ void check_FnDef(std::ostream& out, aA_fnDef fd)
         (*map)[param_name] = true;  // 参数总认为已经被赋值，可以使用
     }
     local_token2Type.push_back(&(new_location));
+
     tc_type ret_type = tc_Type(fd->fnDecl->type,0);
-    //TODO 检查ret如果是struct，struct是否存在
-    
+    if (ret_type->type->type == A_dataType::A_structTypeKind && (struct2Members.find(*ret_type->type->u.structType) == struct2Members.end())){
+        error_print(out,fd->fnDecl->pos,"the return type does not defined");
+    }
 
     for (aA_codeBlockStmt stmt : fd->stmts)
     {
@@ -522,6 +525,8 @@ void check_FnDef(std::ostream& out, aA_fnDef fd)
         check_return(out, stmt, ret_type);
     }
 
+    variable_assigned.pop_back();
+    delete map;
     local_token2Type.pop_back();
 
     return;
@@ -675,6 +680,7 @@ void check_IfStmt(std::ostream& out, aA_ifStmt is){
         check_CodeblockStmt(out, s);
     }
     variable_assigned.pop_back();
+    delete map_if;
     local_token2Type.pop_back();    
 
     typeMap new_location_else;
@@ -685,6 +691,7 @@ void check_IfStmt(std::ostream& out, aA_ifStmt is){
         check_CodeblockStmt(out, s);
     }
     variable_assigned.pop_back();
+    delete map_else;
     local_token2Type.pop_back(); 
 
     return;
@@ -749,6 +756,10 @@ tc_type check_ExprUnit(std::ostream& out, aA_exprUnit eu){
     {
         case A_exprUnitType::A_idExprKind:{
             ret = find_name(out,*eu->u.id,eu->pos);
+            if (!check_used(out,*eu->u.id)){
+                error_print(out, eu->pos, "this variable is not assigned yet");
+            }
+            
         }
             break;
         case A_exprUnitType::A_numExprKind:{
@@ -818,12 +829,10 @@ void check_FuncCall(std::ostream& out, aA_fnCall fc){
         error_print(out, fc->pos,"function not defined");
     }
     
-        
     // check if parameter list matches
     vector<aA_varDecl> fun_defined_param = *func2Param.find(func_name)->second;
     for(int i = 0; i < fc->vals.size(); i++){
         tc_type param_type = check_ArithExpr(out, fc->vals[i]->u.arithExpr);
-        
         if (param_type->isVarArrFunc == 0){
             if (fun_defined_param[i]->kind != A_varDeclType::A_varDeclScalarKind){
                 error_print(out,fc->vals[i]->pos,"this parameter type is not compatible");
@@ -864,6 +873,7 @@ void check_WhileStmt(std::ostream& out, aA_whileStmt ws){
     }
     variable_assigned.pop_back();
     local_token2Type.pop_back();
+    delete map;
         
     return;
 }
