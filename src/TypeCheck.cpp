@@ -233,6 +233,10 @@ void check_Prog(std::ostream& out, aA_program p)
         }
         else if (ele->kind == A_programFnDefKind){
             check_FnDecl(out, ele->u.fnDef->fnDecl);
+            if (fun_defined_record.find(*ele->u.fnDef->fnDecl->id)!= fun_defined_record.end()){
+                error_print(out, ele->u.fnDef->fnDecl->pos, "function already defined");
+            }
+            fun_defined_record[*ele->u.fnDef->fnDecl->id] = true;
         }
     }
 
@@ -478,13 +482,9 @@ void check_FnDef(std::ostream& out, aA_fnDef fd)
 {
     if (!fd)
         return;
-    if (fun_defined_record.find(*fd->fnDecl->id)!=fun_defined_record.end()){
-        error_print(out, fd->pos, "function already defined");
-    }
     
     // should match if declared
     check_FnDecl(out, fd->fnDecl);
-    fun_defined_record[*fd->fnDecl->id] = true;
 
     // add params to local tokenmap, func params override global ones
     //函数定义是新的一块区域
@@ -511,12 +511,13 @@ void check_FnDef(std::ostream& out, aA_fnDef fd)
         }
         
     }
-
+    
     for (aA_codeBlockStmt stmt : fd->stmts)
     {
         check_CodeblockStmt(out, stmt);
         check_return(out, stmt, ret_type);
     }
+    
 
     local_token2Type.pop_back();
 
