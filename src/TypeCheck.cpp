@@ -306,7 +306,7 @@ void check_VarDecl(std::ostream& out, aA_varDeclStmt vd)
                     error_print(out, vdecl->u.declArray->pos, "global variables duplicates with global params");
                     return;
                 }
-                tc_type target = tc_Type(type,0);
+                tc_type target = tc_Type(type,1);
                 g_token2Type.insert({name,target});
             }
             else{
@@ -318,7 +318,7 @@ void check_VarDecl(std::ostream& out, aA_varDeclStmt vd)
                     error_print(out, vdecl->u.declArray->pos, "local variables duplicates with global params");
                     return;
                 }
-                tc_type target = tc_Type(type,0);
+                tc_type target = tc_Type(type,1);
                 (*local_token2Type[local_token2Type.size()-1])[name] = target;
             }
         }
@@ -342,7 +342,7 @@ void check_VarDecl(std::ostream& out, aA_varDeclStmt vd)
             tc_type rightV_type;
             // 原生类型只有int，所以不考虑布尔类型的变量
             rightV_type = check_ArithExpr(out,vdef->u.defScalar->val->u.arithExpr);
-            if(type && ((rightV_type->isVarArrFunc != 0) || !comp_aA_type(type, rightV_type->type))){
+            if((rightV_type->isVarArrFunc != 0) && ( type && !comp_aA_type(type, rightV_type->type))){
                 error_print(out, vdef->u.defScalar->val->pos, "wrong assignment in varDef");
                 return;
             }
@@ -378,7 +378,7 @@ void check_VarDecl(std::ostream& out, aA_varDeclStmt vd)
                     return;
                 }
             }
-            if(type && ((rightV_type->isVarArrFunc != 1) || !comp_aA_type(type, rightV_type->type))){
+            if((rightV_type->isVarArrFunc != 0) && (type && !comp_aA_type(type, rightV_type->type))){
                 error_print(out, vdef->u.defScalar->val->pos, "wrong assignment in varDef");
                 return;
             }
@@ -585,7 +585,7 @@ void check_AssignStmt(std::ostream& out, aA_assignStmt as){
         case A_leftValType::A_arrValKind:{
             name = *as->leftVal->u.arrExpr->arr->u.id;
             check_ArrayExpr(out, as->leftVal->u.arrExpr);
-            left_type = find_name(out, name, as->rightVal->pos);
+            left_type = find_name(out, name, as->leftVal->pos);
             if (!left_type->type){
                 set_type(name, right_type);
             }
