@@ -192,10 +192,15 @@ void check_return(std::ostream& out, aA_codeBlockStmt stmt, tc_type target){
             }
             break;
         case A_codeBlockStmtType::A_returnStmtKind:
-            if (!target && !check_ArithExpr(out, stmt->u.returnStmt->retVal->u.arithExpr)){
-                return;   //没有返回值的情况，且右值确实没有返回值
+            if (!stmt->u.returnStmt->retVal){
+                if (!target){
+                    return;  //没有返回值的情况，且右值确实没有返回值
+                }
+                else{
+                    error_print(out,stmt->pos, "ret value type not compatible");
+                }
             }
-            if (comp_tc_type(target, check_ArithExpr(out, stmt->u.returnStmt->retVal->u.arithExpr))){
+            else if(comp_tc_type(target, check_ArithExpr(out, stmt->u.returnStmt->retVal->u.arithExpr))){
                 return;
             }
             else{
@@ -257,8 +262,8 @@ void check_VarDecl(std::ostream& out, aA_varDeclStmt vd)
         if(vdecl->kind == A_varDeclType::A_varDeclScalarKind){
             name = *vdecl->u.declScalar->id;
             type = vdecl->u.declScalar->type;
-            if(!type && type->type == A_dataType::A_structTypeKind){
-                if (struct2Members.find(name) == struct2Members.end()){
+            if(type && type->type == A_dataType::A_structTypeKind){
+                if (struct2Members.find(*type->u.structType) == struct2Members.end()){
                     error_print(out, vdecl->u.declScalar->type->pos, "Undefined Type");
                     return;
                 }
@@ -289,8 +294,8 @@ void check_VarDecl(std::ostream& out, aA_varDeclStmt vd)
         else if (vdecl->kind == A_varDeclType::A_varDeclArrayKind){
             name = *vdecl->u.declArray->id;
             type = vdecl->u.declArray->type;
-            if(!type && type->type == A_dataType::A_structTypeKind){
-                if (struct2Members.find(name) == struct2Members.end()){
+            if(type && type->type == A_dataType::A_structTypeKind){
+                if (struct2Members.find(*type->u.structType) == struct2Members.end()){
                     error_print(out, vdecl->u.declArray->type->pos, "Undefined Type");
                     return;
                 }
@@ -324,8 +329,8 @@ void check_VarDecl(std::ostream& out, aA_varDeclStmt vd)
         if (vdef->kind == A_varDefType::A_varDefScalarKind){
             name = *vdef->u.defScalar->id;
             type = vdef->u.defScalar->type;
-            if(!type && type->type == A_dataType::A_structTypeKind){
-                if (struct2Members.find(name) == struct2Members.end()){
+            if(type && type->type == A_dataType::A_structTypeKind){
+                if (struct2Members.find(*type->u.structType) == struct2Members.end()){
                     error_print(out, vdef->u.defScalar->type->pos, "Undefined Type");
                     return;
                 }
@@ -351,8 +356,8 @@ void check_VarDecl(std::ostream& out, aA_varDeclStmt vd)
         }else if (vdef->kind == A_varDefType::A_varDefArrayKind){
             name = *vdef->u.defArray->id;
             type = vdef->u.defArray->type;
-            if(!type && type->type == A_dataType::A_structTypeKind){
-                if (struct2Members.find(name) == struct2Members.end()){
+            if(type && type->type == A_dataType::A_structTypeKind){
+                if (struct2Members.find(*type->u.structType) == struct2Members.end()){
                     error_print(out, vdef->u.defArray->type->pos, "Undefined Type");
                     return;
                 }
@@ -412,7 +417,10 @@ void check_FnDecl(std::ostream& out, aA_fnDecl fd)
         // is function ret val matches
         tc_type retType = g_token2Type.find(name)->second;
 
-        if (!comp_aA_type(retType->type, fd->type)){
+        if (!retType->type && !fd->type){
+            //do nothing
+        }
+        else if (!comp_aA_type(retType->type, fd->type)){
             error_print(out, fd->pos, "the function with the same name has been declared");
         }
         // is function params matches decl
@@ -439,7 +447,7 @@ void check_FnDecl(std::ostream& out, aA_fnDecl fd)
             }
             
             if (param_type->type == A_dataType::A_structTypeKind){
-                if (struct2Members.find(name) == struct2Members.end()){
+                if (struct2Members.find(*param_type->u.structType) == struct2Members.end()){
                     error_print(out, fd->paramDecl->varDecls[i]->pos, "param struct not defined");
                 }
             }   
@@ -496,8 +504,12 @@ void check_FnDef(std::ostream& out, aA_fnDef fd)
     local_token2Type.push_back(&(new_location));
 
     tc_type ret_type = tc_Type(fd->fnDecl->type,0);
-    if (ret_type->type->type == A_dataType::A_structTypeKind && (struct2Members.find(*ret_type->type->u.structType) == struct2Members.end())){
-        error_print(out,fd->fnDecl->pos,"the return type does not defined");
+    
+    if (ret_type->type && ret_type->type->type == A_dataType::A_structTypeKind){
+        if(struct2Members.find(*ret_type->type->u.structType) == struct2Members.end()){
+            error_print(out,fd->fnDecl->pos,"the return type does not defined");
+        }
+        
     }
 
     for (aA_codeBlockStmt stmt : fd->stmts)
@@ -550,6 +562,10 @@ void check_AssignStmt(std::ostream& out, aA_assignStmt as){
     tc_type deduced_type; // deduced type if type is omitted at decl
     tc_type left_type;
     tc_type right_type= check_ArithExpr(out, as->rightVal->u.arithExpr);
+    if (!right_type->type){
+        error_print(out,as->rightVal->pos, "right variable must be assigned before used");
+    }
+    
     switch (as->leftVal->kind)
     {
         case A_leftValType::A_varValKind:{
@@ -558,8 +574,7 @@ void check_AssignStmt(std::ostream& out, aA_assignStmt as){
             if (left_type->isVarArrFunc == 2){
                 error_print(out, as->leftVal->pos,"function can not be assigned");
             }
-            
-            if (!left_type){
+            if (!left_type->type){
                 set_type(name, right_type);
             }
             else if(!comp_tc_type(left_type, right_type)){
@@ -571,7 +586,7 @@ void check_AssignStmt(std::ostream& out, aA_assignStmt as){
             name = *as->leftVal->u.arrExpr->arr->u.id;
             check_ArrayExpr(out, as->leftVal->u.arrExpr);
             left_type = find_name(out, name, as->rightVal->pos);
-            if (!left_type){
+            if (!left_type->type){
                 set_type(name, right_type);
             }
             else if(!comp_tc_type(left_type, right_type)){
