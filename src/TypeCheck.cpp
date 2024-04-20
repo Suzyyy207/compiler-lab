@@ -193,11 +193,11 @@ void check_return(std::ostream& out, aA_codeBlockStmt stmt, tc_type target){
             break;
         case A_codeBlockStmtType::A_returnStmtKind:
             if (!stmt->u.returnStmt->retVal){
-                if (!target){
+                if (!target->type){
                     return;  //没有返回值的情况，且右值确实没有返回值
                 }
                 else{
-                    error_print(out,stmt->pos, "ret value type not compatible");
+                    error_print(out,stmt->pos, "return value type doesn't match");
                 }
             }
             else if(comp_tc_type(target, check_ArithExpr(out, stmt->u.returnStmt->retVal->u.arithExpr))){
@@ -336,7 +336,7 @@ void check_VarDecl(std::ostream& out, aA_varDeclStmt vd)
                 }
             }        
             if (check_local(name) || check_global(name)){
-                error_print(out, vdef->u.defScalar->type->pos, "duplicated variable");
+                error_print(out, vdef->u.defScalar->pos, "duplicated variable");
                 return;
             }
             tc_type rightV_type;
