@@ -90,6 +90,10 @@ bool comp_tc_type(tc_type target, tc_type t){
     if(!target || !t)
         return false;
     
+    if (target->isVarArrFunc == 2 || t->isVarArrFunc ==2){
+        return false;
+    }
+    
     // arr kind first
     if (target->isVarArrFunc && t->isVarArrFunc == 0)
         return false;
@@ -350,7 +354,7 @@ void check_VarDecl(std::ostream& out, aA_varDeclStmt vd)
                 error_print(out,vdef->u.defScalar->val->pos,"right value must be assigned first");
             }
             
-            if((rightV_type->isVarArrFunc != 0) && ( type && !comp_aA_type(type, rightV_type->type))){
+            if((rightV_type->isVarArrFunc != 0) || (type && !comp_aA_type(type, rightV_type->type))){
                 error_print(out, vdef->u.defScalar->val->pos, "wrong assignment in varDef");
                 return;
             }
@@ -377,8 +381,12 @@ void check_VarDecl(std::ostream& out, aA_varDeclStmt vd)
             if (vdef->u.defArray->vals.size() != vdef->u.defArray->len){
                 error_print(out, vdef->u.defArray->pos, "the length is not compatible");
             }
-            tc_type rightV_type;
+            
             // 原生类型只有int，所以不考虑布尔类型的变量
+            if (vdef->u.defArray->len == 0){
+                error_print(out, vdef->u.defArray->pos,"0 size array not allowed");
+            }
+            tc_type rightV_type;
             rightV_type = check_ArithExpr(out,(vdef->u.defArray->vals)[0]->u.arithExpr);
             if (!rightV_type->type){
                 error_print(out,vdef->u.defScalar->val->pos,"right value must be assigned first");
@@ -417,12 +425,29 @@ void check_StructDef(std::ostream& out, aA_structDef sd)
             if (!sd->varDecls[i]->u.declScalar->type){
                 error_print(out,sd->varDecls[i]->pos,"struct member must have type");
             }
+            if (sd->varDecls[i]->u.declScalar->type->type == A_dataType::A_structTypeKind){
+                if (struct2Members.find(*sd->varDecls[i]->u.declScalar->type->u.structType) == struct2Members.end()){
+                    error_print(out,sd->varDecls[i]->pos,"no such type");
+                }
+            }
+            
         }
         else if(sd->varDecls[i]->kind == A_varDeclType::A_varDeclArrayKind){
             if (!sd->varDecls[i]->u.declArray->type){
                 error_print(out,sd->varDecls[i]->pos,"struct member must have type");
             }
+            if (sd->varDecls[i]->u.declArray->type->type == A_dataType::A_structTypeKind){
+                if (struct2Members.find(*sd->varDecls[i]->u.declArray->type->u.structType) == struct2Members.end()){
+                    error_print(out,sd->varDecls[i]->pos,"no such type");
+                }
+            }
         }
+
+        if (sd->varDecls[i]->kind == A_varDeclType::A_varDeclArrayKind)
+        {
+            /* code */
+        }
+        
     }
     
     struct2Members[name] = &(sd->varDecls);
@@ -509,7 +534,6 @@ void check_FnDef(std::ostream& out, aA_fnDef fd)
 {
     if (!fd)
         return;
-    
     // should match if declared
     check_FnDecl(out, fd->fnDecl);
 
@@ -840,16 +864,15 @@ void check_FuncCall(std::ostream& out, aA_fnCall fc){
         return;
     // check if function defined
     string func_name = *fc->fn;
-    if (func2Param.find(func_name) == func2Param.end() || !fun_defined_record.find(func_name)->second){
+    if (func2Param.find(func_name) == func2Param.end() || fun_defined_record.find(func_name) == fun_defined_record.end()){
         error_print(out, fc->pos,"function not defined");
     }
-    
+
     // check if parameter list matches
     vector<aA_varDecl> fun_defined_param = *func2Param.find(func_name)->second;
     if (fun_defined_param.size() != fc->vals.size()){
         error_print(out,fc->pos,"the size of parameters is not same as expected");
     }
-    
     for(int i = 0; i < fc->vals.size(); i++){
         tc_type param_type = check_ArithExpr(out, fc->vals[i]->u.arithExpr);
         if (param_type->isVarArrFunc == 0){
