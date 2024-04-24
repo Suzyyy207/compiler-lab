@@ -1,0 +1,11 @@
+fn foo1(a:int, b:int)->int{
+    ret foo2(b, a);
+}
+
+fn foo2(a:int, b:int)->int{
+    ret a * x + b;
+}
+
+let x:int = 25;
+
+// pass

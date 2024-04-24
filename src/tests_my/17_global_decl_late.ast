@@ -1,0 +1,62 @@
+A_program 
+	|--A_programElement 
+		|--A_fnDef 
+			|--A_fnDecl fn foo1(
+				|--A_paramDecl 
+					|--A_varDecl 
+						|--A_varDeclScalar a:
+						|--A_type int, 
+					|--A_varDecl 
+						|--A_varDeclScalar b:
+						|--A_type int)->
+			|--A_type int{
+
+			|--A_codeBlockStmt 
+				|--A_returnStmt ret 
+				|--A_rightVal 
+					|--A_arithExpr 
+						|--A_exprUnit 
+							|--A_fnCall foo2(
+							|--A_rightVal 
+								|--A_arithExpr 
+									|--A_exprUnit b, 
+							|--A_rightVal 
+								|--A_arithExpr 
+									|--A_exprUnit a);
+}
+
+	|--A_programElement 
+		|--A_fnDef 
+			|--A_fnDecl fn foo2(
+				|--A_paramDecl 
+					|--A_varDecl 
+						|--A_varDeclScalar a:
+						|--A_type int, 
+					|--A_varDecl 
+						|--A_varDeclScalar b:
+						|--A_type int)->
+			|--A_type int{
+
+			|--A_codeBlockStmt 
+				|--A_returnStmt ret 
+				|--A_rightVal 
+					|--A_arithExpr 
+						|--A_arithBiOpExpr 
+							|--A_arithExpr 
+								|--A_arithBiOpExpr 
+									|--A_arithExpr 
+										|--A_exprUnit a*
+									|--A_arithExpr 
+										|--A_exprUnit x+
+							|--A_arithExpr 
+								|--A_exprUnit b;
+}
+
+	|--A_programElement 
+		|--A_varDeclStmt let 
+			|--A_varDef 
+				|--A_varDefScalar x:
+				|--A_type int = 
+				|--A_rightVal 
+					|--A_arithExpr 
+						|--A_exprUnit 25;

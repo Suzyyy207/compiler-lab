@@ -1,0 +1,122 @@
+A_program 
+	|--A_programElement 
+		|--A_structDef struct MyStruct {
+
+			|--A_varDecl 
+				|--A_varDeclScalar node:
+				|--A_type int,
+
+			|--A_varDecl 
+				|--A_varDeclScalar len:
+				|--A_type int
+}
+
+	|--A_programElement 
+		|--A_fnDef 
+			|--A_fnDecl fn foo(
+				|--A_paramDecl 
+					|--A_varDecl 
+						|--A_varDeclScalar a:
+						|--A_type int, 
+					|--A_varDecl 
+						|--A_varDeclScalar b:
+						|--A_type int)->
+			|--A_type int{
+
+			|--A_codeBlockStmt 
+				|--A_returnStmt ret 
+				|--A_rightVal 
+					|--A_arithExpr 
+						|--A_arithBiOpExpr 
+							|--A_arithExpr 
+								|--A_arithBiOpExpr 
+									|--A_arithExpr 
+										|--A_arithBiOpExpr 
+											|--A_arithExpr 
+												|--A_exprUnit a+
+											|--A_arithExpr 
+												|--A_exprUnit 1+
+									|--A_arithExpr 
+										|--A_exprUnit b+
+							|--A_arithExpr 
+								|--A_exprUnit 2;
+}
+
+	|--A_programElement 
+		|--A_fnDef 
+			|--A_fnDecl fn main(
+				|--A_paramDecl 
+					|--A_varDecl 
+						|--A_varDeclScalar a:
+						|--A_type int, 
+					|--A_varDecl 
+						|--A_varDeclScalar b:
+						|--A_type int)->
+			|--A_type int{
+
+			|--A_codeBlockStmt 
+				|--A_varDeclStmt let 
+					|--A_varDecl 
+						|--A_varDeclScalar c:
+						|--A_type MyStruct;
+
+			|--A_codeBlockStmt 
+				|--A_assignStmt 
+					|--A_leftVal 
+						|--A_memberExpr 
+						|--A_leftVal c.node = 
+					|--A_rightVal 
+						|--A_arithExpr 
+							|--A_exprUnit 3;
+
+			|--A_codeBlockStmt 
+				|--A_assignStmt 
+					|--A_leftVal 
+						|--A_memberExpr 
+						|--A_leftVal c.len = 
+					|--A_rightVal 
+						|--A_arithExpr 
+							|--A_exprUnit 20;
+
+			|--A_codeBlockStmt 
+				|--A_ifStmt if(
+					|--A_boolExpr 
+						|--A_boolUnit (
+							|--A_comExpr 
+								|--A_exprUnit c>
+								|--A_exprUnit b)){
+
+					|--A_codeBlockStmt 
+						|--A_assignStmt 
+							|--A_leftVal 
+								|--A_memberExpr 
+								|--A_leftVal c.node = 
+							|--A_rightVal 
+								|--A_arithExpr 
+									|--A_exprUnit 
+										|--A_fnCall foo(
+										|--A_rightVal 
+											|--A_arithExpr 
+												|--A_exprUnit a, 
+										|--A_rightVal 
+											|--A_arithExpr 
+												|--A_exprUnit b);
+}else{
+
+					|--A_codeBlockStmt 
+						|--A_assignStmt 
+							|--A_leftVal 
+								|--A_memberExpr 
+								|--A_leftVal c.len = 
+							|--A_rightVal 
+								|--A_arithExpr 
+									|--A_exprUnit 
+										|--A_fnCall foo(
+										|--A_rightVal 
+											|--A_arithExpr 
+												|--A_exprUnit b, 
+										|--A_rightVal 
+											|--A_arithExpr 
+												|--A_exprUnit b);
+}
+}

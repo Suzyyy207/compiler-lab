@@ -163,15 +163,15 @@ tc_type find_name(std::ostream& out, string name, A_pos pos){
     
 }
 
-void set_type(string name, tc_type target){
+void set_type(string name, aA_type type,int isVarArrFunc){
     for (int i = local_token2Type.size()-1; i >= 0; i--){
         std::unordered_map<string, tc_type> map = *(local_token2Type[i]);
         if (map.find(name) != map.end()){
-           (*(local_token2Type[i]))[name] = target;
+           (*(local_token2Type[i]))[name] = tc_Type(type, isVarArrFunc);
             return;
         }
     }
-    g_token2Type[name] = target;
+    g_token2Type[name] = tc_Type(type, isVarArrFunc);
     return;
 }
 
@@ -576,9 +576,11 @@ void check_AssignStmt(std::ostream& out, aA_assignStmt as){
                 error_print(out, as->leftVal->pos,"function can not be assigned");
             }
             if (!left_type->type){
-                set_type(name, right_type);
+                set_type(name, right_type->type, left_type->isVarArrFunc);
+                left_type = find_name(out, name, as->leftVal->pos);
             }
-            else if(!comp_tc_type(left_type, right_type)){
+            
+            if(!comp_tc_type(left_type, right_type)){
                 error_print(out, as->rightVal->pos,"types not compatible");
             }
         }
@@ -586,11 +588,17 @@ void check_AssignStmt(std::ostream& out, aA_assignStmt as){
         case A_leftValType::A_arrValKind:{
             name = *as->leftVal->u.arrExpr->arr->u.id;
             check_ArrayExpr(out, as->leftVal->u.arrExpr);
-            left_type = find_name(out, name, as->leftVal->pos);
+            left_type = find_name(out, name, as->leftVal->pos); 
+
             if (!left_type->type){
-                set_type(name, right_type);
+                set_type(name, right_type->type, left_type->isVarArrFunc);
+                left_type = tc_Type(right_type->type, 0);  //实际被赋值的是一个标量
             }
-            else if(!comp_tc_type(left_type, right_type)){
+            else{
+                left_type = tc_Type(left_type->type, 0);
+            }
+
+            if(!comp_tc_type(left_type, right_type)){
                 error_print(out, as->rightVal->pos,"types not compatible");
             }
         }
@@ -612,11 +620,15 @@ void check_AssignStmt(std::ostream& out, aA_assignStmt as){
 void check_ArrayExpr(std::ostream& out, aA_arrayExpr ae){
     if(!ae)
         return;
-    string name = *ae->arr->u.id;
-    tc_type target = find_name(out, *ae->idx->u.id, ae->idx->pos);
 
+    string arr_name = *ae->arr->u.id;
+    tc_type arr_type = find_name(out, arr_name, ae->pos);
+    if (arr_type->isVarArrFunc != 1){
+        error_print(out,ae->pos,"this variable is not an array");
+    }
     // check index
-    if (ae->idx->kind == A_indexExprKind::A_idIndexKind){        
+    if (ae->idx->kind == A_indexExprKind::A_idIndexKind){
+        tc_type target = find_name(out, *ae->idx->u.id, ae->idx->pos);        
         if (target->type->type != A_dataType::A_nativeTypeKind || target->isVarArrFunc != 0){
             error_print(out, ae->idx->pos, "the index is not a num");
         }
@@ -631,7 +643,7 @@ tc_type check_MemberExpr(std::ostream& out, aA_memberExpr me){
         return nullptr;
     string var_name = *me->structId->u.id;
     tc_type var_type = find_name(out, var_name, me->pos);
-    if (var_type->isVarArrFunc != 0 || var_type->type->type != A_dataType::A_structTypeKind){
+    if (var_type->isVarArrFunc != 0 || !var_type->type || var_type->type->type != A_dataType::A_structTypeKind){
         error_print(out, me->structId->pos,"this variable is not a struct type");
     }
     
@@ -807,6 +819,10 @@ void check_FuncCall(std::ostream& out, aA_fnCall fc){
     
     // check if parameter list matches
     vector<aA_varDecl> fun_defined_param = *func2Param.find(func_name)->second;
+    if (fun_defined_param.size() != fc->vals.size()){
+        error_print(out,fc->pos,"the size of parameters is not same as expected");
+    }
+    
     for(int i = 0; i < fc->vals.size(); i++){
         tc_type param_type = check_ArithExpr(out, fc->vals[i]->u.arithExpr);
         if (param_type->isVarArrFunc == 0){

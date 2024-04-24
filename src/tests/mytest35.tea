@@ -1,0 +1,11 @@
+fn foo()->int;
+struct Mystruct{
+    a:int
+}
+fn main(){
+    let a:Mystruct;
+    a.a = foo();
+    a.a = foo;
+    ret;
+}
+// Typecheck error in line 8, col 5: cannot assign a function to struct member a on line 8, col 5.

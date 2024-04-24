@@ -1,0 +1,25 @@
+struct MyStruct { 
+    node:int,
+    len:int  
+}
+
+struct MyStruct1 { 
+    a:MyStruct,
+    len:int  
+}
+
+let MyStruct:int;
+
+fn main(a2:int, b3:int)->int{
+    //let a:MyStruct1 = MyStruct1{a:MyStruct{node:1,len:2},len:3};
+    MyStruct = 1;
+    MyStruct = MyStruct + 2;
+    let a:MyStruct1;
+    let b:MyStruct;
+    //a.a.node = 1;
+    a.a=b;
+
+
+    ret 0;
+}
+// pass

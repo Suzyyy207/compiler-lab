@@ -1,0 +1,122 @@
+A_program 
+	|--A_programElement 
+		|--A_fnDef 
+			|--A_fnDecl fn foo(
+				|--A_paramDecl 
+					|--A_varDecl 
+						|--A_varDeclScalar a:
+						|--A_type int)->
+			|--A_type int{
+
+			|--A_codeBlockStmt 
+				|--A_ifStmt if(
+					|--A_boolExpr 
+						|--A_boolUnit (
+							|--A_comExpr 
+								|--A_exprUnit a>
+								|--A_exprUnit 0)){
+
+					|--A_codeBlockStmt 
+						|--A_varDeclStmt let 
+							|--A_varDef 
+								|--A_varDefScalar i = 
+								|--A_rightVal 
+									|--A_arithExpr 
+										|--A_exprUnit 0;
+
+					|--A_codeBlockStmt 
+						|--A_whileStmt while(
+							|--A_boolExpr 
+								|--A_boolUnit (
+									|--A_comExpr 
+										|--A_exprUnit i<
+										|--A_exprUnit a)){
+}
+}
+
+			|--A_codeBlockStmt 
+				|--A_ifStmt if(
+					|--A_boolExpr 
+						|--A_boolUnit (
+							|--A_comExpr 
+								|--A_exprUnit a<
+								|--A_exprUnit 0)){
+
+					|--A_codeBlockStmt 
+						|--A_varDeclStmt let 
+							|--A_varDef 
+								|--A_varDefScalar i = 
+								|--A_rightVal 
+									|--A_arithExpr 
+										|--A_exprUnit 0;
+
+					|--A_codeBlockStmt 
+						|--A_whileStmt while(
+							|--A_boolExpr 
+								|--A_boolUnit (
+									|--A_comExpr 
+										|--A_exprUnit i>
+										|--A_exprUnit a)){
+}
+}
+}
+
+	|--A_programElement 
+		|--A_structDef struct MyStruct {
+
+			|--A_varDecl 
+				|--A_varDeclScalar node:
+				|--A_type int,
+
+			|--A_varDecl 
+				|--A_varDeclScalar len:
+				|--A_type int
+}
+
+	|--A_programElement 
+		|--A_varDeclStmt let 
+			|--A_varDecl 
+				|--A_varDeclScalar a:
+				|--A_type MyStruct;
+
+	|--A_programElement 
+		|--A_fnDef 
+			|--A_fnDecl fn foo1(
+				|--A_paramDecl 
+					|--A_varDecl 
+						|--A_varDeclScalar a:
+						|--A_type int)->
+			|--A_type int{
+
+			|--A_codeBlockStmt 
+				|--A_returnStmt ret 
+				|--A_rightVal 
+					|--A_arithExpr 
+						|--A_arithBiOpExpr 
+							|--A_arithExpr 
+								|--A_exprUnit 2*
+							|--A_arithExpr 
+								|--A_exprUnit a;
+}
+
+	|--A_programElement 
+		|--A_varDeclStmt let 
+			|--A_varDef 
+				|--A_varDefScalar x:
+				|--A_type int = 
+				|--A_rightVal 
+					|--A_arithExpr 
+						|--A_arithBiOpExpr 
+							|--A_arithExpr 
+								|--A_exprUnit a+
+							|--A_arithExpr 
+								|--A_exprUnit 5;
+
+	|--A_programElement 
+		|--A_varDeclStmt let 
+			|--A_varDef 
+				|--A_varDefScalar a:
+				|--A_type int = 
+				|--A_rightVal 
+					|--A_arithExpr 
+						|--A_exprUnit 5;

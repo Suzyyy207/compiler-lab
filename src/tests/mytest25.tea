@@ -1,0 +1,10 @@
+struct mystruct{
+    a:int
+}
+//let b:mystruct=1;
+let a;
+let b = a;
+let a[2] = {1,b};
+let a[2] = {a==b,1};
+// Typecheck error in line 4, col 5: struct type mismatch in varDecl! (decl and def)
+// Typecheck error in line 6, col 5: cannot assign void value to variable b on line 6, col 5.

@@ -1,0 +1,6 @@
+fn foo();
+
+fn bar() {
+    foo[0] = 1;
+}
+// Typecheck error in line 4, col 5: This member is not an array!

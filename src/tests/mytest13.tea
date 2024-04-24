@@ -1,0 +1,18 @@
+struct MyStruct{
+	x:int,
+	y:int
+}
+let aa : MyStruct;
+fn foo(aa : int)->int{
+	ret 2 * aa;
+}
+
+
+let a:int = 203;
+let b:int = 713;
+
+fn foo(a:int)->int{
+    let b:int = 10;
+    ret a + b;
+}
+// Typecheck error in line 14, col 1: Function foo is already defined!

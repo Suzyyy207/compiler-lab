@@ -1,0 +1,17 @@
+struct MyStruct{
+	x:int,
+	y:int
+}
+let a : MyStruct;
+fn foo(a : int)->int{
+	ret 2 * a;
+}
+//struct MyStruct{
+//	x:int,
+//	y:int
+//}
+
+fn bar(a:int)->MyStruct{
+	ret 2 * a;
+}
+// Typecheck error in line 15, col 5: Return type mismatch!

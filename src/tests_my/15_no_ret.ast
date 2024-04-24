@@ -1,0 +1,27 @@
+A_program 
+	|--A_programElement 
+		|--A_varDeclStmt let 
+			|--A_varDecl 
+				|--A_varDeclScalar b:
+				|--A_type int;
+
+	|--A_programElement 
+		|--A_fnDef 
+			|--A_fnDecl fn main(
+				|--A_paramDecl ){
+
+			|--A_codeBlockStmt 
+				|--A_returnStmt ret ;
+}
+
+	|--A_programElement 
+		|--A_fnDef 
+			|--A_fnDecl fn my(
+				|--A_paramDecl ){
+
+			|--A_codeBlockStmt 
+				|--A_returnStmt ret 
+				|--A_rightVal 
+					|--A_arithExpr 
+						|--A_exprUnit b;
+}

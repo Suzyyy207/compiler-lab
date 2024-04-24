@@ -1,0 +1,8 @@
+fn foo(a:int, b:int, c:int)->int{
+	ret b - a + c;
+}
+
+fn foo(a:int, b:int)->int{
+    ret a + b;
+}
+// Typecheck error in line 5, col 1: Function foo is already defined!

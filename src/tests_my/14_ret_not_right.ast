@@ -1,0 +1,60 @@
+A_program 
+	|--A_programElement 
+		|--A_structDef struct MyStruct {
+
+			|--A_varDecl 
+				|--A_varDeclScalar node:
+				|--A_type int,
+
+			|--A_varDecl 
+				|--A_varDeclScalar len:
+				|--A_type int
+}
+
+	|--A_programElement 
+		|--A_varDeclStmt let 
+			|--A_varDecl 
+				|--A_varDeclScalar a:
+				|--A_type MyStruct;
+
+	|--A_programElement 
+		|--A_varDeclStmt let 
+			|--A_varDecl 
+				|--A_varDeclScalar b:
+				|--A_type int;
+
+	|--A_programElement 
+		|--A_fnDef 
+			|--A_fnDecl fn main(
+				|--A_paramDecl )->
+			|--A_type int{
+
+			|--A_codeBlockStmt 
+				|--A_returnStmt ret 
+				|--A_rightVal 
+					|--A_arithExpr 
+						|--A_exprUnit b;
+}
+
+	|--A_programElement 
+		|--A_fnDef 
+			|--A_fnDecl fn man(
+				|--A_paramDecl )->
+			|--A_type int{
+
+			|--A_codeBlockStmt 
+				|--A_returnStmt ret ;
+}
+
+	|--A_programElement 
+		|--A_fnDef 
+			|--A_fnDecl fn my(
+				|--A_paramDecl )->
+			|--A_type int{
+
+			|--A_codeBlockStmt 
+				|--A_returnStmt ret 
+				|--A_rightVal 
+					|--A_arithExpr 
+						|--A_exprUnit a;
+}

@@ -1,0 +1,35 @@
+struct name{
+  name: int
+}
+struct friend{
+  name: name,
+  age: int
+}
+struct MyStruct{
+  name[2]: name,
+  age: int,
+  friend[2]: friend,
+  friend2: friend,
+  friend3[2],
+  friend4
+}
+fn main(){
+  let a: MyStruct;
+  a.name[0].name = 1;
+  a.name[1].name = 2;
+  a.age = 3;
+  a.friend[0].name.name = 4;
+  a.friend[0].age = 5;
+  a.friend[1].name.name = 6;
+  a.friend[1].age = 7;
+  a.friend2.name.name = 8;
+  a.friend2.age = 9;
+  a.friend3[0].name.name = 10;
+  a.friend3[0].age = 11;
+  a.friend3[1].name.name = 12;
+  a.friend3[1].age = 13;
+  a.friend4.name.name = 14;
+  a.friend4.age = 15;
+}
+// Typecheck error in line 13, col 3: struct member type is null!
+// Typecheck error in line 27, col 3: this is not a struct.

@@ -1,0 +1,47 @@
+A_program 
+	|--A_programElement 
+		|--A_varDeclStmt let 
+			|--A_varDecl 
+				|--A_varDeclScalar a:
+				|--A_type int;
+
+	|--A_programElement 
+		|--A_varDeclStmt let 
+			|--A_varDecl 
+				|--A_varDeclScalar b:
+				|--A_type int;
+
+	|--A_programElement 
+		|--A_fnDef 
+			|--A_fnDecl fn main(
+				|--A_paramDecl )->
+			|--A_type int{
+
+			|--A_codeBlockStmt 
+				|--A_varDeclStmt let 
+					|--A_varDef 
+						|--A_varDefScalar a:
+						|--A_type int = 
+						|--A_rightVal 
+							|--A_arithExpr 
+								|--A_exprUnit 3;
+
+			|--A_codeBlockStmt 
+				|--A_varDeclStmt let 
+					|--A_varDef 
+						|--A_varDefScalar b:
+						|--A_type int = 
+						|--A_rightVal 
+							|--A_arithExpr 
+								|--A_exprUnit 5;
+
+			|--A_codeBlockStmt 
+				|--A_returnStmt ret 
+				|--A_rightVal 
+					|--A_arithExpr 
+						|--A_arithBiOpExpr 
+							|--A_arithExpr 
+								|--A_exprUnit a+
+							|--A_arithExpr 
+								|--A_exprUnit b;
+}

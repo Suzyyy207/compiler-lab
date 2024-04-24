@@ -1,0 +1,13 @@
+struct MyStruct{
+    a:int,
+    arr [10]:int
+}
+let a:MyStruct;
+fn main(){
+    a.a = 10;
+    let b[10]:int = {1,2,3,4,5,6,7,8,9,10};
+    a.arr = b;
+    a.arr[0] = 0;
+    a.arr[0] = b;
+}
+// Typecheck error in line 11, col 5: cannot assign due to array type mismatch: int scalar!=int array

@@ -1,0 +1,18 @@
+struct MyStruct{
+	x:int,
+	y:int
+}
+let aa : MyStruct;
+
+
+
+
+
+let a:int = 203;
+let b:int = 713;
+
+fn foo(a:int)->int{
+    let b:int = 10;
+    ret a + b;
+}
+// Typecheck error in line 15, col 9: local variables duplicates with global variables.
