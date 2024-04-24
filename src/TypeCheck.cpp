@@ -812,7 +812,7 @@ tc_type check_ExprUnit(std::ostream& out, aA_exprUnit eu){
         case A_exprUnitType::A_fnCallKind:{
             check_FuncCall(out, eu->u.callExpr);
             ret = find_name(out,*eu->u.callExpr->fn,eu->u.callExpr->pos);
-            
+            ret ->isVarArrFunc = 0;
         }
             break;
         case A_exprUnitType::A_arrayExprKind:{
