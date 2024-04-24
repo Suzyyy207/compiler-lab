@@ -80,7 +80,7 @@ bool comp_aA_type(aA_type target, aA_type t){
         if(target->u.nativeType != t->u.nativeType)
             return false;
     if(target->type == A_dataType::A_structTypeKind)
-        if(target->u.structType != t->u.structType)
+        if(*target->u.structType != *t->u.structType)
             return false;
     return true;
 }
@@ -346,6 +346,10 @@ void check_VarDecl(std::ostream& out, aA_varDeclStmt vd)
             tc_type rightV_type;
             // 原生类型只有int，所以不考虑布尔类型的变量
             rightV_type = check_ArithExpr(out,vdef->u.defScalar->val->u.arithExpr);
+            if (!rightV_type->type){
+                error_print(out,vdef->u.defScalar->val->pos,"right value must be assigned first");
+            }
+            
             if((rightV_type->isVarArrFunc != 0) && ( type && !comp_aA_type(type, rightV_type->type))){
                 error_print(out, vdef->u.defScalar->val->pos, "wrong assignment in varDef");
                 return;
@@ -376,6 +380,9 @@ void check_VarDecl(std::ostream& out, aA_varDeclStmt vd)
             tc_type rightV_type;
             // 原生类型只有int，所以不考虑布尔类型的变量
             rightV_type = check_ArithExpr(out,(vdef->u.defArray->vals)[0]->u.arithExpr);
+            if (!rightV_type->type){
+                error_print(out,vdef->u.defScalar->val->pos,"right value must be assigned first");
+            }
             for (int i = 1; i < vdef->u.defArray->vals.size(); i++){
                 if(!comp_tc_type(rightV_type, check_ArithExpr(out,vdef->u.defArray->vals[i]->u.arithExpr))){
                     error_print(out,vdef->u.defArray->pos, "wrong rightVal");
@@ -387,10 +394,10 @@ void check_VarDecl(std::ostream& out, aA_varDeclStmt vd)
                 return;
             }
             if (local_token2Type.size() == 0){
-                g_token2Type.insert({name, rightV_type});
+                g_token2Type.insert({name, tc_Type(rightV_type->type,1)});
             }
             else{
-                (*local_token2Type[local_token2Type.size()-1])[name] = rightV_type;
+                (*local_token2Type[local_token2Type.size()-1])[name] = tc_Type(rightV_type->type,1);
             }
         }
     }
@@ -405,6 +412,19 @@ void check_StructDef(std::ostream& out, aA_structDef sd)
     string name = *sd->id;
     if (struct2Members.find(name) != struct2Members.end())
         error_print(out, sd->pos, "This id is already defined!");
+    for (int i = 0; i < sd->varDecls.size(); i++){
+        if(sd->varDecls[i]->kind == A_varDeclType::A_varDeclScalarKind){
+            if (!sd->varDecls[i]->u.declScalar->type){
+                error_print(out,sd->varDecls[i]->pos,"struct member must have type");
+            }
+        }
+        else if(sd->varDecls[i]->kind == A_varDeclType::A_varDeclArrayKind){
+            if (!sd->varDecls[i]->u.declArray->type){
+                error_print(out,sd->varDecls[i]->pos,"struct member must have type");
+            }
+        }
+    }
+    
     struct2Members[name] = &(sd->varDecls);
     return;
 }
@@ -444,11 +464,18 @@ void check_FnDecl(std::ostream& out, aA_fnDecl fd)
         for(int i=0; i<fd->paramDecl->varDecls.size();i++){
             aA_type param_type;
             if (fd->paramDecl->varDecls[i]->kind == A_varDeclType::A_varDeclArrayKind){
+                if (!fd->paramDecl->varDecls[i]->u.declArray->type){
+                    error_print(out,fd->paramDecl->varDecls[i]->pos,"function's parameter must have type");
+                }
                 param_type = fd->paramDecl->varDecls[i]->u.declArray->type;
             }
             else{
+                if (!fd->paramDecl->varDecls[i]->u.declScalar->type){
+                    error_print(out,fd->paramDecl->varDecls[i]->pos,"function's parameter must have type");
+                }
                 param_type = fd->paramDecl->varDecls[i]->u.declScalar->type;
             }
+            
             
             if (param_type->type == A_dataType::A_structTypeKind){
                 if (struct2Members.find(*param_type->u.structType) == struct2Members.end()){
