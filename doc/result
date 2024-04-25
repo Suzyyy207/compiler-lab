@@ -1,0 +1,232 @@
+yacc -o y.tab.cpp -d parser.yacc -v --debug
+clang++ -std=c++17 -g -c y.tab.cpp
+lex -o lex.yy.cpp lexer.lex 
+clang++ -std=c++17 -g -c lex.yy.cpp
+clang++ -std=c++17 -g -c TypeCheck.cpp
+clang++ -std=c++17 -g -c TeaplAst.cpp
+clang++ -std=c++17 -g -c TeaplaAst.cpp
+clang++ -std=c++17 -g -c PrintTeaplaAst.cpp
+clang++ -std=c++17 -g -c compiler.cpp
+clang++ -std=c++17 -g -o compiler y.tab.o lex.yy.o TypeCheck.o TeaplAst.o TeaplaAst.o PrintTeaplaAst.o compiler.o 
+
+tests/01_var_not_defined.tea
+Typecheck error in line 6, col 5: var c on line 6, col 5 is not defined.
+
+tests/02_assign_to_func.tea
+Typecheck error in line 6, col 5: cannot assign a value to function main on line 6, col 5.
+
+tests/03_func_ret_not_match.tea
+Typecheck error in line 8, col 1: Function definition on line 8 doesn't match the declaration on line 1.
+
+tests/04_local_global_vars.tea
+Typecheck passed!
+
+tests/05_duplicate_definition.tea
+Typecheck error in line 7, col 9: local variables duplicates with function params.
+
+tests/06_member_not_defined.tea
+Typecheck error in line 10, col 5: member 'tail' is not defined.
+
+tests/07_function_call.tea
+Typecheck passed!
+
+tests/08_if_bool_comp.tea
+Typecheck error in line 15, col 8: MyStruct scalar is not comparable with int.
+
+tests/09_not_struct.tea
+Typecheck error in line 13, col 5: this is not a struct.
+
+tests/10_comprehensive_case.tea
+Typecheck passed!
+
+tests/11_function_multi_definition.tea
+Typecheck error in line 5, col 1: Function foo is already defined!
+
+tests/12_assign_scalar_to_array.tea
+Typecheck error in line 3, col 5: cannot assign a value to a on line 3, col 5 due to isVarArrFunc mismatch.
+
+tests/13_var_type_deduce.tea
+Typecheck passed!
+
+tests/14_array_assign.tea
+Typecheck passed!
+
+tests/15_array_len_not_match.tea
+Typecheck error in line 2, col 9: Array length mismatch!
+
+tests/16_func_param_not_match.tea
+Typecheck error in line 5, col 1: Function foo is already defined!
+
+tests/17_func_def_decl_not_match.tea
+Typecheck error in line 2, col 1: Function parameter number mismatch!
+
+tests/18_func_ret_not_match.tea
+Typecheck error in line 2, col 5: Return type mismatch!
+
+tests/19_func_ret_empty.tea
+Typecheck error in line 2, col 5: Return type mismatch! non-void function should have return value.
+
+tests/20_scope.tea
+Typecheck passed!
+
+tests/21_global_var_define_order.tea
+Typecheck error in line 1, col 13: var a on line 1, col 13 is not defined.
+
+tests/22_func_param_dup.tea
+Typecheck error in line 1, col 5: undefined struct type in var decl!
+
+tests/23_local_global_dup.tea
+Typecheck error in line 5, col 9: local variables duplicates with global variables.
+
+tests/24_local_outside_dup.tea
+Typecheck error in line 4, col 13: local variables duplicates with local variables.
+
+tests/25_local_param_dup.tea
+Typecheck error in line 2, col 9: local variables duplicates with function params.
+
+tests/26_scope_reuse_var.tea
+Typecheck error in line 1, col 1: Function foo should have return value.
+
+tests/27_empty_func_body.tea
+Typecheck passed!
+
+tests/28_call_var.tea
+Typecheck error in line 4, col 13: This function is not defined!
+
+tests/29_func_call_param_mismatch.tea
+Typecheck error in line 2, col 5: Too many parameters in function call!
+
+tests/30_func_void_not_match.tea
+Typecheck error in line 5, col 1: Function main is already defined!
+
+tests/31_func_void_param_mismatch.tea
+Typecheck error in line 3, col 1: Function foo is already defined!
+
+tests/32_func_param_mismatch_type.tea
+Typecheck error in line 3, col 1: Function foo is already defined!
+
+tests/33_func_param_ignore.tea
+Typecheck error in line 1, col 8: Function parameter type is null!
+
+tests/34_func_param_type_undefined.tea
+Typecheck error in line 1, col 8: function parameter's struct type is not defined!
+
+tests/35_func_param_define_late.tea
+Typecheck passed!
+
+tests/36_func_ret_not_defined.tea
+Typecheck error in line 1, col 1: function return type's struct type is not defined!
+
+tests/m_048_inner_ret.tea
+Typecheck error in line 3, col 9: Return type mismatch! non-void function should have return value.
+
+tests/m_049_inner_ret_2.tea
+Typecheck error in line 3, col 9: Return type mismatch! void function should not have return value.
+
+tests/mytest01.tea
+Typecheck passed!
+
+tests/mytest02.tea
+Typecheck error in line 7, col 12: Array index should be int scalar!
+
+tests/mytest03.tea
+Typecheck error in line 4, col 1: Function main should have return value.
+
+tests/mytest04.tea
+Typecheck error in line 5, col 5: cannot assign due to type mismatch: int array!=int scalar
+
+tests/mytest05.tea
+Typecheck error in line 5, col 1: Function foo is already defined!
+
+tests/mytest06.tea
+Typecheck error in line 15, col 5: Return type mismatch!
+
+tests/mytest07.tea
+Typecheck passed!
+
+tests/mytest08.tea
+Typecheck error in line 1, col 13: var a on line 1, col 13 is not defined.
+
+tests/mytest09.tea
+Typecheck error in line 15, col 9: local variables duplicates with global variables.
+
+tests/mytest10.tea
+Typecheck error in line 4, col 13: local variables duplicates with local variables.
+
+tests/mytest11.tea
+Typecheck error in line 2, col 9: local variables duplicates with function params.
+
+tests/mytest12.tea
+Typecheck error in line 1, col 1: Function foo should have return value.
+
+tests/mytest13.tea
+Typecheck error in line 14, col 1: Function foo is already defined!
+
+tests/mytest14.tea
+Typecheck error in line 5, col 1: Function foo is already defined!
+
+tests/mytest15.tea
+Typecheck error in line 2, col 1: Function parameter number mismatch!
+
+tests/mytest16.tea
+Typecheck error in line 2, col 5: Return type mismatch! non-void function should have return value.
+
+tests/mytest17.tea
+Typecheck passed!
+
+tests/mytest18.tea
+Typecheck error in line 2, col 1: void function(in declaration) bar should not have return value.
+
+tests/mytest19.tea
+Typecheck error in line 5, col 1: Function definition on line 5 doesn't match the declaration on line 4.
+
+tests/mytest20.tea
+Typecheck passed!
+
+tests/mytest21.tea
+Typecheck error in line 4, col 5: cannot assign void value to variable a on line 4, col 5.
+
+tests/mytest22.tea
+Typecheck passed!
+
+tests/mytest23.tea
+Typecheck passed!
+
+tests/mytest24.tea
+Typecheck error in line 1, col 1: Function foo should have return value.
+
+tests/mytest25.tea
+Typecheck error in line 6, col 5: cannot assign void value to variable b on line 6, col 5.
+
+tests/mytest26.tea
+Typecheck error in line 1, col 13: Function parameter duplicates with other function parameters.
+
+tests/mytest27.tea
+Typecheck error in line 11, col 5: cannot assign due to array type mismatch: int scalar!=int array
+
+tests/mytest28.tea
+Typecheck error in line 4, col 5: This member is not an array!
+
+tests/mytest29.tea
+Typecheck error in line 13, col 3: struct member type is null!
+
+tests/mytest30.tea
+Typecheck passed!
+
+tests/mytest31.tea
+Typecheck error in line 2, col 1: Function foo should have return value.
+
+tests/mytest32.tea
+Typecheck error in line 2, col 9: cannot assign a function to variable a on line 2, col 9.
+
+tests/mytest33.tea
+Typecheck error in line 6, col 5: cannot assign a function to struct member a on line 6, col 5.
+
+tests/mytest34.tea
+Typecheck error in line 2, col 5: struct member's scalar type is not defined struct!
+
+tests/mytest35.tea
+Typecheck error in line 8, col 5: cannot assign a function to struct member a on line 8, col 5.
+
+tests/mytest36.tea
+Typecheck error in line 4, col 1: Function parameter number mismatch!

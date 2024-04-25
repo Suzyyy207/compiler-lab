@@ -1,0 +1,18 @@
+01: var c on line 6, col 5 is not defined.
+02: cannot assign a value to function main on line 6, col 5.
+03: function definition on line 8 doesn't match the declaration on line 1.
+04: pass
+05: line 7, col 9: local variables dplicates with function params.
+06: line 10, col 5: member 'tail' is not defined.
+07: pass
+08: line 15, col 8: MyStruct is not comparable with int.
+09: line 13, col 5: a is not a struct.
+10: pass
+11: pass / not compatible line 5, col 9
+12: defined before declared line 18, col 1
+13: global & local same name variable, line 5, col 9
+14: ret issue line 14, col 5
+15: ret issue line 9 , col 5
+16: array assignment issue, line 7, col 9
+17: pass
+18: line 25, col 13: Only int can be arithmetic expression operation values!
