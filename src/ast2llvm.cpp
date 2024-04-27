@@ -543,7 +543,75 @@ std::vector<Func_local*> ast2llvmProg_second(aA_program p)
 
 Func_local* ast2llvmFunc(aA_fnDef f)
 {
+    string fun_name = *f->fnDecl->id;
+    FuncType ret_type;
+    if (!f->fnDecl->type){
+        ret_type = FuncType(LLVMIR::ReturnType::VOID_TYPE, *f->fnDecl->type->u.structType);
+    }
+    else{
+        if (f->fnDecl->type->type == A_dataType::A_nativeTypeKind){
+            ret_type = FuncType();
+        }
+        else{
+            ret_type = FuncType(LLVMIR::ReturnType::STRUCT_TYPE, *f->fnDecl->type->u.structType);
+        }
+    }
+
+    std::vector<Temp_temp*> args;
+    int reg_int = 100;
+    for (int i = 0; i < f->fnDecl->paramDecl->varDecls.size(); i++)
+    {
+        if(f->fnDecl->paramDecl->varDecls[i]->kind == A_varDeclType::A_varDeclScalarKind){
+            string arg_name = *f->fnDecl->paramDecl->varDecls[i]->u.declScalar->id;
+            if (f->fnDecl->paramDecl->varDecls[i]->u.declScalar->type->type == A_dataType::A_nativeTypeKind){
+                Temp_temp temp = Temp_temp(reg_int+i,TempType::INT_TEMP,0);
+                args.push_back(&temp);
+                localVarMap.emplace(arg_name, &temp);
+            }
+            else{
+                Temp_temp temp = Temp_temp(reg_int+i,TempType::STRUCT_PTR,0,*f->fnDecl->paramDecl->varDecls[i]->u.declScalar->type->u.structType);
+                args.push_back(&temp);
+                localVarMap.emplace(arg_name, &temp);
+            }
+        }
+        else{
+            string arg_name = *f->fnDecl->paramDecl->varDecls[i]->u.declArray->id;
+            if (f->fnDecl->paramDecl->varDecls[i]->u.declArray->type->type == A_dataType::A_nativeTypeKind){
+                Temp_temp temp = Temp_temp(reg_int+i,TempType::INT_PTR,-1);
+                args.push_back(&temp);
+                localVarMap.emplace(arg_name, &temp);
+            }
+            else{
+                Temp_temp temp = Temp_temp(reg_int+i,TempType::STRUCT_PTR,-1,*f->fnDecl->paramDecl->varDecls[i]->u.declArray->type->u.structType);
+                args.push_back(&temp);
+                localVarMap.emplace(arg_name, &temp);
+            }
+        }
+    }
     
+    //产生ir
+    for (int i = 0; i < f->stmts.size(); i++)
+    {
+        switch (f->stmts[i]->kind)
+        {
+        case A_varDeclStmtKind:
+            break;
+        case A_assignStmtKind:
+            break;
+        case A_callStmtKind:
+            break;
+        case A_ifStmtKind:
+            break;
+        case A_whileStmtKind:
+            break;
+        case A_returnStmtKind:
+            break;   
+        default:
+            break;
+        }
+    }
+
+    return &(Func_local(fun_name, ret_type, args, emit_irs));
 }
 
 void ast2llvmBlock(aA_codeBlockStmt b,Temp_label *con_label,Temp_label *bre_label)
