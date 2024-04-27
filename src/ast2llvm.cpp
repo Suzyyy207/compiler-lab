@@ -592,23 +592,7 @@ Func_local* ast2llvmFunc(aA_fnDef f)
     //产生ir
     for (int i = 0; i < f->stmts.size(); i++)
     {
-        switch (f->stmts[i]->kind)
-        {
-        case A_varDeclStmtKind:
-            break;
-        case A_assignStmtKind:
-            break;
-        case A_callStmtKind:
-            break;
-        case A_ifStmtKind:
-            break;
-        case A_whileStmtKind:
-            break;
-        case A_returnStmtKind:
-            break;   
-        default:
-            break;
-        }
+        ast2llvmBlock(f->stmts[i], &Temp_label("start"), &Temp_label("end"));
     }
 
     return &(Func_local(fun_name, ret_type, args, emit_irs));
@@ -616,6 +600,26 @@ Func_local* ast2llvmFunc(aA_fnDef f)
 
 void ast2llvmBlock(aA_codeBlockStmt b,Temp_label *con_label,Temp_label *bre_label)
 {
+    if (b->kind == A_codeBlockStmtType::A_callStmtKind){
+        FuncType ret = funcReturnMap.find(*b->u.callStmt->fnCall->fn)->second;
+        std::vector<AS_operand*> args;
+        for (int i = 0; i < b->u.callStmt->fnCall->vals.size(); i++)
+        {
+            args.push_back(ast2llvmRightVal(b->u.callStmt->fnCall->vals[i]));
+        }
+        
+        if (ret.type == ReturnType::VOID_TYPE){
+            emit_irs.push_back(L_Voidcall(*b->u.callStmt->fnCall->fn, args));
+        }
+        else if (ret.type == ReturnType::INT_TYPE){
+            Temp_temp* ret = Temp_newtemp_int();
+            emit_irs.push_back(L_Call(*b->u.callStmt->fnCall->fn,AS_Operand_Temp(ret),args));
+        }
+        else{
+            Temp_temp* ret = Temp_newtemp_struct(ret->structname);
+            emit_irs.push_back(L_Call(*b->u.callStmt->fnCall->fn,AS_Operand_Temp(ret),args));
+        }
+    }
     
 }
 
