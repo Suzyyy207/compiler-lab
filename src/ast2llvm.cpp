@@ -626,38 +626,35 @@ void ast2llvmBlock(aA_codeBlockStmt b,Temp_label *con_label,Temp_label *bre_labe
     else if(b->kind == A_codeBlockStmtType::A_varDeclStmtKind){
         if (b->u.varDeclStmt->kind == A_varDeclStmtType::A_varDeclKind){
             if (b->u.varDeclStmt->u.varDecl->kind == A_varDeclType::A_varDeclScalarKind){
+                string var_name = *b->u.varDeclStmt->u.varDecl->u.declScalar->id;
+                Temp_temp* reg;
                 if(!b->u.varDeclStmt->u.varDecl->u.declScalar->type){
-                    Temp_temp* reg = Temp_newtemp_int();
-                    emit_irs.push_back(L_Alloca(AS_Operand_Temp(reg)));
-                    localVarMap.emplace(b->u.varDeclStmt->u.varDecl->u.declScalar->id, reg);
+                    reg = Temp_newtemp_int();
                 }
                 else if(b->u.varDeclStmt->u.varDecl->u.declScalar->type->type == A_dataType::A_nativeTypeKind){
-                    Temp_temp* reg = Temp_newtemp_int();
-                    emit_irs.push_back(L_Alloca(AS_Operand_Temp(reg)));
-                    localVarMap.emplace(b->u.varDeclStmt->u.varDecl->u.declScalar->id, reg);
+                    reg = Temp_newtemp_int();
                 }
                 else if(b->u.varDeclStmt->u.varDecl->u.declScalar->type->type == A_dataType::A_structTypeKind){
-                    Temp_temp* reg = Temp_newtemp_struct(*b->u.varDeclStmt->u.varDecl->u.declScalar->type->u.structType);
-                    emit_irs.push_back(L_Alloca(AS_Operand_Temp(reg)));
-                    localVarMap.emplace(b->u.varDeclStmt->u.varDecl->u.declScalar->id, reg);
+                    reg = Temp_newtemp_struct(*b->u.varDeclStmt->u.varDecl->u.declScalar->type->u.structType);
                 }
+                emit_irs.push_back(L_Alloca(AS_Operand_Temp(reg)));
+                localVarMap.emplace(var_name, reg);
             }
             else if(b->u.varDeclStmt->u.varDecl->kind == A_varDeclType::A_varDeclArrayKind){
+                string var_name = *b->u.varDeclStmt->u.varDecl->u.declArray->id;
+                int arr_len = b->u.varDeclStmt->u.varDecl->u.declArray->len;
+                Temp_temp* reg; 
                 if(!b->u.varDeclStmt->u.varDecl->u.declArray->type){
-                    Temp_temp* reg =  Temp_newtemp_int_ptr(b->u.varDeclStmt->u.varDecl->u.declArray->len);
-                    emit_irs.push_back(L_Alloca(AS_Operand_Temp(reg)));
-                    localVarMap.emplace(b->u.varDeclStmt->u.varDecl->u.declArray->id, reg);
+                    reg =  Temp_newtemp_int_ptr(arr_len);
                 }
                 else if(b->u.varDeclStmt->u.varDecl->u.declArray->type->type == A_dataType::A_nativeTypeKind){
-                    Temp_temp* reg =  Temp_newtemp_int_ptr(b->u.varDeclStmt->u.varDecl->u.declArray->len);
-                    emit_irs.push_back(L_Alloca(AS_Operand_Temp(reg)));
-                    localVarMap.emplace(b->u.varDeclStmt->u.varDecl->u.declArray->id, reg);
+                    reg =  Temp_newtemp_int_ptr(arr_len);
                 }
                 else if(b->u.varDeclStmt->u.varDecl->u.declArray->type->type == A_dataType::A_structTypeKind){
-                    Temp_temp* reg =  Temp_newtemp_struct_ptr(b->u.varDeclStmt->u.varDecl->u.declArray->len, *b->u.varDeclStmt->u.varDecl->u.declArray->type->u.structType);
-                    emit_irs.push_back(L_Alloca(AS_Operand_Temp(reg)));
-                    localVarMap.emplace(b->u.varDeclStmt->u.varDecl->u.declArray->id, reg);
+                    reg =  Temp_newtemp_struct_ptr(arr_len, *b->u.varDeclStmt->u.varDecl->u.declArray->type->u.structType);
                 }
+                emit_irs.push_back(L_Alloca(AS_Operand_Temp(reg)));
+                localVarMap.emplace(var_name, reg);
             }
         }
         else if(b->kind == A_varDeclStmtType::A_varDefKind){
