@@ -594,10 +594,12 @@ Func_local* ast2llvmFunc(aA_fnDef f)
     //产生ir
     for (int i = 0; i < f->stmts.size(); i++)
     {
-        ast2llvmBlock(f->stmts[i], &Temp_label("start"), &Temp_label("end"));
+        ast2llvmBlock(f->stmts[i], Temp_newlabel(), Temp_newlabel());
     }
 
-    return &(Func_local(fun_name, ret_type, args, emit_irs));
+    Func_local* func = new Func_local(fun_name, ret_type, args, emit_irs);
+
+    return func;
 }
 
 void ast2llvmBlock(aA_codeBlockStmt b,Temp_label *con_label,Temp_label *bre_label)
@@ -657,7 +659,7 @@ void ast2llvmBlock(aA_codeBlockStmt b,Temp_label *con_label,Temp_label *bre_labe
                 localVarMap.emplace(var_name, reg);
             }
         }
-        else if(b->kind == A_varDeclStmtType::A_varDefKind){
+        else if(b->u.varDeclStmt->kind == A_varDeclStmtType::A_varDefKind){
             if(b->u.varDeclStmt->u.varDef->kind == A_varDefType::A_varDefScalarKind){
                 if (!b->u.varDeclStmt->u.varDef->u.defScalar->type){
                     Temp_temp* reg = Temp_newtemp_int();
