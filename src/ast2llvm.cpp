@@ -558,33 +558,35 @@ Func_local* ast2llvmFunc(aA_fnDef f)
     }
 
     std::vector<Temp_temp*> args;
-    int reg_int = 100;
     for (int i = 0; i < f->fnDecl->paramDecl->varDecls.size(); i++)
     {
         if(f->fnDecl->paramDecl->varDecls[i]->kind == A_varDeclType::A_varDeclScalarKind){
             string arg_name = *f->fnDecl->paramDecl->varDecls[i]->u.declScalar->id;
             if (f->fnDecl->paramDecl->varDecls[i]->u.declScalar->type->type == A_dataType::A_nativeTypeKind){
-                Temp_temp temp = Temp_temp(reg_int+i,TempType::INT_TEMP,0);
-                args.push_back(&temp);
-                localVarMap.emplace(arg_name, &temp);
+                Temp_temp* temp = Temp_newtemp_int();
+                args.push_back(temp);
+                localVarMap.emplace(arg_name, temp);
             }
             else{
-                Temp_temp temp = Temp_temp(reg_int+i,TempType::STRUCT_PTR,0,*f->fnDecl->paramDecl->varDecls[i]->u.declScalar->type->u.structType);
-                args.push_back(&temp);
-                localVarMap.emplace(arg_name, &temp);
+                string struct_name = *f->fnDecl->paramDecl->varDecls[i]->u.declScalar->type->u.structType;
+                StructInfo info = structInfoMap.find(struct_name)->second;
+                Temp_temp* temp = Temp_newtemp_struct_ptr(info.memberinfos.size(), struct_name);
+                args.push_back(temp);
+                localVarMap.emplace(arg_name, temp);
             }
         }
         else{
             string arg_name = *f->fnDecl->paramDecl->varDecls[i]->u.declArray->id;
             if (f->fnDecl->paramDecl->varDecls[i]->u.declArray->type->type == A_dataType::A_nativeTypeKind){
-                Temp_temp temp = Temp_temp(reg_int+i,TempType::INT_PTR,-1);
-                args.push_back(&temp);
-                localVarMap.emplace(arg_name, &temp);
+                Temp_temp *temp = Temp_newtemp_int_ptr(f->fnDecl->paramDecl->varDecls[i]->u.declArray->len);
+                args.push_back(temp);
+                localVarMap.emplace(arg_name, temp);
             }
             else{
-                Temp_temp temp = Temp_temp(reg_int+i,TempType::STRUCT_PTR,-1,*f->fnDecl->paramDecl->varDecls[i]->u.declArray->type->u.structType);
-                args.push_back(&temp);
-                localVarMap.emplace(arg_name, &temp);
+                string struct_name = *f->fnDecl->paramDecl->varDecls[i]->u.declArray->type->u.structType;
+                Temp_temp *temp = Temp_newtemp_struct_ptr(f->fnDecl->paramDecl->varDecls[i]->u.declArray->len, struct_name);
+                args.push_back(temp);
+                localVarMap.emplace(arg_name, temp);
             }
         }
     }
