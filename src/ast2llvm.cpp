@@ -659,6 +659,7 @@ void ast2llvmBlock(aA_codeBlockStmt b,Temp_label *con_label,Temp_label *bre_labe
                 localVarMap.emplace(var_name, reg);
             }
         }
+        //
         else if(b->u.varDeclStmt->kind == A_varDeclStmtType::A_varDefKind){
             if(b->u.varDeclStmt->u.varDef->kind == A_varDefType::A_varDefScalarKind){
                 if (!b->u.varDeclStmt->u.varDef->u.defScalar->type){
@@ -729,6 +730,13 @@ void ast2llvmBlock(aA_codeBlockStmt b,Temp_label *con_label,Temp_label *bre_labe
 
 AS_operand* ast2llvmRightVal(aA_rightVal r)
 {
+    // rightVal := arithExpr | boolExpr
+    if (r->kind == A_rightValType::A_arithExprValKind){
+        return ast2llvmArithExpr(r->u.arithExpr);
+    }
+    else{
+        return ast2llvmBoolExpr(r->u.boolExpr);
+    }
     
 }
 
@@ -739,7 +747,20 @@ AS_operand* ast2llvmLeftVal(aA_leftVal l)
 
 AS_operand* ast2llvmIndexExpr(aA_indexExpr index)
 {
+    AS_operand* result;
+    if (index->kind == A_indexExprKind::A_numIndexKind){
+        result = AS_Operand_Const(index->u.num);
+    }
+    else{
+        if(localVarMap.find(*index->u.id) != localVarMap.end()){
+            result = AS_Operand_Temp(localVarMap.find(*index->u.id)->second);
+        }
+        else{
+            result = AS_Operand_Name(globalVarMap.find(*index->u.id)->second);
+        }
+    }
     
+    return result;
 }
 
 AS_operand* ast2llvmBoolExpr(aA_boolExpr b,Temp_label *true_label,Temp_label *false_label)
@@ -764,22 +785,161 @@ void ast2llvmComOpExpr(aA_comExpr c,Temp_label *true_label,Temp_label *false_lab
 
 AS_operand* ast2llvmArithBiOpExpr(aA_arithBiOpExpr a)
 {
+    AS_operand* left = ast2llvmArithExpr(a->left);
+    AS_operand* right = ast2llvmArithExpr(a->right);
+    Temp_temp* reg = Temp_newtemp_int();  //最终运算结果都是int类型
     
+    AS_operand* as = AS_Operand_Temp(reg);
+    switch (a->op)
+    {
+        case A_arithBiOp::A_add:
+            emit_irs.push_back(L_Binop(L_binopKind::T_plus, left, right, AS_Operand_Temp(reg)));
+            break;
+        case A_arithBiOp::A_sub:
+            emit_irs.push_back(L_Binop(L_binopKind::T_minus, left, right, AS_Operand_Temp(reg)));
+            break;
+        case A_arithBiOp::A_mul:
+            emit_irs.push_back(L_Binop(L_binopKind::T_mul, left, right, AS_Operand_Temp(reg)));
+            break;
+        case A_arithBiOp::A_div:
+            emit_irs.push_back(L_Binop(L_binopKind::T_div, left, right, AS_Operand_Temp(reg)));
+            break;
+        default:
+            break;
+    }
+    
+    return AS_Operand_Temp(reg);
 }
 
 AS_operand* ast2llvmArithUExpr(aA_arithUExpr a)
 {
-    
+    AS_operand* origin_ari = ast2llvmExprUnit(a->expr);
+    Temp_temp* result_reg = Temp_newtemp_int();
+    AS_operand* result = AS_Operand_Temp(result_reg);
+    emit_irs.push_back(L_Binop(L_binopKind::T_minus, AS_Operand_Const(0),origin_ari, result));
+    return result;
 }
 
 AS_operand* ast2llvmArithExpr(aA_arithExpr a)
 {
-    
+    //arithExpr := arithExpr arithBiOp arithExpr | exprUnit
+    if (a->kind == A_arithExprType::A_arithBiOpExprKind){
+        return ast2llvmArithBiOpExpr(a->u.arithBiOpExpr);
+    }
+    else{
+        return ast2llvmExprUnit(a->u.exprUnit);
+    }
 }
 
 AS_operand* ast2llvmExprUnit(aA_exprUnit e)
 {
-    
+    AS_operand* result;
+    switch (e->kind)
+    {
+        case A_exprUnitType::A_numExprKind:{
+            result = AS_Operand_Const(e->u.num);
+            break;
+        }
+        case A_exprUnitType::A_idExprKind:{
+            if (localVarMap.find(*e->u.id) != localVarMap.end()){
+                result = AS_Operand_Temp(localVarMap.find(*e->u.id)->second);
+            }
+            else if(globalVarMap.find(*e->u.id) != globalVarMap.end()){
+                result = AS_Operand_Name(globalVarMap.find(*e->u.id)->second);
+            }
+            break;
+        }
+        case A_exprUnitType::A_arithExprKind:{
+            result = ast2llvmArithExpr(e->u.arithExpr);
+            break;
+        }
+        case A_exprUnitType::A_arithUExprKind:{
+            result = ast2llvmArithUExpr(e->u.arithUExpr);
+            break;
+        }
+        case A_exprUnitType::A_arrayExprKind:{
+            AS_operand* index = ast2llvmIndexExpr(e->u.arrayExpr->idx);
+            AS_operand* base = ast2llvmLeftVal(e->u.arrayExpr->arr);
+            Temp_temp* new_reg;
+            if (base->kind == OperandKind::TEMP){
+                if (base->u.TEMP->type == TempType::INT_PTR){
+                    new_reg = Temp_newtemp_int_ptr(base->u.TEMP->len);
+                }
+                else{
+                    new_reg = Temp_newtemp_struct_ptr(base->u.TEMP->len, base->u.TEMP->structname);
+                }
+            }
+            else if (base->kind == OperandKind::NAME){
+                if (base->u.NAME->type == TempType::INT_PTR){
+                    new_reg = Temp_newtemp_int_ptr(base->u.TEMP->len);
+                }
+                else{
+                    new_reg = Temp_newtemp_struct_ptr(base->u.TEMP->len, base->u.TEMP->structname);
+                }
+            }
+            result = AS_Operand_Temp(new_reg);
+            emit_irs.push_back(L_Gep(result, base, index));
+            break;
+        }
+        case A_exprUnitType::A_memberExprKind:{
+            AS_operand* base = ast2llvmLeftVal(e->u.memberExpr->structId);
+            StructInfo info;
+            if (base->kind == OperandKind::TEMP){
+                info = structInfoMap.find(base->u.TEMP->structname)->second;
+            }
+            else{
+                info = structInfoMap.find(base->u.NAME->structname)->second;
+            }
+            string member_id = *e->u.memberExpr->memberId;
+            MemberInfo member = info.memberinfos.find(member_id)->second;
+            int index = member.offset;
+            Temp_temp* new_ptr;
+            if (member.def.kind == TempType::INT_TEMP){
+                new_ptr = Temp_newtemp_int();
+            }
+            else if(member.def.kind == TempType::INT_PTR){
+                new_ptr = Temp_newtemp_int_ptr(member.def.len);
+            }
+            else if(member.def.kind == TempType::STRUCT_TEMP){
+                new_ptr = Temp_newtemp_struct(member.def.structname);
+            }
+            else if(member.def.kind == TempType::STRUCT_PTR){
+                new_ptr = Temp_newtemp_struct_ptr(member.def.len, member.def.structname);
+            }
+            
+            result = AS_Operand_Temp(new_ptr);
+            emit_irs.push_back(L_Gep(result, base, AS_Operand_Const(index)));
+            break;
+        }
+        case A_exprUnitType::A_fnCallKind:{
+            FuncType ret_fn = funcReturnMap.find(*e->u.callExpr->fn)->second;
+            std::vector<AS_operand*> args;
+            for (int i = 0; i < e->u.callExpr->vals.size(); i++)
+            {
+                args.push_back(ast2llvmRightVal(e->u.callExpr->vals[i]));
+            }
+            
+            if (ret_fn.type == ReturnType::VOID_TYPE){
+                emit_irs.push_back(L_Voidcall(*e->u.callExpr->fn, args));
+            }
+            else if (ret_fn.type == ReturnType::INT_TYPE){
+                Temp_temp* ret_fn = Temp_newtemp_int();
+                result = AS_Operand_Temp(ret_fn);
+                emit_irs.push_back(L_Call(*e->u.callExpr->fn,result,args));
+            }
+            else{
+                Temp_temp* ret = Temp_newtemp_struct(ret->structname);
+                result = AS_Operand_Temp(ret);
+                emit_irs.push_back(L_Call(*e->u.callExpr->fn,result,args));
+            }
+            break;
+        }
+
+        default:
+            break;
+    }
+
+    return result;
 }
 
 LLVMIR::L_func* ast2llvmFuncBlock(Func_local *f)
