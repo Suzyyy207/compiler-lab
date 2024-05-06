@@ -692,7 +692,7 @@ void ast2llvmBlock(aA_codeBlockStmt b,Temp_label *con_label,Temp_label *bre_labe
                         AS_operand* rightVal = ast2llvmRightVal(b->u.varDeclStmt->u.varDef->u.defArray->vals[i]);
                         Temp_temp* reg_temp = Temp_newtemp_int_ptr(b->u.varDeclStmt->u.varDef->u.defArray->len-i);
                         emit_irs.push_back(L_Gep(AS_Operand_Temp(reg_temp), AS_Operand_Temp(reg), AS_Operand_Const(i)));
-                        emit_irs.push_back(L_Store(rightVal, AS_Operand_Temp(reg)));
+                        emit_irs.push_back(L_Store(rightVal, AS_Operand_Temp(reg_temp)));
                     }
                     localVarMap.emplace(b->u.varDeclStmt->u.varDef->u.defArray->id, reg);
                 }
@@ -703,7 +703,7 @@ void ast2llvmBlock(aA_codeBlockStmt b,Temp_label *con_label,Temp_label *bre_labe
                         AS_operand* rightVal = ast2llvmRightVal(b->u.varDeclStmt->u.varDef->u.defArray->vals[i]);
                         Temp_temp* reg_temp = Temp_newtemp_int_ptr(b->u.varDeclStmt->u.varDef->u.defArray->len-i);
                         emit_irs.push_back(L_Gep(AS_Operand_Temp(reg_temp), AS_Operand_Temp(reg), AS_Operand_Const(i)));
-                        emit_irs.push_back(L_Store(rightVal, AS_Operand_Temp(reg)));
+                        emit_irs.push_back(L_Store(rightVal, AS_Operand_Temp(reg_temp)));
                     }
                     localVarMap.emplace(b->u.varDeclStmt->u.varDef->u.defArray->id, reg);
                 }
@@ -714,7 +714,7 @@ void ast2llvmBlock(aA_codeBlockStmt b,Temp_label *con_label,Temp_label *bre_labe
                         AS_operand* rightVal = ast2llvmRightVal(b->u.varDeclStmt->u.varDef->u.defArray->vals[i]);
                         Temp_temp* reg_temp = Temp_newtemp_struct_ptr(b->u.varDeclStmt->u.varDef->u.defArray->len-i, *b->u.varDeclStmt->u.varDef->u.defArray->type->u.structType);
                         emit_irs.push_back(L_Gep(AS_Operand_Temp(reg_temp), AS_Operand_Temp(reg), AS_Operand_Const(i)));
-                        emit_irs.push_back(L_Store(rightVal, AS_Operand_Temp(reg)));
+                        emit_irs.push_back(L_Store(rightVal, AS_Operand_Temp(reg_temp)));
                     }
                     localVarMap.emplace(b->u.varDeclStmt->u.varDef->u.defArray->id, reg);
                 }
@@ -759,7 +759,7 @@ AS_operand* ast2llvmIndexExpr(aA_indexExpr index)
             result = AS_Operand_Name(globalVarMap.find(*index->u.id)->second);
         }
     }
-    
+
     return result;
 }
 
