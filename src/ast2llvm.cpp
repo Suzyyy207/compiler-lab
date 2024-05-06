@@ -782,13 +782,37 @@ void ast2llvmBlock(aA_codeBlockStmt b,Temp_label *con_label,Temp_label *bre_labe
         if (b->u.ifStmt->elseStmts.size() > 0){
             emit_irs.push_back(L_Label(else_label));
             for (int i = 0; i < b->u.ifStmt->elseStmts.size(); i++){
-                ast2llvmBlock(b->u.ifStmt->ifStmts[i]);
+                ast2llvmBlock(b->u.ifStmt->elseStmts[i], con_label, bre_label);
             }
             emit_irs.push_back(L_Jump(continue_label));
         }
         emit_irs.push_back(L_Label(continue_label));
     }
+    else if(b->kind == A_codeBlockStmtType::A_whileStmtKind){
+        Temp_label* check_label = Temp_newlabel();
+        Temp_label* body_label = Temp_newlabel();
+        Temp_label* out_label = Temp_newlabel();
+
+        emit_irs.push_back(L_Label(check_label));
+        AS_operand* condition = ast2llvmBoolExpr(b->u.whileStmt->boolExpr);
+        emit_irs.push_back(L_Cjump(condition, body_label, out_label));
+
+        emit_irs.push_back(L_Label(body_label));
+        for (int i = 0; i < b->u.whileStmt->whileStmts.size(); i++)
+        {
+            ast2llvmBlock(b->u.whileStmt->whileStmts[i], check_label, out_label);
+        }
+        emit_irs.push_back(L_Jump(check_label));
+
+        emit_irs.push_back(L_Label(out_label));
+    }
     
+    else if(b->kind == A_codeBlockStmtType::A_breakStmtKind){
+        emit_irs.push_back(L_Jump(bre_label));
+    }
+    else if(b->kind == A_codeBlockStmtType::A_continueStmtKind){
+        emit_irs.push_back(L_Jump(con_label));
+    }
     
 }
 
