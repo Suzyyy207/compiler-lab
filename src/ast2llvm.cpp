@@ -646,13 +646,18 @@ void ast2llvmBlock(aA_codeBlockStmt b,Temp_label *con_label,Temp_label *bre_labe
         {
             AS_operand* src = ast2llvmRightVal(b->u.callStmt->fnCall->vals[i]);
             AS_operand* dst;
-            if (src->kind == OperandKind::ICONST){
-                args.push_back(src);
-            }
-            else{
+            if (src->kind == OperandKind::TEMP && src->u.TEMP->type == TempType::INT_TEMP){
                 dst = get_dst(src);
                 emit_irs.push_back(L_Load(dst, src));
                 args.push_back(dst);
+            }
+            else if(src->kind == OperandKind::NAME && src->u.NAME->type == TempType::INT_TEMP){
+                dst = get_dst(src);
+                emit_irs.push_back(L_Load(dst, src));
+                args.push_back(dst);
+            }
+            else{
+                args.push_back(src);
             }
         }
         
