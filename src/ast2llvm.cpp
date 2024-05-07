@@ -69,7 +69,7 @@ int ast2llvmBoolExpr_first(aA_boolExpr b)
         break;
     }
     default:
-         break;
+        break;
     }
     return 0;
 }
@@ -822,7 +822,21 @@ AS_operand* ast2llvmRightVal(aA_rightVal r)
         return ast2llvmArithExpr(r->u.arithExpr);
     }
     else{
-        return ast2llvmBoolExpr(r->u.boolExpr);
+        Temp_label* true_label = Temp_newlabel();
+        Temp_label* false_label = Temp_newlabel();
+        AS_operand* result = ast2llvmBoolExpr(r->u.boolExpr,true_label, false_label);
+        Temp_label* out_label = Temp_newlabel();
+        emit_irs.push_back(L_Label(true_label));
+        emit_irs.push_back(L_Store(AS_Operand_Const(1), result));
+        emit_irs.push_back(L_Jump(out_label));
+        emit_irs.push_back(L_Label(false_label));
+        emit_irs.push_back(L_Store(AS_Operand_Const(0), result));
+        emit_irs.push_back(L_Jump(out_label));
+        emit_irs.push_back(L_Label(out_label));
+
+        AS_operand* load_result = AS_Operand_Temp(Temp_newtemp_int());
+        emit_irs.push_back(L_Load(load_result, result));
+        return load_result;
     }
     
 }
@@ -931,7 +945,6 @@ AS_operand* ast2llvmBoolBiOpExpr(aA_boolBiOpExpr b,Temp_label *true_label,Temp_l
 {
     AS_operand* result = AS_Operand_Temp(Temp_newtemp_int_ptr(0));
     emit_irs.push_back(L_Alloca(result));
-    Temp_label* out_label = Temp_newlabel();
     Temp_label* middle_label = Temp_newlabel();
     if (b->op == A_boolBiOp::A_and)
     {
@@ -945,18 +958,7 @@ AS_operand* ast2llvmBoolBiOpExpr(aA_boolBiOpExpr b,Temp_label *true_label,Temp_l
         emit_irs.push_back(L_Label(middle_label));
         AS_operand* right = ast2llvmBoolExpr(b->right, true_label, false_label);
     }
-
-    emit_irs.push_back(L_Label(true_label));
-    emit_irs.push_back(L_Store(AS_Operand_Const(1), result));
-    emit_irs.push_back(L_Jump(out_label));
-    emit_irs.push_back(L_Label(false_label));
-    emit_irs.push_back(L_Store(AS_Operand_Const(0), result));
-    emit_irs.push_back(L_Jump(out_label));
-    emit_irs.push_back(L_Label(out_label));
-
-    AS_operand* load_result = AS_Operand_Temp(Temp_newtemp_int());
-    emit_irs.push_back(L_Load(load_result, result));
-    return load_result;
+    return result;
 }
 
 AS_operand* ast2llvmBoolUnit(aA_boolUnit b,Temp_label *true_label,Temp_label *false_label)
@@ -1194,7 +1196,23 @@ AS_operand* ast2llvmExprUnit(aA_exprUnit e)
 
 LLVMIR::L_func* ast2llvmFuncBlock(Func_local *f)
 {
+    list<L_block *> blocks;
+    list<L_stm *>irs = list<L_stm *>();
+    for(const auto &block :f->irs){
+        if(block->type == L_StmKind::T_LABEL){
+            if(!irs.empty()){
+                blocks.push_back(L_Block(irs));
+                irs.clear();
+            }
+        }
+        irs.push_back(block);
+    }
+
+    if(!irs.empty()){
+        blocks.push_back(L_Block(irs));
+    }
     
+    return new L_func(f->name,f->ret,f->args, blocks);
 }
 
 void ast2llvm_moveAlloca(LLVMIR::L_func *f)
