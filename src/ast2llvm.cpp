@@ -4,6 +4,7 @@
 #include <string>
 #include <cassert>
 #include <list>
+#include <iostream>
 
 using namespace std;
 using namespace LLVMIR;
@@ -257,6 +258,16 @@ std::vector<LLVMIR::L_def*> ast2llvmProg_first(aA_program p)
     defs.push_back(L_Funcdecl("putarray",vector<TempDef>{TempDef(TempType::INT_TEMP),TempDef(TempType::INT_PTR,-1)},FuncType(ReturnType::VOID_TYPE)));
     defs.push_back(L_Funcdecl("_sysy_starttime",vector<TempDef>{TempDef(TempType::INT_TEMP)},FuncType(ReturnType::VOID_TYPE)));
     defs.push_back(L_Funcdecl("_sysy_stoptime",vector<TempDef>{TempDef(TempType::INT_TEMP)},FuncType(ReturnType::VOID_TYPE)));
+
+    // add to returnMap
+    funcReturnMap["getch"] = FuncType(ReturnType::VOID_TYPE);
+    funcReturnMap["getint"] = FuncType(ReturnType::VOID_TYPE);
+    funcReturnMap["putch"] = FuncType(ReturnType::VOID_TYPE);
+    funcReturnMap["putint"] = FuncType(ReturnType::VOID_TYPE);
+    funcReturnMap["putarray"] = FuncType(ReturnType::VOID_TYPE);
+    funcReturnMap["_sysy_starttime"] = FuncType(ReturnType::VOID_TYPE);
+    funcReturnMap["_sysy_stoptime"] = FuncType(ReturnType::VOID_TYPE);
+
     for(const auto &v : p->programElements)
     {
         switch (v->kind)
@@ -578,6 +589,7 @@ AS_operand* get_dst(AS_operand* src){
 
 Func_local* ast2llvmFunc(aA_fnDef f)
 {
+    emit_irs.clear();
     string fun_name = *f->fnDecl->id;
     FuncType ret_type;
     if (!f->fnDecl->type){
@@ -627,14 +639,67 @@ Func_local* ast2llvmFunc(aA_fnDef f)
     }
     
     //产生ir
+    Temp_label* start_label =  Temp_newlabel();
+    emit_irs.push_back(L_Label(start_label));
     for (int i = 0; i < f->stmts.size(); i++)
     {
-        Temp_label* start_label =  Temp_newlabel();
-        Temp_label* end_label = Temp_newlabel();
-        emit_irs.push_back(L_Label(start_label));
-        ast2llvmBlock(f->stmts[i],start_label, end_label);
+        ast2llvmBlock(f->stmts[i],start_label);
     }
 
+
+    /*for (auto it = emit_irs.begin(); it != emit_irs.end(); ++it) {
+        // 使用 switch 语句根据不同的枚举值打印对应的信息
+        switch ((*it)->type) {
+            case L_StmKind::T_BINOP:
+                std::cout << "Type: T_BINOP" << std::endl;
+                break;
+            case L_StmKind::T_LOAD:
+                std::cout << "Type: T_LOAD" << std::endl;
+                break;
+            case L_StmKind::T_STORE:
+                std::cout << "Type: T_STORE" << std::endl;
+                break;
+            case L_StmKind::T_LABEL:
+                std::cout << "Type: T_LABEL" << std::endl;
+                break;
+            case L_StmKind::T_JUMP:
+                std::cout << "Type: T_JUMP" << std::endl;
+                break;
+            case L_StmKind::T_CMP:
+                std::cout << "Type: T_CMP" << std::endl;
+                break;
+            case L_StmKind::T_CJUMP:
+                std::cout << "Type: T_CJUMP" << std::endl;
+                break;
+            case L_StmKind::T_MOVE:
+                std::cout << "Type: T_MOVE" << std::endl;
+                break;
+            case L_StmKind::T_CALL:
+                std::cout << "Type: T_CALL" << std::endl;
+                break;
+            case L_StmKind::T_VOID_CALL:
+                std::cout << "Type: T_VOID_CALL" << std::endl;
+                break;
+            case L_StmKind::T_RETURN:
+                std::cout << "Type: T_RETURN" << std::endl;
+                break;
+            case L_StmKind::T_PHI:
+                std::cout << "Type: T_PHI" << std::endl;
+                break;
+            case L_StmKind::T_NULL:
+                std::cout << "Type: T_NULL" << std::endl;
+                break;
+            case L_StmKind::T_ALLOCA:
+                std::cout << "Type: T_ALLOCA" << std::endl;
+                break;
+            case L_StmKind::T_GEP:
+                std::cout << "Type: T_GEP" << std::endl;
+                break;
+            default:
+                std::cout << "Unknown Type" << std::endl;
+        }
+    }
+    std::cout<<std::endl;*/
     Func_local* func = new Func_local(fun_name, ret_type, args, emit_irs);
 
     return func;
@@ -644,6 +709,7 @@ void ast2llvmBlock(aA_codeBlockStmt b,Temp_label *con_label,Temp_label *bre_labe
 {
     if (b->kind == A_codeBlockStmtType::A_callStmtKind){
         FuncType ret_type = funcReturnMap.find(*b->u.callStmt->fnCall->fn)->second;
+        
         std::vector<AS_operand*> args;
         for (int i = 0; i < b->u.callStmt->fnCall->vals.size(); i++)
         {
@@ -760,9 +826,9 @@ void ast2llvmBlock(aA_codeBlockStmt b,Temp_label *con_label,Temp_label *bre_labe
     }
 
     else if(b->kind == A_codeBlockStmtType::A_assignStmtKind){
-        AS_operand* left = ast2llvmLeftVal(b->u.assignStmt->leftVal);
         AS_operand* right = ast2llvmRightVal(b->u.assignStmt->rightVal);
-        emit_irs.push_back(L_Store(left, right));
+        AS_operand* left = ast2llvmLeftVal(b->u.assignStmt->leftVal);
+        emit_irs.push_back(L_Store(right, left));
     }
     else if (b->kind == A_codeBlockStmtType::A_returnStmtKind){
         AS_operand* ret = ast2llvmRightVal(b->u.returnStmt->retVal);
@@ -792,7 +858,7 @@ void ast2llvmBlock(aA_codeBlockStmt b,Temp_label *con_label,Temp_label *bre_labe
         Temp_label* check_label = Temp_newlabel();
         Temp_label* body_label = Temp_newlabel();
         Temp_label* out_label = Temp_newlabel();
-
+        emit_irs.push_back(L_Jump(check_label));
         emit_irs.push_back(L_Label(check_label));
         AS_operand* condition = ast2llvmBoolExpr(b->u.whileStmt->boolExpr,body_label,out_label);
 //        emit_irs.push_back(L_Cjump(condition, body_label, out_label));
@@ -1081,7 +1147,7 @@ AS_operand* ast2llvmExprUnit(aA_exprUnit e)
                 ptr = AS_Operand_Temp(localVarMap.find(*e->u.id)->second);
                 if (ptr->u.TEMP->type == TempType::INT_PTR && ptr->u.TEMP->len==0){
                     result = AS_Operand_Temp(Temp_newtemp_int());
-                    emit_irs.push_back(L_Load(ptr,result));
+                    emit_irs.push_back(L_Load(result,ptr));
                 }
                 else{
                     result = ptr;
@@ -1089,9 +1155,11 @@ AS_operand* ast2llvmExprUnit(aA_exprUnit e)
             }
             else if(globalVarMap.find(*e->u.id) != globalVarMap.end()){
                 ptr = AS_Operand_Name(globalVarMap.find(*e->u.id)->second);
-                if (ptr->u.NAME->type == TempType::INT_PTR && ptr->u.NAME->len==0){
+                
+                if ((ptr->u.NAME->type == TempType::INT_PTR || ptr->u.NAME->type == TempType::INT_TEMP) && ptr->u.NAME->len==0){
                     result = AS_Operand_Temp(Temp_newtemp_int());
-                    emit_irs.push_back(L_Load(ptr,result));
+                    emit_irs.push_back(L_Load(result,ptr));
+                    
                 }
                 else{
                     result = ptr;
@@ -1127,8 +1195,9 @@ AS_operand* ast2llvmExprUnit(aA_exprUnit e)
                     new_reg = Temp_newtemp_struct_ptr(base->u.TEMP->len, base->u.TEMP->structname);
                 }
             }
-            result = AS_Operand_Temp(new_reg);
-            emit_irs.push_back(L_Gep(result, base, index));
+            emit_irs.push_back(L_Gep(AS_Operand_Temp(new_reg), base, index));
+            result = AS_Operand_Temp(Temp_newtemp_int());
+            emit_irs.push_back(L_Load(result, AS_Operand_Temp(new_reg)));
             break;
         }
         case A_exprUnitType::A_memberExprKind:{
