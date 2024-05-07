@@ -260,8 +260,8 @@ std::vector<LLVMIR::L_def*> ast2llvmProg_first(aA_program p)
     defs.push_back(L_Funcdecl("_sysy_stoptime",vector<TempDef>{TempDef(TempType::INT_TEMP)},FuncType(ReturnType::VOID_TYPE)));
 
     // add to returnMap
-    funcReturnMap["getch"] = FuncType(ReturnType::VOID_TYPE);
-    funcReturnMap["getint"] = FuncType(ReturnType::VOID_TYPE);
+    funcReturnMap["getch"] = FuncType(ReturnType::INT_TYPE);
+    funcReturnMap["getint"] = FuncType(ReturnType::INT_TYPE);
     funcReturnMap["putch"] = FuncType(ReturnType::VOID_TYPE);
     funcReturnMap["putint"] = FuncType(ReturnType::VOID_TYPE);
     funcReturnMap["putarray"] = FuncType(ReturnType::VOID_TYPE);
@@ -590,10 +590,11 @@ AS_operand* get_dst(AS_operand* src){
 Func_local* ast2llvmFunc(aA_fnDef f)
 {
     emit_irs.clear();
+    localVarMap.clear();
     string fun_name = *f->fnDecl->id;
     FuncType ret_type;
     if (!f->fnDecl->type){
-        ret_type = FuncType(LLVMIR::ReturnType::VOID_TYPE, *f->fnDecl->type->u.structType);
+        ret_type = FuncType(LLVMIR::ReturnType::VOID_TYPE);
     }
     else{
         if (f->fnDecl->type->type == A_dataType::A_nativeTypeKind){
@@ -617,7 +618,7 @@ Func_local* ast2llvmFunc(aA_fnDef f)
             else{
                 string struct_name = *f->fnDecl->paramDecl->varDecls[i]->u.declScalar->type->u.structType;
                 StructInfo info = structInfoMap.find(struct_name)->second;
-                Temp_temp* temp = Temp_newtemp_struct_ptr(info.memberinfos.size(), struct_name);
+                Temp_temp* temp = Temp_newtemp_struct_ptr(0, struct_name);
                 args.push_back(temp);
                 localVarMap.emplace(arg_name, temp);
             }
@@ -625,18 +626,20 @@ Func_local* ast2llvmFunc(aA_fnDef f)
         else{
             string arg_name = *f->fnDecl->paramDecl->varDecls[i]->u.declArray->id;
             if (f->fnDecl->paramDecl->varDecls[i]->u.declArray->type->type == A_dataType::A_nativeTypeKind){
-                Temp_temp *temp = Temp_newtemp_int_ptr(f->fnDecl->paramDecl->varDecls[i]->u.declArray->len);
+                Temp_temp *temp = Temp_newtemp_int_ptr(-1);
                 args.push_back(temp);
                 localVarMap.emplace(arg_name, temp);
             }
             else{
                 string struct_name = *f->fnDecl->paramDecl->varDecls[i]->u.declArray->type->u.structType;
-                Temp_temp *temp = Temp_newtemp_struct_ptr(f->fnDecl->paramDecl->varDecls[i]->u.declArray->len, struct_name);
+                Temp_temp *temp = Temp_newtemp_struct_ptr(-1, struct_name);
                 args.push_back(temp);
                 localVarMap.emplace(arg_name, temp);
             }
         }
     }
+
+    
     
     //产生ir
     Temp_label* start_label =  Temp_newlabel();
@@ -831,7 +834,13 @@ void ast2llvmBlock(aA_codeBlockStmt b,Temp_label *con_label,Temp_label *bre_labe
         emit_irs.push_back(L_Store(right, left));
     }
     else if (b->kind == A_codeBlockStmtType::A_returnStmtKind){
-        AS_operand* ret = ast2llvmRightVal(b->u.returnStmt->retVal);
+        AS_operand* ret;
+        if (!b->u.returnStmt->retVal){
+            ret = nullptr;
+        }
+        else{
+            ret = ast2llvmRightVal(b->u.returnStmt->retVal);
+        }
         emit_irs.push_back(L_Ret(ret));
     }
     else if(b->kind == A_codeBlockStmtType::A_ifStmtKind){
@@ -929,7 +938,7 @@ AS_operand* ast2llvmLeftVal(aA_leftVal l)
         else{
             info = structInfoMap.find(base->u.NAME->structname)->second;
         }
-        string member_id = *l->u.id;
+        string member_id = *l->u.memberExpr->memberId;
         MemberInfo member = info.memberinfos.find(member_id)->second;
         int index = member.offset;
         Temp_temp* new_ptr;
@@ -937,13 +946,13 @@ AS_operand* ast2llvmLeftVal(aA_leftVal l)
             new_ptr = Temp_newtemp_int();
         }
         else if(member.def.kind == TempType::INT_PTR){
-            new_ptr = Temp_newtemp_int_ptr(member.def.len);
+            new_ptr = Temp_newtemp_int_ptr(0);
         }
         else if(member.def.kind == TempType::STRUCT_TEMP){
             new_ptr = Temp_newtemp_struct(member.def.structname);
         }
         else if(member.def.kind == TempType::STRUCT_PTR){
-            new_ptr = Temp_newtemp_struct_ptr(member.def.len, member.def.structname);
+            new_ptr = Temp_newtemp_struct_ptr(0, member.def.structname);
         }
         result = AS_Operand_Temp(new_ptr);
         emit_irs.push_back(L_Gep(result, base, AS_Operand_Const(index)));
@@ -954,18 +963,18 @@ AS_operand* ast2llvmLeftVal(aA_leftVal l)
         Temp_temp* new_reg;
         if (base->kind == OperandKind::TEMP){
             if (base->u.TEMP->type == TempType::INT_PTR){
-                new_reg = Temp_newtemp_int_ptr(base->u.TEMP->len);
+                new_reg = Temp_newtemp_int_ptr(0);
             }
             else{
-                new_reg = Temp_newtemp_struct_ptr(base->u.TEMP->len, base->u.TEMP->structname);
+                new_reg = Temp_newtemp_struct_ptr(0, base->u.TEMP->structname);
             }
         }
         else if (base->kind == OperandKind::NAME){
             if (base->u.NAME->type == TempType::INT_PTR){
-                new_reg = Temp_newtemp_int_ptr(base->u.TEMP->len);
+                new_reg = Temp_newtemp_int_ptr(0);
             }
             else{
-                new_reg = Temp_newtemp_struct_ptr(base->u.TEMP->len, base->u.TEMP->structname);
+                new_reg = Temp_newtemp_struct_ptr(0, base->u.NAME->structname);
             }
         }
         result = AS_Operand_Temp(new_reg);
@@ -1180,19 +1189,20 @@ AS_operand* ast2llvmExprUnit(aA_exprUnit e)
             AS_operand* base = ast2llvmLeftVal(e->u.arrayExpr->arr);
             Temp_temp* new_reg;
             if (base->kind == OperandKind::TEMP){
+                int len = base->u.TEMP->len;
                 if (base->u.TEMP->type == TempType::INT_PTR){
-                    new_reg = Temp_newtemp_int_ptr(base->u.TEMP->len);
+                    new_reg = Temp_newtemp_int_ptr(0);
                 }
                 else{
-                    new_reg = Temp_newtemp_struct_ptr(base->u.TEMP->len, base->u.TEMP->structname);
+                    new_reg = Temp_newtemp_struct_ptr(0, base->u.TEMP->structname);
                 }
             }
             else if (base->kind == OperandKind::NAME){
                 if (base->u.NAME->type == TempType::INT_PTR){
-                    new_reg = Temp_newtemp_int_ptr(base->u.TEMP->len);
+                    new_reg = Temp_newtemp_int_ptr(0);
                 }
                 else{
-                    new_reg = Temp_newtemp_struct_ptr(base->u.TEMP->len, base->u.TEMP->structname);
+                    new_reg = Temp_newtemp_struct_ptr(0, base->u.NAME->structname);
                 }
             }
             emit_irs.push_back(L_Gep(AS_Operand_Temp(new_reg), base, index));
@@ -1217,13 +1227,13 @@ AS_operand* ast2llvmExprUnit(aA_exprUnit e)
                 new_ptr = Temp_newtemp_int();
             }
             else if(member.def.kind == TempType::INT_PTR){
-                new_ptr = Temp_newtemp_int_ptr(member.def.len);
+                new_ptr = Temp_newtemp_int_ptr(0);
             }
             else if(member.def.kind == TempType::STRUCT_TEMP){
                 new_ptr = Temp_newtemp_struct(member.def.structname);
             }
             else if(member.def.kind == TempType::STRUCT_PTR){
-                new_ptr = Temp_newtemp_struct_ptr(member.def.len, member.def.structname);
+                new_ptr = Temp_newtemp_struct_ptr(0, member.def.structname);
             }
             
             result = AS_Operand_Temp(new_ptr);
