@@ -648,9 +648,19 @@ Func_local* ast2llvmFunc(aA_fnDef f)
     {
         ast2llvmBlock(f->stmts[i],start_label);
     }
+    if (emit_irs.back()->type != L_StmKind::T_RETURN && emit_irs.back()->type != L_StmKind::T_CJUMP && emit_irs.back()->type != L_StmKind::T_JUMP){
+        if (ret_type.type == ReturnType::INT_TYPE){
+            emit_irs.push_back(L_Ret(AS_Operand_Const(0)));
+        }
+        else{
+            emit_irs.push_back(L_Ret(nullptr));
+        }
+        
+    }
+    
 
 
-    /*for (auto it = emit_irs.begin(); it != emit_irs.end(); ++it) {
+    for (auto it = emit_irs.begin(); it != emit_irs.end(); ++it) {
         // 使用 switch 语句根据不同的枚举值打印对应的信息
         switch ((*it)->type) {
             case L_StmKind::T_BINOP:
@@ -702,7 +712,7 @@ Func_local* ast2llvmFunc(aA_fnDef f)
                 std::cout << "Unknown Type" << std::endl;
         }
     }
-    std::cout<<std::endl;*/
+    std::cout<<std::endl;
     Func_local* func = new Func_local(fun_name, ret_type, args, emit_irs);
 
     return func;
@@ -950,13 +960,13 @@ AS_operand* ast2llvmLeftVal(aA_leftVal l)
             new_ptr = Temp_newtemp_int();
         }
         else if(member.def.kind == TempType::INT_PTR){
-            new_ptr = Temp_newtemp_int_ptr(0);
+            new_ptr = Temp_newtemp_int_ptr(member.def.len);
         }
         else if(member.def.kind == TempType::STRUCT_TEMP){
-            new_ptr = Temp_newtemp_struct(member.def.structname);
+            new_ptr = Temp_newtemp_struct_ptr(0, member.def.structname);
         }
         else if(member.def.kind == TempType::STRUCT_PTR){
-            new_ptr = Temp_newtemp_struct_ptr(0, member.def.structname);
+            new_ptr = Temp_newtemp_struct_ptr(member.def.len, member.def.structname);
         }
         result = AS_Operand_Temp(new_ptr);
         emit_irs.push_back(L_Gep(result, base, AS_Operand_Const(index)));
@@ -967,7 +977,7 @@ AS_operand* ast2llvmLeftVal(aA_leftVal l)
         Temp_temp* new_reg;
         if (base->kind == OperandKind::TEMP){
             if (base->u.TEMP->type == TempType::INT_PTR){
-                new_reg = Temp_newtemp_int_ptr(0);
+                new_reg = Temp_newtemp_int_ptr(base->u.TEMP->len);
             }
             else{
                 new_reg = Temp_newtemp_struct_ptr(0, base->u.TEMP->structname);
@@ -975,7 +985,7 @@ AS_operand* ast2llvmLeftVal(aA_leftVal l)
         }
         else if (base->kind == OperandKind::NAME){
             if (base->u.NAME->type == TempType::INT_PTR){
-                new_reg = Temp_newtemp_int_ptr(0);
+                new_reg = Temp_newtemp_int_ptr(base->u.NAME->len);
             }
             else{
                 new_reg = Temp_newtemp_struct_ptr(0, base->u.NAME->structname);
@@ -1195,7 +1205,7 @@ AS_operand* ast2llvmExprUnit(aA_exprUnit e)
             if (base->kind == OperandKind::TEMP){
                 int len = base->u.TEMP->len;
                 if (base->u.TEMP->type == TempType::INT_PTR){
-                    new_reg = Temp_newtemp_int_ptr(0);
+                    new_reg = Temp_newtemp_int_ptr(base->u.TEMP->len);
                 }
                 else{
                     new_reg = Temp_newtemp_struct_ptr(0, base->u.TEMP->structname);
@@ -1203,7 +1213,7 @@ AS_operand* ast2llvmExprUnit(aA_exprUnit e)
             }
             else if (base->kind == OperandKind::NAME){
                 if (base->u.NAME->type == TempType::INT_PTR){
-                    new_reg = Temp_newtemp_int_ptr(0);
+                    new_reg = Temp_newtemp_int_ptr(base->u.NAME->len);
                 }
                 else{
                     new_reg = Temp_newtemp_struct_ptr(0, base->u.NAME->structname);
@@ -1231,13 +1241,13 @@ AS_operand* ast2llvmExprUnit(aA_exprUnit e)
                 new_ptr = Temp_newtemp_int();
             }
             else if(member.def.kind == TempType::INT_PTR){
-                new_ptr = Temp_newtemp_int_ptr(0);
+                new_ptr = Temp_newtemp_int_ptr(member.def.len);
             }
             else if(member.def.kind == TempType::STRUCT_TEMP){
-                new_ptr = Temp_newtemp_struct(member.def.structname);
+                new_ptr = Temp_newtemp_struct_ptr(0,member.def.structname);
             }
             else if(member.def.kind == TempType::STRUCT_PTR){
-                new_ptr = Temp_newtemp_struct_ptr(0, member.def.structname);
+                new_ptr = Temp_newtemp_struct_ptr(member.def.len, member.def.structname);
             }
             
             result = AS_Operand_Temp(new_ptr);
