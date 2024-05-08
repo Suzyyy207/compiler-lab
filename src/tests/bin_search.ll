@@ -7,7 +7,6 @@ declare void @_sysy_starttime( i32 )
 declare void @_sysy_stoptime( i32 )
 define i32 @main( ) {
 bb1:
-  %r123 = alloca i32
   %r115 = alloca i32
   %r114 = alloca i32
   %r113 = alloca i32

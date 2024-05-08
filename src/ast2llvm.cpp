@@ -606,14 +606,18 @@ Func_local* ast2llvmFunc(aA_fnDef f)
     }
 
     std::vector<Temp_temp*> args;
+    list<L_stm*> args_irs;
     for (int i = 0; i < f->fnDecl->paramDecl->varDecls.size(); i++)
     {
         if(f->fnDecl->paramDecl->varDecls[i]->kind == A_varDeclType::A_varDeclScalarKind){
             string arg_name = *f->fnDecl->paramDecl->varDecls[i]->u.declScalar->id;
             if (f->fnDecl->paramDecl->varDecls[i]->u.declScalar->type->type == A_dataType::A_nativeTypeKind){
                 Temp_temp* temp = Temp_newtemp_int();
+                Temp_temp* load = Temp_newtemp_int_ptr(0);
+                args_irs.push_back(L_Alloca(AS_Operand_Temp(load)));
+                args_irs.push_back(L_Store(AS_Operand_Temp(temp), AS_Operand_Temp(load)));
                 args.push_back(temp);
-                localVarMap.emplace(arg_name, temp);
+                localVarMap.emplace(arg_name, load);
             }
             else{
                 string struct_name = *f->fnDecl->paramDecl->varDecls[i]->u.declScalar->type->u.structType;
@@ -643,6 +647,15 @@ Func_local* ast2llvmFunc(aA_fnDef f)
     
     //产生ir
     Temp_label* start_label =  Temp_newlabel();
+    if (args_irs.size() > 0){
+        Temp_label* args_label = Temp_newlabel();
+        emit_irs.push_back(L_Label(args_label));
+        for (auto it = args_irs.begin(); it != args_irs.end(); ++it){
+            emit_irs.push_back(*it);
+        }
+        emit_irs.push_back(L_Jump(start_label));
+    }
+    
     emit_irs.push_back(L_Label(start_label));
     for (int i = 0; i < f->stmts.size(); i++)
     {
@@ -655,12 +668,10 @@ Func_local* ast2llvmFunc(aA_fnDef f)
         else{
             emit_irs.push_back(L_Ret(nullptr));
         }
-        
-    }
-    
+    }    
 
 
-    for (auto it = emit_irs.begin(); it != emit_irs.end(); ++it) {
+    /*for (auto it = emit_irs.begin(); it != emit_irs.end(); ++it) {
         // 使用 switch 语句根据不同的枚举值打印对应的信息
         switch ((*it)->type) {
             case L_StmKind::T_BINOP:
@@ -712,9 +723,8 @@ Func_local* ast2llvmFunc(aA_fnDef f)
                 std::cout << "Unknown Type" << std::endl;
         }
     }
-    std::cout<<std::endl;
+    std::cout<<std::endl;*/
     Func_local* func = new Func_local(fun_name, ret_type, args, emit_irs);
-
     return func;
 }
 
@@ -762,7 +772,7 @@ void ast2llvmBlock(aA_codeBlockStmt b,Temp_label *con_label,Temp_label *bre_labe
             else if(b->u.varDeclStmt->u.varDecl->kind == A_varDeclType::A_varDeclArrayKind){
                 string var_name = *b->u.varDeclStmt->u.varDecl->u.declArray->id;
                 int arr_len = b->u.varDeclStmt->u.varDecl->u.declArray->len;
-                Temp_temp* reg; 
+                Temp_temp* reg;
                 if(!b->u.varDeclStmt->u.varDecl->u.declArray->type){
                     reg =  Temp_newtemp_int_ptr(arr_len);
                 }
@@ -806,24 +816,25 @@ void ast2llvmBlock(aA_codeBlockStmt b,Temp_label *con_label,Temp_label *bre_labe
                     emit_irs.push_back(L_Alloca(AS_Operand_Temp(reg)));
                     for (int i = 0; i < b->u.varDeclStmt->u.varDef->u.defArray->len; i++){
                         AS_operand* rightVal = ast2llvmRightVal(b->u.varDeclStmt->u.varDef->u.defArray->vals[i]);
-                        Temp_temp* reg_temp = Temp_newtemp_int_ptr(b->u.varDeclStmt->u.varDef->u.defArray->len-i);
+                        Temp_temp* reg_temp = Temp_newtemp_int_ptr(0);
                         emit_irs.push_back(L_Gep(AS_Operand_Temp(reg_temp), AS_Operand_Temp(reg), AS_Operand_Const(i)));
                         emit_irs.push_back(L_Store(rightVal, AS_Operand_Temp(reg_temp)));
                     }
                     localVarMap.emplace(*b->u.varDeclStmt->u.varDef->u.defArray->id, reg);
                 }
-                else if(b->u.varDeclStmt->u.varDef->u.defScalar->type->type == A_dataType::A_nativeTypeKind){
+                else if(b->u.varDeclStmt->u.varDef->u.defArray->type->type == A_dataType::A_nativeTypeKind){
                     Temp_temp* reg = Temp_newtemp_int_ptr(b->u.varDeclStmt->u.varDef->u.defArray->len);
+                    
                     emit_irs.push_back(L_Alloca(AS_Operand_Temp(reg)));
                     for (int i = 0; i < b->u.varDeclStmt->u.varDef->u.defArray->len; i++){
                         AS_operand* rightVal = ast2llvmRightVal(b->u.varDeclStmt->u.varDef->u.defArray->vals[i]);
-                        Temp_temp* reg_temp = Temp_newtemp_int_ptr(b->u.varDeclStmt->u.varDef->u.defArray->len-i);
+                        Temp_temp* reg_temp = Temp_newtemp_int_ptr(0);
                         emit_irs.push_back(L_Gep(AS_Operand_Temp(reg_temp), AS_Operand_Temp(reg), AS_Operand_Const(i)));
                         emit_irs.push_back(L_Store(rightVal, AS_Operand_Temp(reg_temp)));
                     }
                     localVarMap.emplace(*b->u.varDeclStmt->u.varDef->u.defArray->id, reg);
                 }
-                else if(b->u.varDeclStmt->u.varDef->u.defScalar->type->type == A_dataType::A_structTypeKind){
+                else if(b->u.varDeclStmt->u.varDef->u.defArray->type->type == A_dataType::A_structTypeKind){
                     Temp_temp* reg = Temp_newtemp_struct_ptr(b->u.varDeclStmt->u.varDef->u.defArray->len, *b->u.varDeclStmt->u.varDef->u.defArray->type->u.structType);
                     emit_irs.push_back(L_Alloca(AS_Operand_Temp(reg)));
                     for (int i = 0; i < b->u.varDeclStmt->u.varDef->u.defArray->len; i++){
@@ -858,10 +869,9 @@ void ast2llvmBlock(aA_codeBlockStmt b,Temp_label *con_label,Temp_label *bre_labe
         Temp_label* else_label = Temp_newlabel();
         Temp_label* continue_label = Temp_newlabel();
         AS_operand* cmp_reg = ast2llvmBoolExpr(b->u.ifStmt->boolExpr, if_label, else_label);
-//        emit_irs.push_back(L_Cjump(cmp_reg, if_label, else_label));
         emit_irs.push_back(L_Label(if_label));
         for (int i = 0; i < b->u.ifStmt->ifStmts.size(); i++){
-            ast2llvmBlock(b->u.ifStmt->ifStmts[i]);
+            ast2llvmBlock(b->u.ifStmt->ifStmts[i], con_label, bre_label);
         }
         emit_irs.push_back(L_Jump(continue_label));
         if (b->u.ifStmt->elseStmts.size() > 0){
@@ -884,7 +894,6 @@ void ast2llvmBlock(aA_codeBlockStmt b,Temp_label *con_label,Temp_label *bre_labe
         emit_irs.push_back(L_Jump(check_label));
         emit_irs.push_back(L_Label(check_label));
         AS_operand* condition = ast2llvmBoolExpr(b->u.whileStmt->boolExpr,body_label,out_label);
-//        emit_irs.push_back(L_Cjump(condition, body_label, out_label));
 
         emit_irs.push_back(L_Label(body_label));
         for (int i = 0; i < b->u.whileStmt->whileStmts.size(); i++)
@@ -892,7 +901,6 @@ void ast2llvmBlock(aA_codeBlockStmt b,Temp_label *con_label,Temp_label *bre_labe
             ast2llvmBlock(b->u.whileStmt->whileStmts[i], check_label, out_label);
         }
         emit_irs.push_back(L_Jump(check_label));
-
         emit_irs.push_back(L_Label(out_label));
     }
     
@@ -900,6 +908,7 @@ void ast2llvmBlock(aA_codeBlockStmt b,Temp_label *con_label,Temp_label *bre_labe
         emit_irs.push_back(L_Jump(bre_label));
     }
     else if(b->kind == A_codeBlockStmtType::A_continueStmtKind){
+        
         emit_irs.push_back(L_Jump(con_label));
     }
 }
@@ -913,18 +922,20 @@ AS_operand* ast2llvmRightVal(aA_rightVal r)
     else{
         Temp_label* true_label = Temp_newlabel();
         Temp_label* false_label = Temp_newlabel();
+        AS_operand* return_bool = AS_Operand_Temp(Temp_newtemp_int_ptr(0));
+        emit_irs.push_back(L_Alloca(return_bool));
         AS_operand* result = ast2llvmBoolExpr(r->u.boolExpr,true_label, false_label);
         Temp_label* out_label = Temp_newlabel();
         emit_irs.push_back(L_Label(true_label));
-        emit_irs.push_back(L_Store(AS_Operand_Const(1), result));
+        emit_irs.push_back(L_Store(AS_Operand_Const(1), return_bool));
         emit_irs.push_back(L_Jump(out_label));
         emit_irs.push_back(L_Label(false_label));
-        emit_irs.push_back(L_Store(AS_Operand_Const(0), result));
+        emit_irs.push_back(L_Store(AS_Operand_Const(0), return_bool));
         emit_irs.push_back(L_Jump(out_label));
         emit_irs.push_back(L_Label(out_label));
 
         AS_operand* load_result = AS_Operand_Temp(Temp_newtemp_int());
-        emit_irs.push_back(L_Load(load_result, result));
+        emit_irs.push_back(L_Load(load_result, return_bool));
         return load_result;
     }
     
@@ -1033,7 +1044,7 @@ AS_operand* ast2llvmBoolExpr(aA_boolExpr b,Temp_label *true_label,Temp_label *fa
 AS_operand* ast2llvmBoolBiOpExpr(aA_boolBiOpExpr b,Temp_label *true_label,Temp_label *false_label)
 {
     AS_operand* result = AS_Operand_Temp(Temp_newtemp_int_ptr(0));
-    emit_irs.push_back(L_Alloca(result));
+    //emit_irs.push_back(L_Alloca(result));
     Temp_label* middle_label = Temp_newlabel();
     if (b->op == A_boolBiOp::A_and)
     {
@@ -1292,6 +1303,7 @@ LLVMIR::L_func* ast2llvmFuncBlock(Func_local *f)
 {
     list<L_block *> blocks;
     list<L_stm *>irs = list<L_stm *>();
+    
     for(const auto &block :f->irs){
         if(block->type == L_StmKind::T_LABEL){
             if(!irs.empty()){
