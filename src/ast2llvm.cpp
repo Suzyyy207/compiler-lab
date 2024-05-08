@@ -861,6 +861,10 @@ void ast2llvmBlock(aA_codeBlockStmt b,Temp_label *con_label,Temp_label *bre_labe
             }
             emit_irs.push_back(L_Jump(continue_label));
         }
+        else{
+            emit_irs.push_back(L_Label(else_label));
+            emit_irs.push_back(L_Jump(continue_label));
+        }
         emit_irs.push_back(L_Label(continue_label));
     }
     else if(b->kind == A_codeBlockStmtType::A_whileStmtKind){

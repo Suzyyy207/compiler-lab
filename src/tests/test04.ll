@@ -31,9 +31,6 @@ bb3:
   store i32 2, i32* %r101
   br label %bb5
 
-bb4:
-  br label %bb5
-
 bb5:
   %r107 = load i32, i32* @a
   call void @putint(i32 %r107)
