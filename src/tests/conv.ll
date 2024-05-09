@@ -195,14 +195,14 @@ bb31:
   br label %bb34
 
 bb34:
-  %r172 = load i32, i32* %r140
+  %r172 = load i32, i32* %r171
   %r173 = load i32, i32* @max
   %r174 = icmp slt i32 %r172, %r173
   br i1 %r174, label %bb35, label %bb36
 
 bb35:
   %r176 = load i32, i32* %r128
-  %r177 = load i32, i32* %r140
+  %r177 = load i32, i32* %r171
   %r178 = sdiv i32 %r176, %r177
   %r179 = call i32 @mod(i32 %r178, i32 2)
   %r180 = icmp eq i32 %r179, 1
@@ -210,33 +210,33 @@ bb35:
 
 bb40:
   %r181 = load i32, i32* %r130
-  %r182 = load i32, i32* %r140
+  %r182 = load i32, i32* %r171
   %r183 = sdiv i32 %r181, %r182
   %r184 = call i32 @mod(i32 %r183, i32 2)
   %r185 = icmp eq i32 %r184, 1
   br i1 %r185, label %bb37, label %bb38
 
 bb37:
-  %r186 = load i32, i32* %r139
+  %r186 = load i32, i32* %r170
   %r187 = mul i32 %r186, 2
   %r188 = add i32 %r187, 1
-  store i32 %r188, i32* %r139
+  store i32 %r188, i32* %r170
   br label %bb39
 
 bb38:
-  %r189 = load i32, i32* %r139
+  %r189 = load i32, i32* %r170
   %r190 = mul i32 %r189, 2
-  store i32 %r190, i32* %r139
+  store i32 %r190, i32* %r170
   br label %bb39
 
 bb39:
-  %r191 = load i32, i32* %r140
+  %r191 = load i32, i32* %r171
   %r192 = mul i32 %r191, 2
-  store i32 %r192, i32* %r140
+  store i32 %r192, i32* %r171
   br label %bb34
 
 bb36:
-  %r193 = load i32, i32* %r139
+  %r193 = load i32, i32* %r170
   ret i32 %r193
   br label %bb33
 
@@ -254,14 +254,14 @@ bb41:
   br label %bb44
 
 bb44:
-  %r198 = load i32, i32* %r140
+  %r198 = load i32, i32* %r197
   %r199 = load i32, i32* @max
   %r200 = icmp slt i32 %r198, %r199
   br i1 %r200, label %bb45, label %bb46
 
 bb45:
   %r202 = load i32, i32* %r128
-  %r203 = load i32, i32* %r140
+  %r203 = load i32, i32* %r197
   %r204 = sdiv i32 %r202, %r203
   %r205 = call i32 @mod(i32 %r204, i32 2)
   %r206 = icmp eq i32 %r205, 1
@@ -269,33 +269,33 @@ bb45:
 
 bb50:
   %r207 = load i32, i32* %r130
-  %r208 = load i32, i32* %r140
+  %r208 = load i32, i32* %r197
   %r209 = sdiv i32 %r207, %r208
   %r210 = call i32 @mod(i32 %r209, i32 2)
   %r211 = icmp eq i32 %r210, 1
   br i1 %r211, label %bb47, label %bb48
 
 bb47:
-  %r212 = load i32, i32* %r139
+  %r212 = load i32, i32* %r196
   %r213 = mul i32 %r212, 2
   %r214 = add i32 %r213, 1
-  store i32 %r214, i32* %r139
+  store i32 %r214, i32* %r196
   br label %bb49
 
 bb48:
-  %r215 = load i32, i32* %r139
+  %r215 = load i32, i32* %r196
   %r216 = mul i32 %r215, 2
-  store i32 %r216, i32* %r139
+  store i32 %r216, i32* %r196
   br label %bb49
 
 bb49:
-  %r217 = load i32, i32* %r140
+  %r217 = load i32, i32* %r197
   %r218 = mul i32 %r217, 2
-  store i32 %r218, i32* %r140
+  store i32 %r218, i32* %r197
   br label %bb44
 
 bb46:
-  %r219 = load i32, i32* %r139
+  %r219 = load i32, i32* %r196
   ret i32 %r219
   br label %bb43
 
@@ -651,27 +651,30 @@ bb98:
   %r380 = getelementptr [10000000 x i32 ], [10000000 x i32 ]* @a, i32 0, i32 0
   %r381 = getelementptr [10000000 x i32 ], [10000000 x i32 ]* @b, i32 0, i32 0
   %r382 = load i32, i32* %r347
-  %r383 = load i32, i32* %r349
-  %r384 = load i32, i32* %r345
-  %r385 = call i32 @convn(i32 %r379, i32* %r380, i32* %r381, i32 %r382, i32 %r383, i32 %r384)
-  %r386 = getelementptr [10000000 x i32 ], [10000000 x i32 ]* @a, i32 0, i32 0
-  %r387 = getelementptr [10000000 x i32 ], [10000000 x i32 ]* @b, i32 0, i32 0
-  %r388 = load i32, i32* %r347
-  %r389 = load i32, i32* %r349
-  %r390 = mul i32 %r388, %r389
-  call void @memmove(i32* %r386, i32* %r387, i32 %r390)
-  %r391 = load i32, i32* %r373
-  %r392 = add i32 %r391, 1
-  store i32 %r392, i32* %r373
+  %r383 = load i32, i32* %r347
+  %r384 = load i32, i32* %r349
+  %r385 = load i32, i32* %r349
+  %r386 = load i32, i32* %r345
+  %r387 = load i32, i32* %r345
+  %r388 = call i32 @convn(i32 %r379, i32* %r380, i32* %r381, i32 %r383, i32 %r385, i32 %r387)
+  %r389 = getelementptr [10000000 x i32 ], [10000000 x i32 ]* @a, i32 0, i32 0
+  %r390 = getelementptr [10000000 x i32 ], [10000000 x i32 ]* @b, i32 0, i32 0
+  %r391 = load i32, i32* %r347
+  %r392 = load i32, i32* %r349
+  %r393 = mul i32 %r391, %r392
+  call void @memmove(i32* %r389, i32* %r390, i32 %r393)
+  %r394 = load i32, i32* %r373
+  %r395 = add i32 %r394, 1
+  store i32 %r395, i32* %r373
   br label %bb97
 
 bb99:
   call void @_sysy_stoptime(i32 312)
-  %r393 = load i32, i32* %r347
-  %r394 = load i32, i32* %r349
-  %r395 = mul i32 %r393, %r394
-  %r396 = getelementptr [10000000 x i32 ], [10000000 x i32 ]* @a, i32 0, i32 0
-  call void @putarray(i32 %r395, i32* %r396)
+  %r396 = load i32, i32* %r347
+  %r397 = load i32, i32* %r349
+  %r398 = mul i32 %r396, %r397
+  %r399 = getelementptr [10000000 x i32 ], [10000000 x i32 ]* @a, i32 0, i32 0
+  call void @putarray(i32 %r398, i32* %r399)
   ret i32 0
 }
 

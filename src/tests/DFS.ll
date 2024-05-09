@@ -329,14 +329,16 @@ bb47:
   %r228 = call i32 @quickread()
   store i32 %r228, i32* %r210
   %r229 = load i32, i32* %r209
-  %r230 = load i32, i32* %r210
-  call void @addedge(i32 %r229, i32 %r230)
+  %r230 = load i32, i32* %r209
+  %r231 = load i32, i32* %r210
+  %r232 = load i32, i32* %r210
+  call void @addedge(i32 %r230, i32 %r232)
   br label %bb48
 
 bb48:
-  %r231 = load i32, i32* @m
-  %r232 = sub i32 %r231, 1
-  store i32 %r232, i32* @m
+  %r233 = load i32, i32* @m
+  %r234 = sub i32 %r233, 1
+  store i32 %r234, i32* @m
   br label %bb39
 
 bb41:

@@ -824,6 +824,9 @@ void ast2llvmBlock(aA_codeBlockStmt b,Temp_label *con_label,Temp_label *bre_labe
             }
             else if(b->u.varDeclStmt->u.varDecl->kind == A_varDeclType::A_varDeclArrayKind){
                 string var_name = *b->u.varDeclStmt->u.varDecl->u.declArray->id;
+                if (localVarMap.find(var_name) != localVarMap.end()){
+                    localVarMap.erase(var_name);
+                }
                 int arr_len = b->u.varDeclStmt->u.varDecl->u.declArray->len;
                 Temp_temp* reg;
                 if(!b->u.varDeclStmt->u.varDecl->u.declArray->type){
@@ -846,6 +849,9 @@ void ast2llvmBlock(aA_codeBlockStmt b,Temp_label *con_label,Temp_label *bre_labe
                     AS_operand* rightVal = ast2llvmRightVal(b->u.varDeclStmt->u.varDef->u.defScalar->val);
                     emit_irs.push_back(L_Alloca(AS_Operand_Temp(reg)));
                     emit_irs.push_back(L_Store(rightVal, AS_Operand_Temp(reg)));
+                    if (localVarMap.find(*b->u.varDeclStmt->u.varDef->u.defScalar->id) != localVarMap.end()){
+                        localVarMap.erase(*b->u.varDeclStmt->u.varDef->u.defScalar->id);
+                    }
                     localVarMap.emplace(*b->u.varDeclStmt->u.varDef->u.defScalar->id, reg);
                 }
                 else if(b->u.varDeclStmt->u.varDef->u.defScalar->type->type == A_dataType::A_nativeTypeKind){
@@ -853,6 +859,9 @@ void ast2llvmBlock(aA_codeBlockStmt b,Temp_label *con_label,Temp_label *bre_labe
                     AS_operand* rightVal = ast2llvmRightVal(b->u.varDeclStmt->u.varDef->u.defScalar->val);
                     emit_irs.push_back(L_Alloca(AS_Operand_Temp(reg)));
                     emit_irs.push_back(L_Store(rightVal, AS_Operand_Temp(reg)));
+                    if (localVarMap.find(*b->u.varDeclStmt->u.varDef->u.defScalar->id) != localVarMap.end()){
+                        localVarMap.erase(*b->u.varDeclStmt->u.varDef->u.defScalar->id);
+                    }
                     localVarMap.emplace(*b->u.varDeclStmt->u.varDef->u.defScalar->id, reg);
                 }
                 else if(b->u.varDeclStmt->u.varDef->u.defScalar->type->type == A_dataType::A_structTypeKind){
@@ -860,6 +869,9 @@ void ast2llvmBlock(aA_codeBlockStmt b,Temp_label *con_label,Temp_label *bre_labe
                     AS_operand* rightVal = ast2llvmRightVal(b->u.varDeclStmt->u.varDef->u.defScalar->val);
                     emit_irs.push_back(L_Alloca(AS_Operand_Temp(reg)));
                     emit_irs.push_back(L_Store(rightVal, AS_Operand_Temp(reg)));
+                    if (localVarMap.find(*b->u.varDeclStmt->u.varDef->u.defScalar->id) != localVarMap.end()){
+                        localVarMap.erase(*b->u.varDeclStmt->u.varDef->u.defScalar->id);
+                    }
                     localVarMap.emplace(*b->u.varDeclStmt->u.varDef->u.defScalar->id, reg);
                 }
             }
@@ -873,6 +885,9 @@ void ast2llvmBlock(aA_codeBlockStmt b,Temp_label *con_label,Temp_label *bre_labe
                         emit_irs.push_back(L_Gep(AS_Operand_Temp(reg_temp), AS_Operand_Temp(reg), AS_Operand_Const(i)));
                         emit_irs.push_back(L_Store(rightVal, AS_Operand_Temp(reg_temp)));
                     }
+                    if (localVarMap.find(*b->u.varDeclStmt->u.varDef->u.defArray->id) != localVarMap.end()){
+                        localVarMap.erase(*b->u.varDeclStmt->u.varDef->u.defArray->id);
+                    }
                     localVarMap.emplace(*b->u.varDeclStmt->u.varDef->u.defArray->id, reg);
                 }
                 else if(b->u.varDeclStmt->u.varDef->u.defArray->type->type == A_dataType::A_nativeTypeKind){
@@ -885,6 +900,9 @@ void ast2llvmBlock(aA_codeBlockStmt b,Temp_label *con_label,Temp_label *bre_labe
                         emit_irs.push_back(L_Gep(AS_Operand_Temp(reg_temp), AS_Operand_Temp(reg), AS_Operand_Const(i)));
                         emit_irs.push_back(L_Store(rightVal, AS_Operand_Temp(reg_temp)));
                     }
+                    if (localVarMap.find(*b->u.varDeclStmt->u.varDef->u.defArray->id) != localVarMap.end()){
+                        localVarMap.erase(*b->u.varDeclStmt->u.varDef->u.defArray->id);
+                    }
                     localVarMap.emplace(*b->u.varDeclStmt->u.varDef->u.defArray->id, reg);
                 }
                 else if(b->u.varDeclStmt->u.varDef->u.defArray->type->type == A_dataType::A_structTypeKind){
@@ -895,6 +913,9 @@ void ast2llvmBlock(aA_codeBlockStmt b,Temp_label *con_label,Temp_label *bre_labe
                         Temp_temp* reg_temp = Temp_newtemp_struct_ptr(b->u.varDeclStmt->u.varDef->u.defArray->len-i, *b->u.varDeclStmt->u.varDef->u.defArray->type->u.structType);
                         emit_irs.push_back(L_Gep(AS_Operand_Temp(reg_temp), AS_Operand_Temp(reg), AS_Operand_Const(i)));
                         emit_irs.push_back(L_Store(rightVal, AS_Operand_Temp(reg_temp)));
+                    }
+                    if (localVarMap.find(*b->u.varDeclStmt->u.varDef->u.defArray->id) != localVarMap.end()){
+                        localVarMap.erase(*b->u.varDeclStmt->u.varDef->u.defArray->id);
                     }
                     localVarMap.emplace(*b->u.varDeclStmt->u.varDef->u.defArray->id, reg);
                 }

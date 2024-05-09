@@ -515,9 +515,9 @@ bb81:
   %r296 = call i32 @stack_pop(i32* %r232)
   store i32 %r296, i32* %r295
   %r297 = getelementptr [256 x i32 ], [256 x i32 ]* %r232, i32 0, i32 0
-  %r298 = load i32, i32* %r267
-  %r299 = load i32, i32* %r271
-  %r300 = load i32, i32* %r269
+  %r298 = load i32, i32* %r291
+  %r299 = load i32, i32* %r295
+  %r300 = load i32, i32* %r293
   %r301 = call i32 @eval_op(i32 %r298, i32 %r299, i32 %r300)
   call void @stack_push(i32* %r297, i32 %r301)
   br label %bb80
