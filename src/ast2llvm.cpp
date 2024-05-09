@@ -736,6 +736,56 @@ void ast2llvmBlock(aA_codeBlockStmt b,Temp_label *con_label,Temp_label *bre_labe
         std::vector<AS_operand*> args;
         for (int i = 0; i < b->u.callStmt->fnCall->vals.size(); i++)
         {
+            if(b->u.callStmt->fnCall->vals[i]->kind == A_arithExprValKind){
+                if (b->u.callStmt->fnCall->vals[i]->u.arithExpr->kind == A_exprUnitKind){
+                    if (b->u.callStmt->fnCall->vals[i]->u.arithExpr->u.exprUnit->kind == A_idExprKind){
+                        if (globalVarMap.find(*b->u.callStmt->fnCall->vals[i]->u.arithExpr->u.exprUnit->u.id) != globalVarMap.end())
+                        {
+                            Name_name* name = globalVarMap.at(*b->u.callStmt->fnCall->vals[i]->u.arithExpr->u.exprUnit->u.id);
+                            if (name->type == TempType::STRUCT_PTR)
+                            {
+                                AS_operand* tmp = AS_Operand_Temp(Temp_newtemp_struct_ptr(-1,name->structname));
+                                emit_irs.push_back(L_Gep(tmp, AS_Operand_Name(name), AS_Operand_Const(0)));
+                                args.push_back(tmp);
+                                continue;
+                            }
+                            if (name->type == TempType::INT_PTR)
+                            {
+                                AS_operand* tmp = AS_Operand_Temp(Temp_newtemp_int_ptr(-1));
+                                emit_irs.push_back(L_Gep(tmp, AS_Operand_Name(name), AS_Operand_Const(0)));
+                                args.push_back(tmp);
+                                continue;
+                            }
+                        }
+                        else if (localVarMap.find(*b->u.callStmt->fnCall->vals[i]->u.arithExpr->u.exprUnit->u.id) != localVarMap.end())
+                        {
+                            AS_operand* local_type = ast2llvmRightVal(b->u.callStmt->fnCall->vals[i]);
+                            if (local_type->u.TEMP->type == TempType::STRUCT_PTR || local_type->u.TEMP->type == TempType::INT_PTR)
+                            {
+                                Temp_temp* name = localVarMap.at(*b->u.callStmt->fnCall->vals[i]->u.arithExpr->u.exprUnit->u.id);
+                                if (name->type == TempType::STRUCT_PTR && name->len >= 0)
+                                {
+                                    AS_operand* tmp = AS_Operand_Temp(Temp_newtemp_struct_ptr(-1,name->structname));
+                                    emit_irs.push_back(L_Gep(tmp, AS_Operand_Temp(name), AS_Operand_Const(0)));
+                                    args.push_back(tmp);
+                                    continue;
+                                }
+                                if (name->type == TempType::INT_PTR && name->len >= 0)
+                                {
+                                    AS_operand* tmp = AS_Operand_Temp(Temp_newtemp_int_ptr(-1));
+                                    emit_irs.push_back(L_Gep(tmp, AS_Operand_Temp(name), AS_Operand_Const(0)));
+                                    args.push_back(tmp);
+                                    continue;
+                                }
+                            }
+                        }
+                        
+                    }
+                    
+                }
+            }
+            
+            
             args.push_back(ast2llvmRightVal(b->u.callStmt->fnCall->vals[i]));
         }
         
@@ -756,6 +806,9 @@ void ast2llvmBlock(aA_codeBlockStmt b,Temp_label *con_label,Temp_label *bre_labe
         if (b->u.varDeclStmt->kind == A_varDeclStmtType::A_varDeclKind){
             if (b->u.varDeclStmt->u.varDecl->kind == A_varDeclType::A_varDeclScalarKind){
                 string var_name = *b->u.varDeclStmt->u.varDecl->u.declScalar->id;
+                if (localVarMap.find(var_name) != localVarMap.end()){
+                    localVarMap.erase(var_name);
+                }
                 Temp_temp* reg;
                 if(!b->u.varDeclStmt->u.varDecl->u.declScalar->type){
                     reg = Temp_newtemp_int_ptr(0);
@@ -814,7 +867,7 @@ void ast2llvmBlock(aA_codeBlockStmt b,Temp_label *con_label,Temp_label *bre_labe
                 if (!b->u.varDeclStmt->u.varDef->u.defArray->type){
                     Temp_temp* reg = Temp_newtemp_int_ptr(b->u.varDeclStmt->u.varDef->u.defArray->len);
                     emit_irs.push_back(L_Alloca(AS_Operand_Temp(reg)));
-                    for (int i = 0; i < b->u.varDeclStmt->u.varDef->u.defArray->len; i++){
+                    for (int i = 0; i < b->u.varDeclStmt->u.varDef->u.defArray->vals.size(); i++){
                         AS_operand* rightVal = ast2llvmRightVal(b->u.varDeclStmt->u.varDef->u.defArray->vals[i]);
                         Temp_temp* reg_temp = Temp_newtemp_int_ptr(0);
                         emit_irs.push_back(L_Gep(AS_Operand_Temp(reg_temp), AS_Operand_Temp(reg), AS_Operand_Const(i)));
@@ -826,7 +879,7 @@ void ast2llvmBlock(aA_codeBlockStmt b,Temp_label *con_label,Temp_label *bre_labe
                     Temp_temp* reg = Temp_newtemp_int_ptr(b->u.varDeclStmt->u.varDef->u.defArray->len);
                     
                     emit_irs.push_back(L_Alloca(AS_Operand_Temp(reg)));
-                    for (int i = 0; i < b->u.varDeclStmt->u.varDef->u.defArray->len; i++){
+                    for (int i = 0; i < b->u.varDeclStmt->u.varDef->u.defArray->vals.size(); i++){
                         AS_operand* rightVal = ast2llvmRightVal(b->u.varDeclStmt->u.varDef->u.defArray->vals[i]);
                         Temp_temp* reg_temp = Temp_newtemp_int_ptr(0);
                         emit_irs.push_back(L_Gep(AS_Operand_Temp(reg_temp), AS_Operand_Temp(reg), AS_Operand_Const(i)));
@@ -837,7 +890,7 @@ void ast2llvmBlock(aA_codeBlockStmt b,Temp_label *con_label,Temp_label *bre_labe
                 else if(b->u.varDeclStmt->u.varDef->u.defArray->type->type == A_dataType::A_structTypeKind){
                     Temp_temp* reg = Temp_newtemp_struct_ptr(b->u.varDeclStmt->u.varDef->u.defArray->len, *b->u.varDeclStmt->u.varDef->u.defArray->type->u.structType);
                     emit_irs.push_back(L_Alloca(AS_Operand_Temp(reg)));
-                    for (int i = 0; i < b->u.varDeclStmt->u.varDef->u.defArray->len; i++){
+                    for (int i = 0; i < b->u.varDeclStmt->u.varDef->u.defArray->vals.size(); i++){
                         AS_operand* rightVal = ast2llvmRightVal(b->u.varDeclStmt->u.varDef->u.defArray->vals[i]);
                         Temp_temp* reg_temp = Temp_newtemp_struct_ptr(b->u.varDeclStmt->u.varDef->u.defArray->len-i, *b->u.varDeclStmt->u.varDef->u.defArray->type->u.structType);
                         emit_irs.push_back(L_Gep(AS_Operand_Temp(reg_temp), AS_Operand_Temp(reg), AS_Operand_Const(i)));
