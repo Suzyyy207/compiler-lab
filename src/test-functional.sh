@@ -6,8 +6,10 @@ func_testcase_dir=$(dirname "$0")/tests/public
 
 test_single() {
     # 获取测试文件的相对路径
-    test_file=$(readlink -f "$func_testcase_dir/$1.tea")
-    test_name=${test_file%.tea}
+    test_file="$func_testcase_dir/$1.tea"
+    # 获取测试文件的相对路径
+    test_name="${test_file#$func_testcase_dir/}"
+    test_name="${test_name%.tea}"
 
     echo -n $test_name
     echo ": "
