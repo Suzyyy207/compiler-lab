@@ -165,7 +165,7 @@ L_stm* LLVMIR::L_Ret(AS_operand *ret)
 {
     auto p = new L_stm();
     p->type = L_StmKind::T_RETURN;
-    p->u.RET = new L_ret(ret);
+    p->u.RETURN = new L_ret(ret);
     return p;
 }
 

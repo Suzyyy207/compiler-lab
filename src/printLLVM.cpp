@@ -581,14 +581,14 @@ void LLVMIR::printL_stm(std::ostream &os,LLVMIR::L_stm *stm)
     }
     case L_StmKind::T_RETURN:
     {
-        if(stm->u.RET->ret == nullptr)
+        if(stm->u.RETURN->ret == nullptr)
         {
             os << "  ret void";
         }
         else
         {
             os << "  ret i32 ";
-            printL_oper(os,stm->u.RET->ret);
+            printL_oper(os,stm->u.RETURN->ret);
         }
         break;
     }

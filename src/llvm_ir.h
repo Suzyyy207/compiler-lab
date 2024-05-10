@@ -198,7 +198,7 @@ struct L_stm
         L_move *MOVE;
         L_call *CALL;
         L_voidcall *VOID_CALL;
-        L_ret *RET;
+        L_ret *RETURN;
         L_phi *PHI;
         L_alloca *ALLOCA;
         L_gep *GEP;
