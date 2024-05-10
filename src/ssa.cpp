@@ -92,7 +92,32 @@ void combine_addr(LLVMIR::L_func* fun) {
 }
 
 void mem2reg(LLVMIR::L_func* fun) {
-   //   Todo
+    temp2ASoper.clear();
+    
+    for (auto& block : fun->blocks) {
+        auto it = block->instrs.begin();
+        while (it != block->instrs.end()) {
+            auto& stm = *it;
+            if (stm->type == L_StmKind::T_ALLOCA) {
+                if (is_mem_variable(stm)){
+                    temp2ASoper[stm->u.ALLOCA->dst->u.TEMP] = AS_Operand_Temp(Temp_newtemp_int());
+                    it = block->instrs.erase(it);
+                }
+            } else if (stm->type == L_StmKind::T_STORE) {
+                if (temp2ASoper.find(stm->u.STORE->ptr->u.TEMP) != temp2ASoper.end()){
+                    AS_operand* target = temp2ASoper.find(stm->u.STORE->ptr->u.TEMP)->second;
+                    *it = L_Move(stm->u.STORE->src, target);
+                }
+            } else if (stm->type == L_StmKind::T_LOAD) {
+                if (temp2ASoper.find(stm->u.LOAD->ptr->u.TEMP) != temp2ASoper.end()){
+                    AS_operand* target = temp2ASoper.find(stm->u.LOAD->ptr->u.TEMP)->second;
+                    *it = L_Move(stm->u.LOAD->dst, target);
+                }
+                continue;
+            }
+            ++it;
+        }
+    }
 }
 
 void Dominators(GRAPH::Graph<LLVMIR::L_block*>& bg) {
