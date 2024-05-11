@@ -7,22 +7,19 @@ declare void @_sysy_starttime( i32 )
 declare void @_sysy_stoptime( i32 )
 define i32 @quickread( ) {
 bb1:
-  %r101 = call i32 @getch()
-  %r109 = add i32 %r101, 0
-  %r110 = add i32 0, 0
-  %r111 = add i32 0, 0
-  br label %bb2
+  %r107 = add i32 0, 0
+  %r108 = add i32 0, 0
+  %r103 = icmp ne i32 %r108, 0
+  br i1 %r103, label %bb2, label %bb3
 
 bb2:
-  %r106 = icmp slt i32 %r109, 48
-  br i1 %r106, label %bb3, label %bb5
-
-bb5:
-  %r108 = icmp sgt i32 %r109, 57
-  br i1 %r108, label %bb3, label %bb4
+  %r105 = sub i32 0, %r107
+  ret i32 %r105
+  br label %bb4
 
 bb3:
-  br label %bb2
+  ret i32 %r107
+  br label %bb4
 
 bb4:
   ret i32 0

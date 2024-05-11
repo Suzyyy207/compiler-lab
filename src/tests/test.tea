@@ -1,8 +1,9 @@
 fn quickread()->int{
-	let ch:int = getch();
 	let x:int = 0;
 	let f:int = 0;
-	while ((ch < 48) || (ch > 57)){
-
+	if ((f != 0)){
+		ret -x;
+	}else{
+		ret x;
 	}
 }

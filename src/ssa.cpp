@@ -39,9 +39,10 @@ LLVMIR::L_prog* SSA(LLVMIR::L_prog* prog) {
         init_table();
         combine_addr(fun);
         mem2reg(fun);
-        /*auto RA_bg = Create_bg(fun->blocks);
+        std::cout<<"mem2reg finish"<<std::endl;
+        auto RA_bg = Create_bg(fun->blocks);
         SingleSourceGraph(RA_bg.mynodes[0], RA_bg,fun);
-        // Show_graph(stdout,RA_bg);
+        /*
         Liveness(RA_bg.mynodes[0], RA_bg, fun->args);
         Dominators(RA_bg);
         // printf_domi();
@@ -52,7 +53,8 @@ LLVMIR::L_prog* SSA(LLVMIR::L_prog* prog) {
         // printf_DF();
         Place_phi_fu(RA_bg, fun);
         Rename(RA_bg);
-        combine_addr(fun);*/
+        combine_addr(fun);
+        */
     }
     return prog;
 }
