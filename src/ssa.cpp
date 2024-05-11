@@ -100,21 +100,103 @@ void mem2reg(LLVMIR::L_func* fun) {
             auto& stm = *it;
             if (stm->type == L_StmKind::T_ALLOCA) {
                 if (is_mem_variable(stm)){
-                    temp2ASoper[stm->u.ALLOCA->dst->u.TEMP] = AS_Operand_Temp(Temp_newtemp_int());
-                    it = block->instrs.erase(it);
+                    AS_operand* new_reg = AS_Operand_Temp(Temp_newtemp_int());
+                    temp2ASoper[stm->u.ALLOCA->dst->u.TEMP] = new_reg;
+                    *it = L_Move(AS_Operand_Const(0), stm->u.ALLOCA->dst);
                 }
-            } else if (stm->type == L_StmKind::T_STORE) {
+            }
+            else if (stm->type == L_StmKind::T_STORE) {
                 if (temp2ASoper.find(stm->u.STORE->ptr->u.TEMP) != temp2ASoper.end()){
                     AS_operand* target = temp2ASoper.find(stm->u.STORE->ptr->u.TEMP)->second;
                     *it = L_Move(stm->u.STORE->src, target);
                 }
-            } else if (stm->type == L_StmKind::T_LOAD) {
+            }
+            else if (stm->type == L_StmKind::T_LOAD) {
                 if (temp2ASoper.find(stm->u.LOAD->ptr->u.TEMP) != temp2ASoper.end()){
-                    AS_operand* target = temp2ASoper.find(stm->u.LOAD->ptr->u.TEMP)->second;
-                    *it = L_Move(stm->u.LOAD->dst, target);
+                    temp2ASoper[stm->u.LOAD->dst->u.TEMP] = temp2ASoper.find(stm->u.LOAD->ptr->u.TEMP)->second;
+                    it = block->instrs.erase(it);
                 }
                 continue;
             }
+            else if (stm->type == L_StmKind::T_BINOP){
+                AS_operand* left = stm->u.BINOP->left;
+                AS_operand* right = stm->u.BINOP->right;
+                if (left->kind == OperandKind::TEMP && temp2ASoper.find(left->u.TEMP) != temp2ASoper.end()){
+                    left = temp2ASoper.find(left->u.TEMP)->second;
+                }
+                if (right->kind == OperandKind::TEMP && temp2ASoper.find(right->u.TEMP) != temp2ASoper.end()){
+                    right = temp2ASoper.find(right->u.TEMP)->second;
+                }
+                *it = L_Binop(stm->u.BINOP->op, left, right, stm->u.BINOP->dst);
+            }
+            else if (stm->type == L_StmKind::T_CMP){
+                AS_operand* left = stm->u.CMP->left;
+                AS_operand* right = stm->u.CMP->right;
+                if (left->kind == OperandKind::TEMP && temp2ASoper.find(left->u.TEMP) != temp2ASoper.end()){
+                    left = temp2ASoper.find(left->u.TEMP)->second;
+                }
+                if (right->kind == OperandKind::TEMP && temp2ASoper.find(right->u.TEMP) != temp2ASoper.end()){
+                    right = temp2ASoper.find(right->u.TEMP)->second;
+                }
+                *it = L_Cmp(stm->u.CMP->op, left, right, stm->u.CMP->dst);
+            }
+            else if(stm->type == L_StmKind::T_CJUMP){
+                AS_operand* dst = stm->u.CJUMP->dst;
+                if (dst->kind == OperandKind::TEMP && temp2ASoper.find(dst->u.TEMP) != temp2ASoper.end()){
+                    dst = temp2ASoper.find(dst->u.TEMP)->second;
+                }
+                *it = L_Cjump(dst, stm->u.CJUMP->true_label, stm->u.CJUMP->false_label);
+            }
+            else if(stm->type == L_StmKind::T_GEP){
+                AS_operand* new_ptr = stm->u.GEP->new_ptr;
+                AS_operand* base_ptr = stm->u.GEP->base_ptr;
+                AS_operand* index = stm->u.GEP->index;
+                if (new_ptr->kind == OperandKind::TEMP && temp2ASoper.find(new_ptr->u.TEMP) != temp2ASoper.end()){
+                    new_ptr = temp2ASoper.find(new_ptr->u.TEMP)->second;
+                }
+                if (index->kind == OperandKind::TEMP && temp2ASoper.find(index->u.TEMP) != temp2ASoper.end()){
+                    index = temp2ASoper.find(index->u.TEMP)->second;
+                }
+                *it = L_Gep(new_ptr, base_ptr, index);
+            }
+            else if (stm->type == L_StmKind::T_RETURN){
+                AS_operand* ret = stm->u.RETURN->ret;
+                if (ret->kind == OperandKind::TEMP && temp2ASoper.find(ret->u.TEMP) != temp2ASoper.end()){
+                    ret = temp2ASoper.find(stm->u.RETURN->ret->u.TEMP)->second;
+                }
+                *it = L_Ret(ret);
+            }
+            else if(stm->type == L_StmKind::T_CALL){
+                std::vector<AS_operand*> args;
+                for (int i = 0; i < stm->u.CALL->args.size(); i++){
+                    AS_operand* arg = stm->u.CALL->args[i];
+                    if (arg->kind == OperandKind::TEMP && temp2ASoper.find(arg->u.TEMP) != temp2ASoper.end()){
+                        args.push_back(temp2ASoper[arg->u.TEMP]);
+                    }
+                    else{
+                        args.push_back(arg);
+                    }
+                }
+                AS_operand* ret = stm->u.CALL->res;
+                if (ret->kind == OperandKind::TEMP && temp2ASoper.find(ret->u.TEMP) != temp2ASoper.end()){
+                    ret = temp2ASoper.find(stm->u.RETURN->ret->u.TEMP)->second;
+                }
+                *it = L_Call(stm->u.CALL->fun, ret, args);
+            }
+            else if(stm->type == L_StmKind::T_VOID_CALL){
+                std::vector<AS_operand*> args;
+                for (int i = 0; i < stm->u.VOID_CALL->args.size(); i++){
+                    AS_operand* arg = stm->u.VOID_CALL->args[i];
+                    if (arg->kind == OperandKind::TEMP && temp2ASoper.find(arg->u.TEMP) != temp2ASoper.end()){
+                        args.push_back(temp2ASoper[arg->u.TEMP]);
+                    }
+                    else{
+                        args.push_back(arg);
+                    }
+                }
+                *it = L_Voidcall(stm->u.CALL->fun, args);
+            }
+            
             ++it;
         }
     }

@@ -71,7 +71,7 @@ static void DFS(Node<L_block*>* r, Graph<L_block*>& bg) {
 }
 
 void SingleSourceGraph(Node<L_block*>* r, Graph<L_block*>& bg,L_func*fun) {
-    //   Todo
+    return;
 }
 
 void Show_graph(FILE* out,GRAPH::Graph<LLVMIR::L_block*>&bg){
