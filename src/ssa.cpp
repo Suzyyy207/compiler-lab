@@ -39,7 +39,7 @@ LLVMIR::L_prog* SSA(LLVMIR::L_prog* prog) {
         init_table();
         combine_addr(fun);
         mem2reg(fun);
-        auto RA_bg = Create_bg(fun->blocks);
+        /*auto RA_bg = Create_bg(fun->blocks);
         SingleSourceGraph(RA_bg.mynodes[0], RA_bg,fun);
         // Show_graph(stdout,RA_bg);
         Liveness(RA_bg.mynodes[0], RA_bg, fun->args);
@@ -52,7 +52,7 @@ LLVMIR::L_prog* SSA(LLVMIR::L_prog* prog) {
         // printf_DF();
         Place_phi_fu(RA_bg, fun);
         Rename(RA_bg);
-        combine_addr(fun);
+        combine_addr(fun);*/
     }
     return prog;
 }
@@ -102,21 +102,22 @@ void mem2reg(LLVMIR::L_func* fun) {
                 if (is_mem_variable(stm)){
                     AS_operand* new_reg = AS_Operand_Temp(Temp_newtemp_int());
                     temp2ASoper[stm->u.ALLOCA->dst->u.TEMP] = new_reg;
-                    *it = L_Move(AS_Operand_Const(0), stm->u.ALLOCA->dst);
+                    it = block->instrs.erase(it);
+                    continue;
                 }
             }
             else if (stm->type == L_StmKind::T_STORE) {
-                if (temp2ASoper.find(stm->u.STORE->ptr->u.TEMP) != temp2ASoper.end()){
+                if (stm->u.STORE->ptr->kind == OperandKind::TEMP && temp2ASoper.find(stm->u.STORE->ptr->u.TEMP) != temp2ASoper.end()){
                     AS_operand* target = temp2ASoper.find(stm->u.STORE->ptr->u.TEMP)->second;
                     *it = L_Move(stm->u.STORE->src, target);
                 }
             }
             else if (stm->type == L_StmKind::T_LOAD) {
-                if (temp2ASoper.find(stm->u.LOAD->ptr->u.TEMP) != temp2ASoper.end()){
+                if (stm->u.LOAD->ptr->kind == OperandKind::TEMP && temp2ASoper.find(stm->u.LOAD->ptr->u.TEMP) != temp2ASoper.end()){
                     temp2ASoper[stm->u.LOAD->dst->u.TEMP] = temp2ASoper.find(stm->u.LOAD->ptr->u.TEMP)->second;
                     it = block->instrs.erase(it);
+                    continue;
                 }
-                continue;
             }
             else if (stm->type == L_StmKind::T_BINOP){
                 AS_operand* left = stm->u.BINOP->left;
@@ -159,7 +160,7 @@ void mem2reg(LLVMIR::L_func* fun) {
                 }
                 *it = L_Gep(new_ptr, base_ptr, index);
             }
-            else if (stm->type == L_StmKind::T_RETURN){
+            else if (fun->ret.type == ReturnType::INT_TYPE &&  stm->type == L_StmKind::T_RETURN){
                 AS_operand* ret = stm->u.RETURN->ret;
                 if (ret->kind == OperandKind::TEMP && temp2ASoper.find(ret->u.TEMP) != temp2ASoper.end()){
                     ret = temp2ASoper.find(stm->u.RETURN->ret->u.TEMP)->second;
@@ -194,7 +195,7 @@ void mem2reg(LLVMIR::L_func* fun) {
                         args.push_back(arg);
                     }
                 }
-                *it = L_Voidcall(stm->u.CALL->fun, args);
+                *it = L_Voidcall(stm->u.VOID_CALL->fun, args);
             }
             
             ++it;
