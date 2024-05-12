@@ -276,6 +276,46 @@ static void Use_def(GRAPH::Node<LLVMIR::L_block*>* r, GRAPH::Graph<LLVMIR::L_blo
 }
 static int gi=0;
 static bool LivenessIteration(GRAPH::Node<LLVMIR::L_block*>* r, GRAPH::Graph<LLVMIR::L_block*>& bg) {
+    // in[b] = use[b] + (out[b] - def[b])
+    // out[b] = sum(in[s])
+    bool in_change_flag = false;
+    for (int i = bg.mynodes.size(); i >=0; i--)
+    {
+        TempSet_ b_in = InOutTable[bg.mynodes[i]].in;
+        TempSet_ b_out = InOutTable[bg.mynodes[i]].out;
+        TempSet_ b_def = UseDefTable[bg.mynodes[i]].def;
+        TempSet_ b_use = UseDefTable[bg.mynodes[i]].use;
+
+        // 计算out
+        for (auto& node: bg.mynodes[i]->succs){
+            TempSet_ succ_in = InOutTable[bg.mynodes[node]].in;
+            for (auto& temp: succ_in){
+                if (b_out.find(temp) == b_out.end()){
+                    b_out.emplace(temp);
+                }
+            }
+        }
+        
+        // 计算in
+        for (auto& temp: b_use){
+            if (b_in.find(temp) == b_in.end()){
+                b_in.emplace(temp);
+                in_change_flag = true;
+            }
+        }
+        for (auto& temp: b_out){
+            if (b_def.find(temp) == b_def.end()){
+                if (b_in.find(temp) == b_in.end()){
+                    b_in.emplace(temp);
+                    in_change_flag = 1;
+                }
+            }
+            
+        }
+        
+    }
+
+    return in_change_flag;
     
 }
 
