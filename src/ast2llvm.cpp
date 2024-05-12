@@ -1377,15 +1377,29 @@ LLVMIR::L_func* ast2llvmFuncBlock(Func_local *f)
 {
     list<L_block *> blocks;
     list<L_stm *>irs = list<L_stm *>();
+    bool tail = false;
     
-    for(const auto &block :f->irs){
-        if(block->type == L_StmKind::T_LABEL){
+    for(const auto &stm :f->irs){
+        if(stm->type == L_StmKind::T_LABEL){
             if(!irs.empty()){
                 blocks.push_back(L_Block(irs));
                 irs.clear();
+                tail = false;
+            }
+            irs.push_back(stm);
+        }
+        else if(stm->type == L_StmKind::T_CJUMP || stm->type == L_StmKind::T_JUMP){
+            if (!tail){
+                irs.push_back(stm);
+                tail = true;
             }
         }
-        irs.push_back(block);
+        else{
+            if (!tail){
+                irs.push_back(stm);
+            }
+        }
+        
     }
 
     if(!irs.empty()){
