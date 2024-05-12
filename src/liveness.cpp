@@ -279,7 +279,7 @@ static bool LivenessIteration(GRAPH::Node<LLVMIR::L_block*>* r, GRAPH::Graph<LLV
     // in[b] = use[b] + (out[b] - def[b])
     // out[b] = sum(in[s])
     bool in_change_flag = false;
-    for (int i = bg.mynodes.size(); i >=0; i--)
+    for (int i = bg.mynodes.size()-1; i >=0; i--)
     {
         TempSet_ b_in = InOutTable[bg.mynodes[i]].in;
         TempSet_ b_out = InOutTable[bg.mynodes[i]].out;
@@ -341,8 +341,11 @@ void Show_Liveness(FILE* out, GRAPH::Graph<LLVMIR::L_block*>& bg) {
 void Liveness(GRAPH::Node<LLVMIR::L_block*>* r, GRAPH::Graph<LLVMIR::L_block*>& bg, std::vector<Temp_temp*>& args) {
     init_INOUT();
     Use_def(r, bg, args);
+    std::cout<< "use-def finish"<<std::endl;
     gi=0;
     bool changed = true;
     while (changed)
         changed = LivenessIteration(r, bg);
+
+    std::cout<< "liveness finish"<<std::endl;
 }

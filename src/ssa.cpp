@@ -255,6 +255,8 @@ void Dominators(GRAPH::Graph<LLVMIR::L_block*>& bg) {
             }
         }
     }
+
+    std::cout<<"dominators finish"<<std::endl;
 }
 
 void printf_domi() {
@@ -290,7 +292,43 @@ void printf_DF() {
 }
 
 void tree_Dominators(GRAPH::Graph<LLVMIR::L_block*>& bg) {
-    //   Todo
+    // 初始化
+    for (int i = 0; i < bg.mynodes.size(); i++){
+        imm_Dominator imm_origin;
+        tree_dominators[bg.mynodes[i]->info] = imm_origin;
+    }
+
+    for (int i = 1; i < bg.mynodes.size(); i++){
+        unordered_set<L_block*> doms = dominators[bg.mynodes[i]->info];
+        L_block* nearest = bg.mynodes[i]->info;
+        for (auto& dom: doms){
+            int flag = 0;
+            if (dom == bg.mynodes[i]->info){
+                continue;
+            }
+            for (auto& other_dom: doms){
+                if (dom == other_dom || other_dom == bg.mynodes[i]->info){
+                    continue;
+                }
+                unordered_set<L_block*> other_dom_doms = dominators[other_dom];
+                if (other_dom_doms.find(dom) != other_dom_doms.end()){
+                    flag = 1;
+                    break;
+                }
+            }
+            if (flag == 1){
+                continue;
+            }
+            else{
+                nearest = dom;
+                break;
+            }
+        }
+
+        tree_dominators[bg.mynodes[i]->info].pred = nearest;
+        tree_dominators[nearest].succs.emplace(bg.mynodes[i]->info);
+    }
+    
 }
 
 void computeDF(GRAPH::Graph<LLVMIR::L_block*>& bg, GRAPH::Node<LLVMIR::L_block*>* r) {
