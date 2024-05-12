@@ -205,7 +205,56 @@ void mem2reg(LLVMIR::L_func* fun) {
 }
 
 void Dominators(GRAPH::Graph<LLVMIR::L_block*>& bg) {
-    //   Todo
+    // 初始化
+    for (int i = 0; i < bg.mynodes.size(); i++){
+        unordered_set<L_block*> dom_set;
+        dom_set.emplace(bg.mynodes[i]->info);
+        dominators[bg.mynodes[i]->info] = dom_set;
+    }
+    
+    bool change = true;
+    while (change){
+        change = false;
+        for (int i = 1; i < bg.mynodes.size(); i++){
+            unordered_set<L_block*> dom_set = dominators[bg.mynodes[i]->info];
+            unordered_set<L_block*> pred_dom_intersection;
+            bool first = true;
+            unordered_set<L_block*> pred_dom_set;
+
+            for (auto& pred_num: bg.mynodes[i]->preds){
+                if (first){
+                    pred_dom_set = dominators.find(bg.mynodes[pred_num]->info)->second;
+                    for (auto& pre_dom: pred_dom_set){
+                        pred_dom_intersection.emplace(pre_dom);
+                    }
+                    first = false;
+                }
+                else{
+                    for (auto& intersection_dom: pred_dom_intersection){
+                        pred_dom_set = dominators.find(bg.mynodes[pred_num]->info)->second;
+                        if (pred_dom_set.find(intersection_dom) == pred_dom_set.end()){
+                            pred_dom_intersection.erase(intersection_dom);
+                        }
+                    }
+                }
+            }
+            pred_dom_intersection.emplace(bg.mynodes[i]->info);
+
+            for (auto& intersection_dom: pred_dom_intersection){
+                if (dom_set.find(intersection_dom) == dom_set.end()){
+                    dom_set.emplace(intersection_dom);
+                    change = true;
+                }
+            }
+            
+            for (auto& origin_dom: dom_set){
+                if (pred_dom_intersection.find(origin_dom) == pred_dom_intersection.end()){
+                    dom_set.erase(origin_dom);
+                    change = true;
+                }
+            }
+        }
+    }
 }
 
 void printf_domi() {
