@@ -206,6 +206,7 @@ void mem2reg(LLVMIR::L_func* fun) {
 
 void Dominators(GRAPH::Graph<LLVMIR::L_block*>& bg) {
     // 初始化
+    revers_graph.clear();
     for (int i = 0; i < bg.mynodes.size(); i++){
         unordered_set<L_block*> dom_set;
         dom_set.emplace(bg.mynodes[i]->info);
@@ -331,8 +332,54 @@ void tree_Dominators(GRAPH::Graph<LLVMIR::L_block*>& bg) {
     
 }
 
+void computeBlcokDF(GRAPH::Graph<LLVMIR::L_block*>& bg, GRAPH::Node<LLVMIR::L_block*>* n){
+    /*
+        computeDF[n]=
+        S={}
+        for succ[n]中的每一个个结点y		这个循环计算DF_local[n]
+            if idom(y)≠n
+                S=SU{y}
+        for必经结点树中的n 的每个儿子c
+            computeDF[c]
+            for DF[c]中的每个元素
+                if n不是w的必经结点，或者if n==w
+                    S=SU{w}
+        DF[n]=S
+    */
+    unordered_set<L_block*> origin = DF_array[n->info];
+
+    for (auto& j: n->succs){
+        L_block* y = bg.mynodes[j]->info;
+        if (tree_dominators[y].pred != n->info){
+            origin.emplace(y);
+        }
+    }
+
+    for (auto& tree_son: tree_dominators[n->info].succs){
+        computeBlcokDF(bg, revers_graph[tree_son]);
+        for (auto& w: DF_array[tree_son]){
+            unordered_set<L_block*> w_dom = dominators[w];
+            if (w_dom.find(n->info) == w_dom.end() || w == n->info){
+                origin.emplace(w);
+            }
+        }
+    }
+
+    DF_array[n->info] = origin;
+}
+
 void computeDF(GRAPH::Graph<LLVMIR::L_block*>& bg, GRAPH::Node<LLVMIR::L_block*>* r) {
-    //   Todo
+    revers_graph.clear();
+    for (int i = 0; i < bg.mynodes.size(); i++){
+        unordered_set<L_block*> origin;
+        revers_graph[bg.mynodes[i]->info] = bg.mynodes[i];
+        DF_array[bg.mynodes[i]->info] = origin;
+    }
+
+    for (int i = 1; i < bg.mynodes.size(); i++){
+        computeBlcokDF(bg, bg.mynodes[i]);
+    }
+
 }
 
 // 只对标量做
