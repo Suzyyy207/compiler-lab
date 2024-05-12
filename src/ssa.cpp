@@ -103,8 +103,7 @@ void mem2reg(LLVMIR::L_func* fun) {
                 if (is_mem_variable(stm)){
                     AS_operand* new_reg = AS_Operand_Temp(Temp_newtemp_int());
                     temp2ASoper[stm->u.ALLOCA->dst->u.TEMP] = new_reg;
-                    it = block->instrs.erase(it);
-                    continue;
+                    *it = L_Move(AS_Operand_Const(0), new_reg);
                 }
             }
             else if (stm->type == L_StmKind::T_STORE) {
@@ -254,6 +253,8 @@ void Dominators(GRAPH::Graph<LLVMIR::L_block*>& bg) {
                     change = true;
                 }
             }
+            
+            dominators[bg.mynodes[i]->info] = dom_set;
         }
     }
 
