@@ -385,7 +385,51 @@ void computeDF(GRAPH::Graph<LLVMIR::L_block*>& bg, GRAPH::Node<LLVMIR::L_block*>
 
 // 只对标量做
 void Place_phi_fu(GRAPH::Graph<LLVMIR::L_block*>& bg, L_func* fun) {
-    //   Todo
+    //step 1
+    unordered_map<Temp_temp*, unordered_set<L_block*>> def_sites;
+    for (int i = 0; i < bg.mynodes.size(); i++){
+        unordered_set<L_block*> def_site;
+        for(auto& def_a: FG_def(bg.mynodes[i])){
+            if (def_sites.find(def_a) == def_sites.end()){
+                def_sites[def_a] = def_site;
+            }
+            if (def_sites[def_a].find(bg.mynodes[i]->info) == def_site.end()){
+                def_sites[def_a].emplace(bg.mynodes[i]->info);
+            }
+        }
+    }
+
+    for (auto& temp_pair: def_sites){
+        unordered_set<L_block*> w = temp_pair.second;
+        unordered_set<L_block*> f;
+        while (!w.empty()){
+            L_block* x = *w.end();
+            w.erase(x);
+            unordered_set<L_block*> df_x = DF_array[x];
+            for(auto& y: df_x){
+                if (f.find(y) == f.end()){
+                    // add phi
+                    L_stm* stm = *y->instrs.begin();
+                    if (stm->type == L_StmKind::T_PHI && stm->u.PHI->dst->u.TEMP == temp_pair.first){
+                        std::pair<AS_operand*,Temp_label*> new_phi_src = make_pair(stm->u.PHI->phis.begin()->first, x->label);
+                        stm->u.PHI->phis.push_back(new_phi_src);
+                    }
+                    else{
+                        AS_operand* dst = AS_Operand_Temp(temp_pair.first);
+                        std::pair<AS_operand*,Temp_label*> new_phi_src = make_pair(dst, x->label);
+                        std::vector<std::pair<AS_operand*,Temp_label*>> phis;
+                        phis.push_back(new_phi_src);
+                        y->instrs.push_front(L_Phi(dst, phis));
+                    }
+                    //f and w update
+                    f.emplace(y);
+                    if (w.find(y) == w.end()){
+                        w.emplace(y);
+                    }
+                }
+            }
+        }
+    }
 }
 
 static list<AS_operand**> get_def_int_operand(LLVMIR::L_stm* stm) {
