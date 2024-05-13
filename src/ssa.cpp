@@ -385,6 +385,12 @@ void computeDF(GRAPH::Graph<LLVMIR::L_block*>& bg, GRAPH::Node<LLVMIR::L_block*>
 
 // 只对标量做
 void Place_phi_fu(GRAPH::Graph<LLVMIR::L_block*>& bg, L_func* fun) {
+    // 创建block -> index的映射
+    unordered_map<L_block*, int> block2index;
+    for (int i = 0; i < bg.mynodes.size(); i++){
+        block2index[bg.mynodes[i]->info] = i;
+    }
+    
     //step 1
     unordered_map<Temp_temp*, unordered_set<L_block*>> def_sites;
     for (int i = 0; i < bg.mynodes.size(); i++){
@@ -408,19 +414,17 @@ void Place_phi_fu(GRAPH::Graph<LLVMIR::L_block*>& bg, L_func* fun) {
             unordered_set<L_block*> df_x = DF_array[x];
             for(auto& y: df_x){
                 if (f.find(y) == f.end()){
-                    // add phi
-                    L_stm* stm = *y->instrs.begin();
-                    if (stm->type == L_StmKind::T_PHI && stm->u.PHI->dst->u.TEMP == temp_pair.first){
-                        std::pair<AS_operand*,Temp_label*> new_phi_src = make_pair(stm->u.PHI->phis.begin()->first, x->label);
-                        stm->u.PHI->phis.push_back(new_phi_src);
-                    }
-                    else{
-                        AS_operand* dst = AS_Operand_Temp(temp_pair.first);
-                        std::pair<AS_operand*,Temp_label*> new_phi_src = make_pair(dst, x->label);
-                        std::vector<std::pair<AS_operand*,Temp_label*>> phis;
+                    // add phi --修改
+                    int y_index = block2index[y];
+                    AS_operand* dst = AS_Operand_Temp(temp_pair.first);
+                    std::vector<std::pair<AS_operand*,Temp_label*>> phis;
+                    std::pair<AS_operand*,Temp_label*> new_phi_src;
+                    for(auto& pred: bg.mynodes[y_index]->preds){
+                        new_phi_src = make_pair(dst, bg.mynodes[pred]->info->label);
                         phis.push_back(new_phi_src);
-                        y->instrs.push_front(L_Phi(dst, phis));
                     }
+                    y->instrs.push_front(L_Phi(dst, phis));
+                    
                     //f and w update
                     f.emplace(y);
                     if (w.find(y) == w.end()){
@@ -458,4 +462,5 @@ static void Rename_temp(GRAPH::Graph<LLVMIR::L_block*>& bg, GRAPH::Node<LLVMIR::
 
 void Rename(GRAPH::Graph<LLVMIR::L_block*>& bg) {
    //   Todo
+    
 }
