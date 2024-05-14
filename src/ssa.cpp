@@ -37,13 +37,16 @@ static void init_table() {
 
 LLVMIR::L_prog* SSA(LLVMIR::L_prog* prog) {
     for (auto& fun : prog->funcs) {
+        std::cout<<fun->name<<std::endl;
         init_table();
         combine_addr(fun);
         mem2reg(fun);
+        /*
         std::cout<<"mem2reg finish"<<std::endl;
         auto RA_bg = Create_bg(fun->blocks);
         SingleSourceGraph(RA_bg.mynodes[0], RA_bg,fun);
         Liveness(RA_bg.mynodes[0], RA_bg, fun->args);
+        
         Dominators(RA_bg);
         // printf_domi();
         tree_Dominators(RA_bg);
@@ -52,8 +55,10 @@ LLVMIR::L_prog* SSA(LLVMIR::L_prog* prog) {
         computeDF(RA_bg, RA_bg.mynodes[0]);
         // printf_DF();
         Place_phi_fu(RA_bg, fun);
+        
         Rename(RA_bg);
-        combine_addr(fun);
+        combine_addr(fun);*/
+        
     }
     return prog;
 }
@@ -114,6 +119,13 @@ void mem2reg(LLVMIR::L_func* fun) {
                         src = temp2ASoper.find(stm->u.STORE->src->u.TEMP)->second;
                     }
                     *it = L_Move(src, target);
+                }
+                else{
+                    AS_operand* src = stm->u.STORE->src;
+                    if (src->kind == OperandKind::TEMP && temp2ASoper.find(src->u.TEMP) != temp2ASoper.end()){
+                        src = temp2ASoper.find(stm->u.STORE->src->u.TEMP)->second;
+                    }
+                    *it=L_Store(src, stm->u.STORE->ptr);
                 }
             }
             else if (stm->type == L_StmKind::T_LOAD) {
@@ -430,7 +442,6 @@ void Place_phi_fu(GRAPH::Graph<LLVMIR::L_block*>& bg, L_func* fun) {
 
 
     for (auto& temp_pair: def_sites){
-        
         unordered_set<L_block*> w = temp_pair.second;
         unordered_set<L_block*> f;
         while (!w.empty()){
@@ -439,7 +450,9 @@ void Place_phi_fu(GRAPH::Graph<LLVMIR::L_block*>& bg, L_func* fun) {
             unordered_set<L_block*> df_x = DF_array[x];
             
             for(auto& y: df_x){
-                if (f.find(y) == f.end()){
+                int node_index = block2index[y];
+                TempSet_ y_in = FG_In(bg.mynodes[node_index]);
+                if (f.find(y) == f.end() && y_in.find(temp_pair.first)!= y_in.end()){
                     // add phi
                     int y_index = block2index[y];
                     AS_operand* dst = AS_Operand_Temp(temp_pair.first);
@@ -546,7 +559,7 @@ static void Rename_temp(GRAPH::Graph<LLVMIR::L_block*>& bg, GRAPH::Node<LLVMIR::
         }
     }
 
-    std::cout<<"succ finished"<<std::endl;
+    //std::cout<<"succ finished"<<std::endl;
 
     // 处理子节点
     for (auto& son: tree_dominators[n->info].succs){

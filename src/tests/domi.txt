@@ -1,13 +1,7 @@
 Dominator:
-bb3 :
-bb1 bb3 
+bb16 :
+bb16 bb17 
 
-bb4 :
-bb4 bb1 
-
-bb2 :
-bb2 bb1 
-
-bb1 :
-bb1 
+bb17 :
+bb17 
 
