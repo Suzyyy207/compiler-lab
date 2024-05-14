@@ -1,5 +1,6 @@
 #include "ssa.h"
 #include <cassert>
+#include <fstream>
 #include <iostream>
 #include <list>
 #include <stack>
@@ -51,10 +52,10 @@ LLVMIR::L_prog* SSA(LLVMIR::L_prog* prog) {
         computeDF(RA_bg, RA_bg.mynodes[0]);
         // printf_DF();
         Place_phi_fu(RA_bg, fun);
-        /*
+        
         Rename(RA_bg);
         combine_addr(fun);
-        */
+        
     }
     return prog;
 }
@@ -451,6 +452,7 @@ void Place_phi_fu(GRAPH::Graph<LLVMIR::L_block*>& bg, L_func* fun) {
             }
         }
     }
+    std::cout<<"place phi finished"<<std::endl;
 }
 
 static list<AS_operand**> get_def_int_operand(LLVMIR::L_stm* stm) {
@@ -474,36 +476,48 @@ static list<AS_operand**> get_use_int_operand(LLVMIR::L_stm* stm) {
 }
 
 static void Rename_temp(GRAPH::Graph<LLVMIR::L_block*>& bg, GRAPH::Node<LLVMIR::L_block*>* n, unordered_map<Temp_temp*, stack<Temp_temp*>>& Stack,  unordered_map<Temp_temp*, int>& Count) {
-    
     // 创建block -> index的映射
     unordered_map<L_block*, int> block2index;
     for (int i = 0; i < bg.mynodes.size(); i++){
         block2index[bg.mynodes[i]->info] = i;
     }
-    
+    // 处理前保留原def的temp
+    unordered_map<Temp_temp*, int> origin_def_times;
+
     // 语句处理
     for (auto& stm: n->info->instrs){
         // 先处理非phi的use: 存在i = i+1 的情况
         if (stm->type != L_StmKind::T_PHI){
             for (auto use_operand: get_use_int_operand(stm)){
                 Temp_temp* new_temp = Stack[(*use_operand)->u.TEMP].top();
-                (*use_operand)->u.TEMP = new_temp;
+                *use_operand = AS_Operand_Temp(new_temp);
             }
         }
         // 处理def
         for (auto def_operand: get_def_int_operand(stm)){
-            Count[(*def_operand)->u.TEMP] += 1;
-            int new_index = Count[(*def_operand)->u.TEMP];
-            
-            string new_name = (*def_operand)->u.TEMP->varname + "_" + to_string(new_index);
             Temp_temp* new_temp = Temp_newtemp_int();
-            new_temp->varname = new_name;
-            (*def_operand)->u.TEMP = new_temp;
-
             Stack[(*def_operand)->u.TEMP].push(new_temp);
+            if (origin_def_times.find((*def_operand)->u.TEMP) == origin_def_times.end()){
+                origin_def_times[(*def_operand)->u.TEMP] = 1;
+            }
+            else{
+                origin_def_times[(*def_operand)->u.TEMP] += 1;
+            }
+            
+            *def_operand = AS_Operand_Temp(new_temp);
         }
     }
 
+    //std::cout<<"stmt finished"<<std::endl;
+
+    /*
+    ofstream out;
+    out.open(n->info->label->name + ".ll");
+    printL_block(out,n->info);
+    out.close();
+    */
+
+    
     // 后继处理
     for (auto& succ: n->succs){
         int j = 0;
@@ -516,38 +530,61 @@ static void Rename_temp(GRAPH::Graph<LLVMIR::L_block*>& bg, GRAPH::Node<LLVMIR::
         for (auto& stm: bg.mynodes[succ]->info->instrs){
             if (stm->type == L_StmKind::T_PHI){
                 if (stm->u.PHI->phis[j].second == n->info->label){
-                    AS_operand* phi_operand = stm->u.PHI->phis[j].first;
-                    phi_operand->u.TEMP = Stack[phi_operand->u.TEMP].top();
+                    stm->u.PHI->phis[j] = make_pair(AS_Operand_Temp(Stack[stm->u.PHI->phis[j].first->u.TEMP].top()),n->info->label);
                 }
             }
         }
     }
 
-    // 处理子节点？
+    //std::cout<<"succ finished"<<std::endl;
+
+    // 处理子节点
     for (auto& son: tree_dominators[n->info].succs){
         int son_index = block2index[son];
         Rename_temp(bg, bg.mynodes[son_index], Stack, Count);
     }
     
     // pop出这个block压入的v
-    for (auto& stm: n->info->instrs){
-        for (auto def_operand: get_def_int_operand(stm)){
-            Stack[(*def_operand)->u.TEMP].pop();
+    for (auto temp_pair: origin_def_times){
+        for (int i = 0; i<temp_pair.second; i++){
+            Stack[temp_pair.first].pop();
         }
+        
     }
+    
 }
 
 void Rename(GRAPH::Graph<LLVMIR::L_block*>& bg) {
     // 初始化set
+    TempSet_ temp_list_def;
+    TempSet_ temp_list_use;
     int count = 0;
     unordered_map<Temp_temp*, stack<Temp_temp*>> Stack;
     unordered_map<Temp_temp*, int> Count;
-    for (auto& temp: temp2ASoper){
-        int count = 0;
-        Count[temp.first] = count;
-        stack<Temp_temp*> stack_empty;
-        Stack[temp.first] = stack_empty;
+
+    for (int i = 0; i < bg.mynodes.size(); i++){
+        temp_list_def = FG_def(bg.mynodes[i]);
+        temp_list_use = FG_use(bg.mynodes[i]);
+        for (auto& temp_def: temp_list_def){
+            if (Stack.find(temp_def) == Stack.end()){
+                count = 0;
+                Count[temp_def] = count;
+                stack<Temp_temp*> stack_empty;
+                Stack[temp_def] = stack_empty;
+            }
+        }
+
+        for (auto& temp_use: temp_list_use){
+            if (Stack.find(temp_use) == Stack.end()){
+                count = 0;
+                Count[temp_use] = count;
+                stack<Temp_temp*> stack_empty;
+                Stack[temp_use] = stack_empty;
+            }
+        }
     }
+    
 
     Rename_temp(bg, bg.mynodes[0], Stack, Count);
+    std::cout<<"rename finish"<<std::endl;
 }
