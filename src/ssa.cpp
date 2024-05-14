@@ -424,7 +424,7 @@ void Place_phi_fu(GRAPH::Graph<LLVMIR::L_block*>& bg, L_func* fun) {
                         phis.push_back(new_phi_src);
                     }
                     y->instrs.push_front(L_Phi(dst, phis));
-                    
+
                     //f and w update
                     f.emplace(y);
                     if (w.find(y) == w.end()){
@@ -456,11 +456,81 @@ static list<AS_operand**> get_use_int_operand(LLVMIR::L_stm* stm) {
     return ret2;
 }
 
-static void Rename_temp(GRAPH::Graph<LLVMIR::L_block*>& bg, GRAPH::Node<LLVMIR::L_block*>* n, unordered_map<Temp_temp*, stack<Temp_temp*>>& Stack) {
-   //   Todo
+static void Rename_temp(GRAPH::Graph<LLVMIR::L_block*>& bg, GRAPH::Node<LLVMIR::L_block*>* n, unordered_map<Temp_temp*, stack<Temp_temp*>>& Stack,  unordered_map<Temp_temp*, int>& Count) {
+    
+    // 创建block -> index的映射
+    unordered_map<L_block*, int> block2index;
+    for (int i = 0; i < bg.mynodes.size(); i++){
+        block2index[bg.mynodes[i]->info] = i;
+    }
+    
+    // 语句处理
+    for (auto& stm: n->info->instrs){
+        // 先处理非phi的use: 存在i = i+1 的情况
+        if (stm->type != L_StmKind::T_PHI){
+            for (auto use_operand: get_use_int_operand(stm)){
+                Temp_temp* new_temp = Stack[(*use_operand)->u.TEMP].top();
+                (*use_operand)->u.TEMP = new_temp;
+            }
+        }
+        // 处理def
+        for (auto def_operand: get_def_int_operand(stm)){
+            Count[(*def_operand)->u.TEMP] += 1;
+            int new_index = Count[(*def_operand)->u.TEMP];
+            
+            string new_name = (*def_operand)->u.TEMP->varname + "_" + to_string(new_index);
+            Temp_temp* new_temp = Temp_newtemp_int();
+            new_temp->varname = new_name;
+            (*def_operand)->u.TEMP = new_temp;
+
+            Stack[(*def_operand)->u.TEMP].push(new_temp);
+        }
+    }
+
+    // 后继处理
+    for (auto& succ: n->succs){
+        int j = 0;
+        for (auto& pred: bg.mynodes[succ]->preds){
+            if (n->mykey == pred){
+                break;
+            }
+            j++;
+        }
+        for (auto& stm: bg.mynodes[succ]->info->instrs){
+            if (stm->type == L_StmKind::T_PHI){
+                if (stm->u.PHI->phis[j].second == n->info->label){
+                    AS_operand* phi_operand = stm->u.PHI->phis[j].first;
+                    phi_operand->u.TEMP = Stack[phi_operand->u.TEMP].top();
+                }
+            }
+        }
+    }
+
+    // 处理子节点？
+    for (auto& son: tree_dominators[n->info].succs){
+        int son_index = block2index[son];
+        Rename_temp(bg, bg.mynodes[son_index], Stack, Count);
+    }
+    
+    // pop出这个block压入的v
+    for (auto& stm: n->info->instrs){
+        for (auto def_operand: get_def_int_operand(stm)){
+            Stack[(*def_operand)->u.TEMP].pop();
+        }
+    }
 }
 
 void Rename(GRAPH::Graph<LLVMIR::L_block*>& bg) {
-   //   Todo
-    
+    // 初始化set
+    int count = 0;
+    unordered_map<Temp_temp*, stack<Temp_temp*>> Stack;
+    unordered_map<Temp_temp*, int> Count;
+    for (auto& temp: temp2ASoper){
+        int count = 0;
+        Count[temp.first] = count;
+        stack<Temp_temp*> stack_empty;
+        Stack[temp.first] = stack_empty;
+    }
+
+    Rename_temp(bg, bg.mynodes[0], Stack, Count);
 }
