@@ -41,7 +41,7 @@ LLVMIR::L_prog* SSA(LLVMIR::L_prog* prog) {
         init_table();
         combine_addr(fun);
         mem2reg(fun);
-        /*
+        
         std::cout<<"mem2reg finish"<<std::endl;
         auto RA_bg = Create_bg(fun->blocks);
         SingleSourceGraph(RA_bg.mynodes[0], RA_bg,fun);
@@ -55,9 +55,9 @@ LLVMIR::L_prog* SSA(LLVMIR::L_prog* prog) {
         computeDF(RA_bg, RA_bg.mynodes[0]);
         // printf_DF();
         Place_phi_fu(RA_bg, fun);
-        
         Rename(RA_bg);
-        combine_addr(fun);*/
+        combine_addr(fun);
+        
         
     }
     return prog;
@@ -593,6 +593,7 @@ void Rename(GRAPH::Graph<LLVMIR::L_block*>& bg) {
                 count = 0;
                 Count[temp_def] = count;
                 stack<Temp_temp*> stack_empty;
+                stack_empty.emplace(temp_def);
                 Stack[temp_def] = stack_empty;
             }
         }
@@ -602,6 +603,7 @@ void Rename(GRAPH::Graph<LLVMIR::L_block*>& bg) {
                 count = 0;
                 Count[temp_use] = count;
                 stack<Temp_temp*> stack_empty;
+                stack_empty.emplace(temp_use);
                 Stack[temp_use] = stack_empty;
             }
         }

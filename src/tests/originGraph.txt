@@ -1,6 +1,6 @@
-bb17 
+bb2 
 pred  0  
-succ  1  bb16  0  
-bb16 
-pred  1  bb17  0  
+succ  1  bb1  0  
+bb1 
+pred  1  bb2  0  
 succ  0  
