@@ -44,7 +44,7 @@ int main(int argc, char * argv[]) {
     }
     string file_name(input_name.substr(0,dot_pos));
     
-    freopen(argv[1], "r", stdin);  
+    freopen(argv[1], "r", stdin);
     ofstream ASTStream;
     // ASTStream.open(file_name+".ast");
 

@@ -52,10 +52,8 @@ LLVMIR::L_prog* SSA(LLVMIR::L_prog* prog) {
         computeDF(RA_bg, RA_bg.mynodes[0]);
         // printf_DF();
         Place_phi_fu(RA_bg, fun);
-        
         Rename(RA_bg);
         combine_addr(fun);
-        
     }
     return prog;
 }
@@ -111,7 +109,11 @@ void mem2reg(LLVMIR::L_func* fun) {
             else if (stm->type == L_StmKind::T_STORE) {
                 if (stm->u.STORE->ptr->kind == OperandKind::TEMP && temp2ASoper.find(stm->u.STORE->ptr->u.TEMP) != temp2ASoper.end()){
                     AS_operand* target = temp2ASoper.find(stm->u.STORE->ptr->u.TEMP)->second;
-                    *it = L_Move(stm->u.STORE->src, target);
+                    AS_operand* src = stm->u.STORE->src;
+                    if (src->kind == OperandKind::TEMP && temp2ASoper.find(src->u.TEMP) != temp2ASoper.end()){
+                        src = temp2ASoper.find(stm->u.STORE->src->u.TEMP)->second;
+                    }
+                    *it = L_Move(src, target);
                 }
             }
             else if (stm->type == L_StmKind::T_LOAD) {
@@ -207,10 +209,15 @@ void mem2reg(LLVMIR::L_func* fun) {
 
 void Dominators(GRAPH::Graph<LLVMIR::L_block*>& bg) {
     // 初始化
-    revers_graph.clear();
-    for (int i = 0; i < bg.mynodes.size(); i++){
+    unordered_set<L_block*> dom_set;
+    dom_set.emplace(bg.mynodes[0]->info);
+    dominators[bg.mynodes[0]->info] = dom_set;
+
+    for (int i = 1; i < bg.mynodes.size(); i++){
         unordered_set<L_block*> dom_set;
-        dom_set.emplace(bg.mynodes[i]->info);
+        for (int j = 0; j < bg.mynodes.size(); j++){
+            dom_set.emplace(bg.mynodes[j]->info);
+        }
         dominators[bg.mynodes[i]->info] = dom_set;
     }
     
@@ -275,6 +282,7 @@ void printf_domi() {
         }
         fprintf(f, "\n\n");
     }
+    fclose(f);
 }
 
 void printf_D_tree() {
@@ -287,6 +295,7 @@ void printf_D_tree() {
         }
         fprintf(f, "\n\n");
     }
+    fclose(f);
 }
 void printf_DF() {
     FILE* f = fopen("./tests/df.txt","w");
@@ -298,6 +307,7 @@ void printf_DF() {
         }
         fprintf(f, "\n\n");
     }
+    fclose(f);
 }
 
 void tree_Dominators(GRAPH::Graph<LLVMIR::L_block*>& bg) {
@@ -484,7 +494,7 @@ static void Rename_temp(GRAPH::Graph<LLVMIR::L_block*>& bg, GRAPH::Node<LLVMIR::
     // 处理前保留原def的temp
     unordered_map<Temp_temp*, int> origin_def_times;
 
-    // 语句处理
+    // 语句处理;
     for (auto& stm: n->info->instrs){
         // 先处理非phi的use: 存在i = i+1 的情况
         if (stm->type != L_StmKind::T_PHI){
@@ -512,7 +522,7 @@ static void Rename_temp(GRAPH::Graph<LLVMIR::L_block*>& bg, GRAPH::Node<LLVMIR::
 
     /*
     ofstream out;
-    out.open(n->info->label->name + ".ll");
+    out.open("./tests/block/"+n->info->label->name + ".ll");
     printL_block(out,n->info);
     out.close();
     */
@@ -536,7 +546,7 @@ static void Rename_temp(GRAPH::Graph<LLVMIR::L_block*>& bg, GRAPH::Node<LLVMIR::
         }
     }
 
-    //std::cout<<"succ finished"<<std::endl;
+    std::cout<<"succ finished"<<std::endl;
 
     // 处理子节点
     for (auto& son: tree_dominators[n->info].succs){

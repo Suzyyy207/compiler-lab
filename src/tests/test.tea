@@ -1,13 +1,11 @@
 fn quickread()->int{
+	let ch:int = getch();
 	let x:int = 0;
-	let f:int = 0;
-	let a[10]:int;
-	if ((f != 0)){
-		x = 1;
-	}else{
-		x = 2;
+	if(ch>1){
+		x=1;
 	}
-
-	f = x+1;
-
+	else{
+		x=2;
+	}
+	ch = x;
 }
