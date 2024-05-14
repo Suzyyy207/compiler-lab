@@ -1,0 +1,12 @@
+bb1 
+pred  0  
+succ  2  bb2  1  bb3  1  
+bb2 
+pred  1  bb1  1  
+succ  1  bb4  1  
+bb3 
+pred  1  bb1  1  
+succ  1  bb4  1  
+bb4 
+pred  2  bb2  1  bb3  1  
+succ  0  

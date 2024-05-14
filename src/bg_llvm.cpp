@@ -63,6 +63,11 @@ Graph<L_block*>& Create_bg(list<L_block*>& bl) {
             Enter_bg(block, block_env[label]);
         }
     }
+
+    FILE* f=fopen("./tests/originGraph.txt", "w");
+    Show_graph(f, RA_bg);
+    fclose(f);
+
     return RA_bg;
 }
 
@@ -92,6 +97,7 @@ void SingleSourceGraph(Node<L_block*>* r, Graph<L_block*>& bg,L_func*fun) {
                 bg.mynodes[*it]->color = 1;
             }
         }
+        node_num++;
     }
 
     std::cout<<"scan finish"<<std::endl;
@@ -117,11 +123,16 @@ void SingleSourceGraph(Node<L_block*>* r, Graph<L_block*>& bg,L_func*fun) {
     }
 
     std::cout<<"rebuild graph finish"<<std::endl;
+
+    FILE* f=fopen("./tests/singleSource.txt", "w");
+    Show_graph(f, bg);
+    fclose(f);
     
     return;
 }
 
 void Show_graph(FILE* out,GRAPH::Graph<LLVMIR::L_block*>&bg){
+    
     for(auto block_node:bg.mynodes){
         auto block=block_node.second->info;
         fprintf(out,"%s \n",block->label->name.c_str());

@@ -51,9 +51,10 @@ LLVMIR::L_prog* SSA(LLVMIR::L_prog* prog) {
         computeDF(RA_bg, RA_bg.mynodes[0]);
         // printf_DF();
         Place_phi_fu(RA_bg, fun);
+        /*
         Rename(RA_bg);
         combine_addr(fun);
-        
+        */
     }
     return prog;
 }
@@ -259,37 +260,42 @@ void Dominators(GRAPH::Graph<LLVMIR::L_block*>& bg) {
     }
 
     std::cout<<"dominators finish"<<std::endl;
+
+    printf_domi();
 }
 
 void printf_domi() {
-    printf("Dominator:\n");
+    FILE* f = fopen("./tests/domi.txt","w");
+    fprintf(f,"Dominator:\n");
     for (auto x : dominators) {
-        printf("%s :\n", x.first->label->name.c_str());
+        fprintf(f, "%s :\n", x.first->label->name.c_str());
         for (auto t : x.second) {
-            printf("%s ", t->label->name.c_str());
+            fprintf(f, "%s ", t->label->name.c_str());
         }
-        printf("\n\n");
+        fprintf(f, "\n\n");
     }
 }
 
 void printf_D_tree() {
-    printf("dominator tree:\n");
+    FILE* f = fopen("./tests/domi_tree.txt","w");
+    fprintf(f, "dominator tree:\n");
     for (auto x : tree_dominators) {
-        printf("%s :\n", x.first->label->name.c_str());
+        fprintf(f, "%s :\n", x.first->label->name.c_str());
         for (auto t : x.second.succs) {
-            printf("%s ", t->label->name.c_str());
+            fprintf(f, "%s ", t->label->name.c_str());
         }
-        printf("\n\n");
+        fprintf(f, "\n\n");
     }
 }
 void printf_DF() {
-    printf("DF:\n");
+    FILE* f = fopen("./tests/df.txt","w");
+    fprintf(f, "DF:\n");
     for (auto x : DF_array) {
-        printf("%s :\n", x.first->label->name.c_str());
+        fprintf(f, "%s :\n", x.first->label->name.c_str());
         for (auto t : x.second) {
-            printf("%s ", t->label->name.c_str());
+            fprintf(f, "%s ", t->label->name.c_str());
         }
-        printf("\n\n");
+        fprintf(f, "\n\n");
     }
 }
 
@@ -331,6 +337,9 @@ void tree_Dominators(GRAPH::Graph<LLVMIR::L_block*>& bg) {
         tree_dominators[nearest].succs.emplace(bg.mynodes[i]->info);
     }
     
+    std::cout<<"tree finish"<<std::endl;
+
+    printf_D_tree();
 }
 
 void computeBlcokDF(GRAPH::Graph<LLVMIR::L_block*>& bg, GRAPH::Node<LLVMIR::L_block*>* n){
@@ -381,6 +390,9 @@ void computeDF(GRAPH::Graph<LLVMIR::L_block*>& bg, GRAPH::Node<LLVMIR::L_block*>
         computeBlcokDF(bg, bg.mynodes[i]);
     }
 
+    std::cout<<"DF finish"<<std::endl;
+    printf_DF();
+
 }
 
 // 只对标量做
@@ -405,16 +417,19 @@ void Place_phi_fu(GRAPH::Graph<LLVMIR::L_block*>& bg, L_func* fun) {
         }
     }
 
+
     for (auto& temp_pair: def_sites){
+        
         unordered_set<L_block*> w = temp_pair.second;
         unordered_set<L_block*> f;
         while (!w.empty()){
-            L_block* x = *w.end();
+            L_block* x = *w.begin();
             w.erase(x);
             unordered_set<L_block*> df_x = DF_array[x];
+            
             for(auto& y: df_x){
                 if (f.find(y) == f.end()){
-                    // add phi --修改
+                    // add phi
                     int y_index = block2index[y];
                     AS_operand* dst = AS_Operand_Temp(temp_pair.first);
                     std::vector<std::pair<AS_operand*,Temp_label*>> phis;
@@ -423,7 +438,9 @@ void Place_phi_fu(GRAPH::Graph<LLVMIR::L_block*>& bg, L_func* fun) {
                         new_phi_src = make_pair(dst, bg.mynodes[pred]->info->label);
                         phis.push_back(new_phi_src);
                     }
-                    y->instrs.push_front(L_Phi(dst, phis));
+                    auto it = y->instrs.begin();
+                    it++;
+                    y->instrs.insert(it, L_Phi(dst, phis));
 
                     //f and w update
                     f.emplace(y);

@@ -1,0 +1,132 @@
+
+
+Number of iterations=0
+
+----------------------
+block bb1 
+def=
+104  108  107  
+use=
+
+In=
+
+Out=
+
+----------------------
+block bb2 
+def=
+107  
+use=
+
+In=
+
+Out=
+107  
+----------------------
+block bb3 
+def=
+107  
+use=
+
+In=
+
+Out=
+107  
+----------------------
+block bb4 
+def=
+108  106  
+use=
+107  
+In=
+107  
+Out=
+
+
+
+Number of iterations=1
+
+----------------------
+block bb1 
+def=
+104  108  107  
+use=
+
+In=
+
+Out=
+
+----------------------
+block bb2 
+def=
+107  
+use=
+
+In=
+
+Out=
+107  
+----------------------
+block bb3 
+def=
+107  
+use=
+
+In=
+
+Out=
+107  
+----------------------
+block bb4 
+def=
+108  106  
+use=
+107  
+In=
+107  
+Out=
+
+
+
+Number of iterations=2
+
+----------------------
+block bb1 
+def=
+104  108  107  
+use=
+
+In=
+
+Out=
+
+----------------------
+block bb2 
+def=
+107  
+use=
+
+In=
+
+Out=
+107  
+----------------------
+block bb3 
+def=
+107  
+use=
+
+In=
+
+Out=
+107  
+----------------------
+block bb4 
+def=
+108  106  
+use=
+107  
+In=
+107  
+Out=
+
