@@ -37,16 +37,17 @@ static void init_table() {
 
 LLVMIR::L_prog* SSA(LLVMIR::L_prog* prog) {
     for (auto& fun : prog->funcs) {
-        std::cout<<fun->name<<std::endl;
+        //std::cout<<fun->name<<std::endl;
         init_table();
         combine_addr(fun);
         mem2reg(fun);
-        
-        std::cout<<"mem2reg finish"<<std::endl;
+
+        //std::cout<<"mem2reg finish"<<std::endl;
         auto RA_bg = Create_bg(fun->blocks);
         SingleSourceGraph(RA_bg.mynodes[0], RA_bg,fun);
-        Liveness(RA_bg.mynodes[0], RA_bg, fun->args);
         
+        Liveness(RA_bg.mynodes[0], RA_bg, fun->args);
+        //std::cout<<"df"<<std::endl;
         Dominators(RA_bg);
         // printf_domi();
         tree_Dominators(RA_bg);
@@ -54,11 +55,13 @@ LLVMIR::L_prog* SSA(LLVMIR::L_prog* prog) {
         // 默认0是入口block
         computeDF(RA_bg, RA_bg.mynodes[0]);
         // printf_DF();
+        
         Place_phi_fu(RA_bg, fun);
+        //std::cout<<"phi"<<std::endl;
         Rename(RA_bg);
         combine_addr(fun);
         
-        
+
     }
     return prog;
 }
@@ -219,15 +222,38 @@ void mem2reg(LLVMIR::L_func* fun) {
     }
 }
 
+bool Set_eq(std::unordered_set<LLVMIR::L_block *> &a, std::unordered_set<LLVMIR::L_block *> &b)
+{
+    if (a.size() != b.size())
+    {
+        return false;
+    }
+    for (auto x : a)
+    {
+        if (b.find(x) == b.end())
+        {
+            return false;
+        }
+    }
+    return true;
+}
+
 void Dominators(GRAPH::Graph<LLVMIR::L_block*>& bg) {
     // 初始化
     unordered_set<L_block*> dom_set;
     dom_set.emplace(bg.mynodes[0]->info);
     dominators[bg.mynodes[0]->info] = dom_set;
 
-    for (int i = 1; i < bg.mynodes.size(); i++){
+    for (int i = 1; i < bg.nodecount; i++){
+        if (!bg.mynodes[i]){
+            continue;
+        }
+        
         unordered_set<L_block*> dom_set;
-        for (int j = 0; j < bg.mynodes.size(); j++){
+        for (int j = 0; j < bg.nodecount; j++){
+            if (!bg.mynodes[j]){
+                continue;
+            }
             dom_set.emplace(bg.mynodes[j]->info);
         }
         dominators[bg.mynodes[i]->info] = dom_set;
@@ -236,13 +262,18 @@ void Dominators(GRAPH::Graph<LLVMIR::L_block*>& bg) {
     bool change = true;
     while (change){
         change = false;
-        for (int i = 1; i < bg.mynodes.size(); i++){
+        for (int i = 1; i < bg.nodecount; i++){
+            if (!bg.mynodes[i]){
+                continue;
+            }
             unordered_set<L_block*> dom_set = dominators[bg.mynodes[i]->info];
             unordered_set<L_block*> pred_dom_intersection;
+            unordered_set<L_block*> new_dom_set;
             bool first = true;
             unordered_set<L_block*> pred_dom_set;
 
             for (auto& pred_num: bg.mynodes[i]->preds){
+                
                 if (first){
                     pred_dom_set = dominators.find(bg.mynodes[pred_num]->info)->second;
                     for (auto& pre_dom: pred_dom_set){
@@ -251,17 +282,23 @@ void Dominators(GRAPH::Graph<LLVMIR::L_block*>& bg) {
                     first = false;
                 }
                 else{
-                    for (auto& intersection_dom: pred_dom_intersection){
+                    //for (auto& intersection_dom: pred_dom_intersection){
+                    for(auto it = pred_dom_intersection.begin();it!=pred_dom_intersection.end();){
                         pred_dom_set = dominators.find(bg.mynodes[pred_num]->info)->second;
-                        if (pred_dom_set.find(intersection_dom) == pred_dom_set.end()){
-                            pred_dom_intersection.erase(intersection_dom);
+                        if (pred_dom_set.find(*it) == pred_dom_set.end()){
+                                it = pred_dom_intersection.erase(it);
+                        }
+                        else{
+                            it++;
                         }
                     }
                 }
+                        
+                
             }
             pred_dom_intersection.emplace(bg.mynodes[i]->info);
 
-            for (auto& intersection_dom: pred_dom_intersection){
+            /*for (auto& intersection_dom: pred_dom_intersection){
                 if (dom_set.find(intersection_dom) == dom_set.end()){
                     dom_set.emplace(intersection_dom);
                     change = true;
@@ -273,13 +310,24 @@ void Dominators(GRAPH::Graph<LLVMIR::L_block*>& bg) {
                     dom_set.erase(origin_dom);
                     change = true;
                 }
+            }*/
+            if (!Set_eq(dom_set, pred_dom_intersection)){
+                change = true;
             }
-            
-            dominators[bg.mynodes[i]->info] = dom_set;
+
+            //dom_set = pred_dom_intersection;
+            dominators[bg.mynodes[i]->info] = pred_dom_intersection;
+
+            /*if (bg.mynodes[i]->info->label->name == "bb10"){
+                for (auto& domi: dominators[bg.mynodes[i]->info]){
+                    std::cout<<domi->label->name<<" ";
+                }
+            }
+            std::cout<<endl;*/
         }
     }
 
-    std::cout<<"dominators finish"<<std::endl;
+    //std::cout<<"dominators finish"<<std::endl;
 
     printf_domi();
 }
@@ -324,12 +372,18 @@ void printf_DF() {
 
 void tree_Dominators(GRAPH::Graph<LLVMIR::L_block*>& bg) {
     // 初始化
-    for (int i = 0; i < bg.mynodes.size(); i++){
+    for (int i = 0; i < bg.nodecount; i++){
+        if (!bg.mynodes[i]){
+            continue;
+        }
         imm_Dominator imm_origin;
         tree_dominators[bg.mynodes[i]->info] = imm_origin;
     }
 
-    for (int i = 1; i < bg.mynodes.size(); i++){
+    for (int i = 1; i < bg.nodecount; i++){
+        if (!bg.mynodes[i]){
+            continue;
+        }
         unordered_set<L_block*> doms = dominators[bg.mynodes[i]->info];
         L_block* nearest = bg.mynodes[i]->info;
         for (auto& dom: doms){
@@ -360,7 +414,7 @@ void tree_Dominators(GRAPH::Graph<LLVMIR::L_block*>& bg) {
         tree_dominators[nearest].succs.emplace(bg.mynodes[i]->info);
     }
     
-    std::cout<<"tree finish"<<std::endl;
+    //std::cout<<"tree finish"<<std::endl;
 
     printf_D_tree();
 }
@@ -403,17 +457,23 @@ void computeBlcokDF(GRAPH::Graph<LLVMIR::L_block*>& bg, GRAPH::Node<LLVMIR::L_bl
 
 void computeDF(GRAPH::Graph<LLVMIR::L_block*>& bg, GRAPH::Node<LLVMIR::L_block*>* r) {
     revers_graph.clear();
-    for (int i = 0; i < bg.mynodes.size(); i++){
+    for (int i = 0; i < bg.nodecount; i++){
+        if (!bg.mynodes[i]){
+            continue;
+        }
         unordered_set<L_block*> origin;
         revers_graph[bg.mynodes[i]->info] = bg.mynodes[i];
         DF_array[bg.mynodes[i]->info] = origin;
     }
 
-    for (int i = 1; i < bg.mynodes.size(); i++){
+    for (int i = 1; i < bg.nodecount; i++){
+        if (!bg.mynodes[i]){
+            continue;
+        }
         computeBlcokDF(bg, bg.mynodes[i]);
     }
 
-    std::cout<<"DF finish"<<std::endl;
+    //std::cout<<"DF finish"<<std::endl;
     printf_DF();
 
 }
@@ -422,13 +482,19 @@ void computeDF(GRAPH::Graph<LLVMIR::L_block*>& bg, GRAPH::Node<LLVMIR::L_block*>
 void Place_phi_fu(GRAPH::Graph<LLVMIR::L_block*>& bg, L_func* fun) {
     // 创建block -> index的映射
     unordered_map<L_block*, int> block2index;
-    for (int i = 0; i < bg.mynodes.size(); i++){
+    for (int i = 0; i < bg.nodecount; i++){
+        if (!bg.mynodes[i]){
+            continue;
+        }
         block2index[bg.mynodes[i]->info] = i;
     }
     
     //step 1
     unordered_map<Temp_temp*, unordered_set<L_block*>> def_sites;
-    for (int i = 0; i < bg.mynodes.size(); i++){
+    for (int i = 0; i < bg.nodecount; i++){
+        if (!bg.mynodes[i]){
+            continue;
+        }
         unordered_set<L_block*> def_site;
         for(auto& def_a: FG_def(bg.mynodes[i])){
             if (def_sites.find(def_a) == def_sites.end()){
@@ -475,7 +541,7 @@ void Place_phi_fu(GRAPH::Graph<LLVMIR::L_block*>& bg, L_func* fun) {
             }
         }
     }
-    std::cout<<"place phi finished"<<std::endl;
+    //std::cout<<"place phi finished"<<std::endl;
 }
 
 static list<AS_operand**> get_def_int_operand(LLVMIR::L_stm* stm) {
@@ -501,7 +567,10 @@ static list<AS_operand**> get_use_int_operand(LLVMIR::L_stm* stm) {
 static void Rename_temp(GRAPH::Graph<LLVMIR::L_block*>& bg, GRAPH::Node<LLVMIR::L_block*>* n, unordered_map<Temp_temp*, stack<Temp_temp*>>& Stack,  unordered_map<Temp_temp*, int>& Count) {
     // 创建block -> index的映射
     unordered_map<L_block*, int> block2index;
-    for (int i = 0; i < bg.mynodes.size(); i++){
+    for (int i = 0; i < bg.nodecount; i++){
+        if (!bg.mynodes[i]){
+            continue;
+        }
         block2index[bg.mynodes[i]->info] = i;
     }
     // 处理前保留原def的temp
@@ -585,7 +654,10 @@ void Rename(GRAPH::Graph<LLVMIR::L_block*>& bg) {
     unordered_map<Temp_temp*, stack<Temp_temp*>> Stack;
     unordered_map<Temp_temp*, int> Count;
 
-    for (int i = 0; i < bg.mynodes.size(); i++){
+    for (int i = 0; i < bg.nodecount; i++){
+        if (!bg.mynodes[i]){
+            continue;
+        }
         temp_list_def = FG_def(bg.mynodes[i]);
         temp_list_use = FG_use(bg.mynodes[i]);
         for (auto& temp_def: temp_list_def){
@@ -611,5 +683,5 @@ void Rename(GRAPH::Graph<LLVMIR::L_block*>& bg) {
     
 
     Rename_temp(bg, bg.mynodes[0], Stack, Count);
-    std::cout<<"rename finish"<<std::endl;
+    //std::cout<<"rename finish"<<std::endl;
 }

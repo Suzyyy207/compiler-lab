@@ -100,7 +100,7 @@ void SingleSourceGraph(Node<L_block*>* r, Graph<L_block*>& bg,L_func*fun) {
         node_num++;
     }
 
-    std::cout<<"scan finish"<<std::endl;
+    //std::cout<<"scan finish"<<std::endl;
 
     vector<int> index_list;
     for(auto node = bg.mynodes.begin(); node != bg.mynodes.end(); ++node) {
@@ -118,11 +118,19 @@ void SingleSourceGraph(Node<L_block*>* r, Graph<L_block*>& bg,L_func*fun) {
         }
     }
 
+    
     for (int i = 0; i < index_list.size(); i++){
+        for (auto block = fun->blocks.begin(); block!= fun->blocks.end(); block++){
+            if ((*block)->label->name == bg.mynodes[index_list[i]]->info->label->name){
+                fun->blocks.erase(block);
+                break;
+            }
+        }
         bg.mynodes.erase(index_list[i]);
     }
 
-    std::cout<<"rebuild graph finish"<<std::endl;
+
+    //std::cout<<"rebuild graph finish"<<std::endl;
 
     FILE* f=fopen("./tests/singleSource.txt", "w");
     Show_graph(f, bg);

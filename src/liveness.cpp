@@ -203,6 +203,11 @@ std::list<AS_operand**> get_use_operand(L_stm* stm) {
                 AS_operand_list.push_back(&(stm->u.GEP->index));
             }
         } break;
+        case L_StmKind::T_STORE: {
+            if (stm->u.STORE->src->kind == OperandKind::TEMP && stm->u.STORE->src->u.TEMP->type == TempType::INT_TEMP){
+                AS_operand_list.push_back(&(stm->u.STORE->src));
+            }
+        } break;
         default: {
         } break;
     }
@@ -238,7 +243,14 @@ TempSet_& FG_use(GRAPH::Node<LLVMIR::L_block*>* r) {
 
 static void Use_def(GRAPH::Node<LLVMIR::L_block*>* r, GRAPH::Graph<LLVMIR::L_block*>& bg, std::vector<Temp_temp*>& args) {
     //先操作入口，将args都放入入口
-    for (int i=0; i<bg.mynodes.size(); i++){
+    
+    for (int i=0; i<bg.nodecount; i++){
+        //std::cout<<"hi"<<std::endl;
+        //std::cout<<bg.mynodes[i]->info->label->name<<std::endl;
+        if(!bg.mynodes[i]){
+            continue;
+        }
+        
         useDef b_use_def;
         TempSet_ b_def;
         TempSet_ b_use;
@@ -271,17 +283,23 @@ static void Use_def(GRAPH::Node<LLVMIR::L_block*>* r, GRAPH::Graph<LLVMIR::L_blo
         //初始化inout table
         inOut b_in_out;
         InOutTable[bg.mynodes[i]] = b_in_out;
+        
     }
     
     
 }
 static int gi=0;
 static bool LivenessIteration(GRAPH::Node<LLVMIR::L_block*>* r, GRAPH::Graph<LLVMIR::L_block*>& bg, FILE* f) {
+
     // in[b] = use[b] + (out[b] - def[b])
     // out[b] = sum(in[s])
     bool in_change_flag = false;
-    for (int i = bg.mynodes.size()-1; i >=0; i--)
+    for (int i = bg.nodecount-1; i >=0; i--)
     {
+        if (!bg.mynodes[i]){
+            continue;
+        }
+
         TempSet_ b_in = InOutTable[bg.mynodes[i]].in;
         TempSet_ b_out = InOutTable[bg.mynodes[i]].out;
         TempSet_ b_def = UseDefTable[bg.mynodes[i]].def;
@@ -296,7 +314,7 @@ static bool LivenessIteration(GRAPH::Node<LLVMIR::L_block*>* r, GRAPH::Graph<LLV
                 }
             }
         }
-        
+
         // 计算in
         for (auto& temp: b_use){
             if (b_in.find(temp) == b_in.end()){
@@ -313,13 +331,12 @@ static bool LivenessIteration(GRAPH::Node<LLVMIR::L_block*>* r, GRAPH::Graph<LLV
             }
             
         }
-
         InOutTable[bg.mynodes[i]].in = b_in;
         InOutTable[bg.mynodes[i]].out = b_out;
         
     }
 
-    Show_Liveness(f, bg);
+    //Show_Liveness(f, bg);
     return in_change_flag;
     
 }
@@ -346,7 +363,7 @@ void Show_Liveness(FILE* out, GRAPH::Graph<LLVMIR::L_block*>& bg) {
 void Liveness(GRAPH::Node<LLVMIR::L_block*>* r, GRAPH::Graph<LLVMIR::L_block*>& bg, std::vector<Temp_temp*>& args) {
     init_INOUT();
     Use_def(r, bg, args);
-    std::cout<< "use-def finish"<<std::endl;
+    //std::cout<< "use-def finish"<<std::endl;
     gi=0;
     bool changed = true;
     FILE* f=fopen("./tests/liveness.txt", "w");
@@ -354,9 +371,9 @@ void Liveness(GRAPH::Node<LLVMIR::L_block*>* r, GRAPH::Graph<LLVMIR::L_block*>& 
         changed = LivenessIteration(r, bg,f);
         gi++;
     }
-    std::cout<< "liveness finish"<<std::endl;
+    //std::cout<< "liveness finish"<<std::endl;
 
     
-    Show_Liveness(f, bg);
+    //Show_Liveness(f, bg);
     fclose(f);
 }

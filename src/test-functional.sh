@@ -1,8 +1,9 @@
 #!/bin/bash
 
 # 获取脚本所在目录的绝对路径
-func_testcase_dir=$(dirname "$0")/tests/public
-# func_testcase_dir=$(dirname "$0")/tests/private
+script_dir=$(cd "$(dirname "$0")" && pwd)
+func_testcase_dir="$script_dir/tests/public"
+#func_testcase_dir="$script_dir/tests/private"
 
 test_single() {
     # 获取测试文件的相对路径

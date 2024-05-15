@@ -1388,7 +1388,7 @@ LLVMIR::L_func* ast2llvmFuncBlock(Func_local *f)
             }
             irs.push_back(stm);
         }
-        else if(stm->type == L_StmKind::T_CJUMP || stm->type == L_StmKind::T_JUMP){
+        else if(stm->type == L_StmKind::T_CJUMP || stm->type == L_StmKind::T_JUMP || stm->type == L_StmKind::T_RETURN){
             if (!tail){
                 irs.push_back(stm);
                 tail = true;
