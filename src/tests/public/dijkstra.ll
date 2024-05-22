@@ -66,29 +66,29 @@ bb6:
 
 bb8:
   %r258 = phi i32 [ %r255, %bb6 ], [ %r274, %bb13 ]
-  %r259 = phi i32 [ %r257, %bb6 ], [ %r277, %bb13 ]
-  %r260 = phi i32 [ %r256, %bb6 ], [ %r275, %bb13 ]
+  %r259 = phi i32 [ %r256, %bb6 ], [ %r275, %bb13 ]
+  %r260 = phi i32 [ %r257, %bb6 ], [ %r277, %bb13 ]
   %r125 = load i32, i32* @n
-  %r261 = icmp sle i32 %r259, %r125
+  %r261 = icmp sle i32 %r260, %r125
   br i1 %r261, label %bb9, label %bb10
 
 bb9:
-  %r130 = getelementptr [16 x i32 ], [16 x i32 ]* @dis, i32 0, i32 %r259
+  %r130 = getelementptr [16 x i32 ], [16 x i32 ]* @dis, i32 0, i32 %r260
   %r131 = load i32, i32* %r130
   %r273 = icmp sgt i32 %r258, %r131
   br i1 %r273, label %bb14, label %bb12
 
 bb14:
-  %r134 = getelementptr [16 x i32 ], [16 x i32 ]* @book, i32 0, i32 %r259
+  %r134 = getelementptr [16 x i32 ], [16 x i32 ]* @book, i32 0, i32 %r260
   %r135 = load i32, i32* %r134
   %r278 = icmp eq i32 %r135, 0
   br i1 %r278, label %bb11, label %bb12
 
 bb11:
-  %r138 = getelementptr [16 x i32 ], [16 x i32 ]* @dis, i32 0, i32 %r259
+  %r138 = getelementptr [16 x i32 ], [16 x i32 ]* @dis, i32 0, i32 %r260
   %r139 = load i32, i32* %r138
   %r279 = add i32 %r139, 0
-  %r280 = add i32 %r259, 0
+  %r280 = add i32 %r260, 0
   br label %bb13
 
 bb12:
@@ -96,13 +96,13 @@ bb12:
 
 bb13:
   %r274 = phi i32 [ %r279, %bb11 ], [ %r258, %bb12 ]
-  %r275 = phi i32 [ %r280, %bb11 ], [ %r260, %bb12 ]
-  %r276 = add i32 %r259, 1
+  %r275 = phi i32 [ %r280, %bb11 ], [ %r259, %bb12 ]
+  %r276 = add i32 %r260, 1
   %r277 = add i32 %r276, 0
   br label %bb8
 
 bb10:
-  %r144 = getelementptr [16 x i32 ], [16 x i32 ]* @book, i32 0, i32 %r260
+  %r144 = getelementptr [16 x i32 ], [16 x i32 ]* @book, i32 0, i32 %r259
   store i32 1, i32* %r144
   %r262 = add i32 1, 0
   br label %bb15
@@ -114,7 +114,7 @@ bb15:
   br i1 %r264, label %bb16, label %bb17
 
 bb16:
-  %r151 = getelementptr [16 x %array2D ], [16 x %array2D ]* @e, i32 0, i32 %r260
+  %r151 = getelementptr [16 x %array2D ], [16 x %array2D ]* @e, i32 0, i32 %r259
   %r152 = getelementptr %array2D, %array2D* %r151, i32 0, i32 0
   %r153 = getelementptr [16 x i32 ], [16 x i32 ]* %r152, i32 0, i32 %r263
   %r154 = load i32, i32* %r153
@@ -125,9 +125,9 @@ bb16:
 bb18:
   %r158 = getelementptr [16 x i32 ], [16 x i32 ]* @dis, i32 0, i32 %r263
   %r159 = load i32, i32* %r158
-  %r161 = getelementptr [16 x i32 ], [16 x i32 ]* @dis, i32 0, i32 %r260
+  %r161 = getelementptr [16 x i32 ], [16 x i32 ]* @dis, i32 0, i32 %r259
   %r162 = load i32, i32* %r161
-  %r165 = getelementptr [16 x %array2D ], [16 x %array2D ]* @e, i32 0, i32 %r260
+  %r165 = getelementptr [16 x %array2D ], [16 x %array2D ]* @e, i32 0, i32 %r259
   %r166 = getelementptr %array2D, %array2D* %r165, i32 0, i32 0
   %r167 = getelementptr [16 x i32 ], [16 x i32 ]* %r166, i32 0, i32 %r263
   %r168 = load i32, i32* %r167
@@ -136,9 +136,9 @@ bb18:
   br i1 %r271, label %bb21, label %bb22
 
 bb21:
-  %r172 = getelementptr [16 x i32 ], [16 x i32 ]* @dis, i32 0, i32 %r260
+  %r172 = getelementptr [16 x i32 ], [16 x i32 ]* @dis, i32 0, i32 %r259
   %r173 = load i32, i32* %r172
-  %r176 = getelementptr [16 x %array2D ], [16 x %array2D ]* @e, i32 0, i32 %r260
+  %r176 = getelementptr [16 x %array2D ], [16 x %array2D ]* @e, i32 0, i32 %r259
   %r177 = getelementptr %array2D, %array2D* %r176, i32 0, i32 0
   %r178 = getelementptr [16 x i32 ], [16 x i32 ]* %r177, i32 0, i32 %r263
   %r179 = load i32, i32* %r178

@@ -47,20 +47,20 @@ bb3:
   br label %bb5
 
 bb5:
-  %r247 = phi i32 [ %r246, %bb3 ], [ %r261, %bb14 ]
-  %r248 = phi i32 [ %r243, %bb3 ], [ %r258, %bb14 ]
+  %r247 = phi i32 [ %r243, %bb3 ], [ %r258, %bb14 ]
+  %r248 = phi i32 [ %r246, %bb3 ], [ %r261, %bb14 ]
   %r249 = add i32 %r242, 1
-  %r250 = icmp slt i32 %r247, %r249
+  %r250 = icmp slt i32 %r248, %r249
   br i1 %r250, label %bb6, label %bb7
 
 bb6:
-  %r251 = add i32 %r247, 1
+  %r251 = add i32 %r248, 1
   %r252 = add i32 %r251, 0
-  %r253 = icmp slt i32 %r247, %r242
+  %r253 = icmp slt i32 %r248, %r242
   br i1 %r253, label %bb11, label %bb9
 
 bb11:
-  %r140 = getelementptr i32, i32* %r117, i32 %r247
+  %r140 = getelementptr i32, i32* %r117, i32 %r248
   %r141 = load i32, i32* %r140
   %r143 = getelementptr i32, i32* %r117, i32 %r252
   %r144 = load i32, i32* %r143
@@ -68,7 +68,7 @@ bb11:
   br i1 %r262, label %bb8, label %bb9
 
 bb8:
-  %r263 = add i32 %r247, 1
+  %r263 = add i32 %r248, 1
   %r264 = add i32 %r263, 0
   br label %bb10
 
@@ -76,8 +76,8 @@ bb9:
   br label %bb10
 
 bb10:
-  %r254 = phi i32 [ %r264, %bb8 ], [ %r247, %bb9 ]
-  %r149 = getelementptr i32, i32* %r117, i32 %r248
+  %r254 = phi i32 [ %r264, %bb8 ], [ %r248, %bb9 ]
+  %r149 = getelementptr i32, i32* %r117, i32 %r247
   %r150 = load i32, i32* %r149
   %r152 = getelementptr i32, i32* %r117, i32 %r254
   %r153 = load i32, i32* %r152
@@ -87,7 +87,7 @@ bb10:
 bb12:
   ret i32 0
 bb13:
-  %r256 = call i32 @swap(i32* %r117, i32 %r248, i32 %r254)
+  %r256 = call i32 @swap(i32* %r117, i32 %r247, i32 %r254)
   %r257 = add i32 %r256, 0
   %r258 = add i32 %r254, 0
   %r259 = mul i32 %r258, 2

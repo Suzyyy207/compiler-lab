@@ -66,8 +66,8 @@ bb4:                                              ; preds = %bb2
   br label %bb5
 
 bb5:                                              ; preds = %bb11, %bb4
-  %r183 = phi i32 [ %r178, %bb4 ], [ %r195, %bb11 ]
-  %r184 = phi i32 [ %r179, %bb4 ], [ %r196, %bb11 ]
+  %r183 = phi i32 [ %r179, %bb4 ], [ %r195, %bb11 ]
+  %r184 = phi i32 [ %r178, %bb4 ], [ %r196, %bb11 ]
   %r185 = phi i32 [ %r182, %bb4 ], [ %r193, %bb11 ]
   %r125 = getelementptr [10 x i32], ptr %r102, i32 0, i32 %r185
   %r126 = load i32, ptr %r125, align 4
@@ -75,11 +75,11 @@ bb5:                                              ; preds = %bb11, %bb4
   br i1 %r186, label %bb8, label %bb7
 
 bb8:                                              ; preds = %bb5
-  %r190 = icmp slt i32 %r184, %r183
+  %r190 = icmp slt i32 %r183, %r184
   br i1 %r190, label %bb6, label %bb7
 
 bb6:                                              ; preds = %bb8
-  %r191 = add i32 %r183, %r184
+  %r191 = add i32 %r184, %r183
   %r192 = sdiv i32 %r191, 2
   %r193 = add i32 %r192, 0
   %r138 = getelementptr [10 x i32], ptr %r102, i32 0, i32 %r193
@@ -98,8 +98,8 @@ bb10:                                             ; preds = %bb6
   br label %bb11
 
 bb11:                                             ; preds = %bb10, %bb9
-  %r195 = phi i32 [ %r200, %bb9 ], [ %r183, %bb10 ]
-  %r196 = phi i32 [ %r184, %bb9 ], [ %r198, %bb10 ]
+  %r195 = phi i32 [ %r183, %bb9 ], [ %r198, %bb10 ]
+  %r196 = phi i32 [ %r200, %bb9 ], [ %r184, %bb10 ]
   br label %bb5
 
 bb7:                                              ; preds = %bb8, %bb5
@@ -113,13 +113,13 @@ bb12:                                             ; preds = %bb7
   br label %bb14
 
 bb13:                                             ; preds = %bb7
-  %r189 = add i32 0, 0
-  call void @putint(i32 %r189)
+  %r188 = add i32 0, 0
+  call void @putint(i32 %r188)
   br label %bb14
 
 bb14:                                             ; preds = %bb13, %bb12
-  %r188 = add i32 10, 0
-  call void @putch(i32 %r188)
+  %r189 = add i32 10, 0
+  call void @putch(i32 %r189)
   call void @_sysy_stoptime(i32 49)
   ret i32 0
 }

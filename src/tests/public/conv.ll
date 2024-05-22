@@ -100,8 +100,8 @@ bb16:
   br label %bb19
 
 bb19:
-  %r487 = phi i32 [ %r485, %bb16 ], [ %r498, %bb24 ]
-  %r488 = phi i32 [ %r486, %bb16 ], [ %r500, %bb24 ]
+  %r487 = phi i32 [ %r485, %bb16 ], [ %r495, %bb24 ]
+  %r488 = phi i32 [ %r486, %bb16 ], [ %r497, %bb24 ]
   %r142 = load i32, i32* @max
   %r489 = icmp slt i32 %r488, %r142
   br i1 %r489, label %bb20, label %bb21
@@ -120,15 +120,15 @@ bb22:
   br label %bb24
 
 bb23:
-  %r495 = mul i32 %r487, 2
-  %r496 = add i32 %r495, 1
-  %r497 = add i32 %r496, 0
+  %r498 = mul i32 %r487, 2
+  %r499 = add i32 %r498, 1
+  %r500 = add i32 %r499, 0
   br label %bb24
 
 bb24:
-  %r498 = phi i32 [ %r502, %bb22 ], [ %r497, %bb23 ]
-  %r499 = mul i32 %r488, 2
-  %r500 = add i32 %r499, 0
+  %r495 = phi i32 [ %r502, %bb22 ], [ %r500, %bb23 ]
+  %r496 = mul i32 %r488, 2
+  %r497 = add i32 %r496, 0
   br label %bb19
 
 bb21:
@@ -211,43 +211,43 @@ bb41:
   br label %bb44
 
 bb44:
-  %r448 = phi i32 [ %r447, %bb41 ], [ %r456, %bb49 ]
-  %r449 = phi i32 [ %r446, %bb41 ], [ %r454, %bb49 ]
+  %r448 = phi i32 [ %r446, %bb41 ], [ %r454, %bb49 ]
+  %r449 = phi i32 [ %r447, %bb41 ], [ %r456, %bb49 ]
   %r199 = load i32, i32* @max
-  %r450 = icmp slt i32 %r448, %r199
+  %r450 = icmp slt i32 %r449, %r199
   br i1 %r450, label %bb45, label %bb46
 
 bb45:
-  %r451 = sdiv i32 %r438, %r448
+  %r451 = sdiv i32 %r438, %r449
   %r452 = call i32 @mod(i32 %r451, i32 2)
   %r453 = icmp eq i32 %r452, 1
   br i1 %r453, label %bb50, label %bb48
 
 bb50:
-  %r459 = sdiv i32 %r440, %r448
+  %r459 = sdiv i32 %r440, %r449
   %r460 = call i32 @mod(i32 %r459, i32 2)
   %r461 = icmp eq i32 %r460, 1
   br i1 %r461, label %bb47, label %bb48
 
 bb47:
-  %r462 = mul i32 %r449, 2
+  %r462 = mul i32 %r448, 2
   %r463 = add i32 %r462, 1
   %r464 = add i32 %r463, 0
   br label %bb49
 
 bb48:
-  %r457 = mul i32 %r449, 2
+  %r457 = mul i32 %r448, 2
   %r458 = add i32 %r457, 0
   br label %bb49
 
 bb49:
   %r454 = phi i32 [ %r464, %bb47 ], [ %r458, %bb48 ]
-  %r455 = mul i32 %r448, 2
+  %r455 = mul i32 %r449, 2
   %r456 = add i32 %r455, 0
   br label %bb44
 
 bb46:
-  ret i32 %r449
+  ret i32 %r448
 bb42:
   br label %bb43
 
@@ -345,8 +345,8 @@ bb65:
   br label %bb67
 
 bb67:
-  %r567 = phi i32 [ %r563, %bb65 ], [ %r583, %bb78 ]
-  %r568 = phi i32 [ %r566, %bb65 ], [ %r585, %bb78 ]
+  %r567 = phi i32 [ %r566, %bb65 ], [ %r585, %bb78 ]
+  %r568 = phi i32 [ %r563, %bb65 ], [ %r583, %bb78 ]
   %r569 = icmp eq i32 %r554, %r554
   br i1 %r569, label %bb68, label %bb69
 
@@ -358,12 +358,12 @@ bb68:
 
 bb70:
   %r580 = phi i32 [ %r579, %bb68 ], [ %r593, %bb75 ]
-  %r581 = phi i32 [ %r567, %bb68 ], [ %r591, %bb75 ]
+  %r581 = phi i32 [ %r568, %bb68 ], [ %r591, %bb75 ]
   %r582 = icmp eq i32 %r554, %r554
   br i1 %r582, label %bb71, label %bb72
 
 bb71:
-  %r589 = call i32 @getvalue(i32* %r253, i32 %r547, i32 %r549, i32 %r568, i32 %r580)
+  %r589 = call i32 @getvalue(i32* %r253, i32 %r547, i32 %r549, i32 %r567, i32 %r580)
   %r590 = call i32 @reduce(i32 %r545, i32 %r581, i32 %r589)
   %r591 = add i32 %r590, 0
   %r592 = add i32 %r580, 1
@@ -384,7 +384,7 @@ bb75:
 
 bb72:
   %r583 = phi i32 [ %r581, %bb70 ], [ %r591, %bb73 ]
-  %r584 = add i32 %r568, 1
+  %r584 = add i32 %r567, 1
   %r585 = add i32 %r584, 0
   %r586 = sdiv i32 %r551, 2
   %r587 = add i32 %r555, %r586
@@ -401,7 +401,7 @@ bb78:
   br label %bb67
 
 bb69:
-  %r570 = phi i32 [ %r567, %bb67 ], [ %r583, %bb76 ]
+  %r570 = phi i32 [ %r568, %bb67 ], [ %r583, %bb76 ]
   %r571 = mul i32 %r555, %r549
   %r572 = add i32 %r571, %r558
   %r573 = add i32 %r572, 0

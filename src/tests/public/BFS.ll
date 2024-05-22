@@ -57,18 +57,18 @@ bb4:
   br label %bb9
 
 bb9:
-  %r279 = phi i32 [ %r270, %bb4 ], [ %r290, %bb10 ]
-  %r280 = phi i32 [ %r267, %bb4 ], [ %r288, %bb10 ]
-  %r281 = icmp sge i32 %r279, 48
+  %r279 = phi i32 [ %r267, %bb4 ], [ %r288, %bb10 ]
+  %r280 = phi i32 [ %r270, %bb4 ], [ %r290, %bb10 ]
+  %r281 = icmp sge i32 %r280, 48
   br i1 %r281, label %bb12, label %bb11
 
 bb12:
-  %r284 = icmp sle i32 %r279, 57
+  %r284 = icmp sle i32 %r280, 57
   br i1 %r284, label %bb10, label %bb11
 
 bb10:
-  %r285 = mul i32 %r280, 10
-  %r286 = add i32 %r285, %r279
+  %r285 = mul i32 %r279, 10
+  %r286 = add i32 %r285, %r280
   %r287 = sub i32 %r286, 48
   %r288 = add i32 %r287, 0
   %r289 = call i32 @getch()
@@ -80,10 +80,10 @@ bb11:
   br i1 %r282, label %bb13, label %bb14
 
 bb13:
-  %r283 = sub i32 0, %r280
+  %r283 = sub i32 0, %r279
   ret i32 %r283
 bb14:
-  ret i32 %r280
+  ret i32 %r279
 }
 
 define void @addedge( i32 %r128, i32 %r130 ) {

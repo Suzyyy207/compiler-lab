@@ -34,18 +34,18 @@ bb3:
   br label %bb5
 
 bb5:
-  %r167 = phi i32 [ %r165, %bb3 ], [ %r177, %bb6 ]
-  %r168 = phi i32 [ %r166, %bb3 ], [ %r179, %bb6 ]
-  %r169 = icmp slt i32 %r168, 4
+  %r167 = phi i32 [ %r166, %bb3 ], [ %r179, %bb6 ]
+  %r168 = phi i32 [ %r165, %bb3 ], [ %r177, %bb6 ]
+  %r169 = icmp slt i32 %r167, 4
   br i1 %r169, label %bb6, label %bb7
 
 bb6:
-  %r175 = call i32 @mod(i32 %r167, i32 10)
-  %r121 = getelementptr [4 x i32 ], [4 x i32 ]* %r113, i32 0, i32 %r168
+  %r175 = call i32 @mod(i32 %r168, i32 10)
+  %r121 = getelementptr [4 x i32 ], [4 x i32 ]* %r113, i32 0, i32 %r167
   store i32 %r175, i32* %r121
-  %r176 = sdiv i32 %r167, 10
+  %r176 = sdiv i32 %r168, 10
   %r177 = add i32 %r176, 0
-  %r178 = add i32 %r168, 1
+  %r178 = add i32 %r167, 1
   %r179 = add i32 %r178, 0
   br label %bb5
 

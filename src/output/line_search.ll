@@ -71,43 +71,43 @@ bb4:                                              ; preds = %bb2
   br label %bb5
 
 bb5:                                              ; preds = %bb11, %bb4
-  %r180 = phi i32 [ %r178, %bb4 ], [ %r192, %bb11 ]
-  %r181 = phi i32 [ %r177, %bb4 ], [ %r189, %bb11 ]
-  %r182 = phi i32 [ %r179, %bb4 ], [ %r190, %bb11 ]
-  %r183 = icmp slt i32 %r180, 10
+  %r180 = phi i32 [ %r179, %bb4 ], [ %r189, %bb11 ]
+  %r181 = phi i32 [ %r178, %bb4 ], [ %r192, %bb11 ]
+  %r182 = phi i32 [ %r177, %bb4 ], [ %r190, %bb11 ]
+  %r183 = icmp slt i32 %r181, 10
   br i1 %r183, label %bb8, label %bb7
 
 bb8:                                              ; preds = %bb5
-  %r187 = icmp eq i32 %r181, 0
+  %r187 = icmp eq i32 %r182, 0
   br i1 %r187, label %bb6, label %bb7
 
 bb6:                                              ; preds = %bb8
-  %r131 = getelementptr [10 x i32], ptr %r102, i32 0, i32 %r180
+  %r131 = getelementptr [10 x i32], ptr %r102, i32 0, i32 %r181
   %r132 = load i32, ptr %r131, align 4
   %r188 = icmp eq i32 %r132, %r170
   br i1 %r188, label %bb9, label %bb10
 
 bb9:                                              ; preds = %bb6
   %r193 = add i32 1, 0
-  %r194 = add i32 %r180, 0
+  %r194 = add i32 %r181, 0
   br label %bb11
 
 bb10:                                             ; preds = %bb6
   br label %bb11
 
 bb11:                                             ; preds = %bb10, %bb9
-  %r189 = phi i32 [ %r193, %bb9 ], [ %r181, %bb10 ]
-  %r190 = phi i32 [ %r194, %bb9 ], [ %r182, %bb10 ]
-  %r191 = add i32 %r180, 1
+  %r189 = phi i32 [ %r194, %bb9 ], [ %r180, %bb10 ]
+  %r190 = phi i32 [ %r193, %bb9 ], [ %r182, %bb10 ]
+  %r191 = add i32 %r181, 1
   %r192 = add i32 %r191, 0
   br label %bb5
 
 bb7:                                              ; preds = %bb8, %bb5
-  %r184 = icmp eq i32 %r181, 1
+  %r184 = icmp eq i32 %r182, 1
   br i1 %r184, label %bb12, label %bb13
 
 bb12:                                             ; preds = %bb7
-  call void @putint(i32 %r182)
+  call void @putint(i32 %r180)
   br label %bb14
 
 bb13:                                             ; preds = %bb7

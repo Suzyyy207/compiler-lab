@@ -42,19 +42,19 @@ bb1:                                              ; preds = %bb2
   br label %bb3
 
 bb3:                                              ; preds = %bb8, %bb1
-  %r388 = phi i32 [ %r386, %bb1 ], [ %r392, %bb8 ]
-  %r389 = phi i32 [ %r387, %bb1 ], [ %r394, %bb8 ]
-  %r390 = icmp slt i32 %r389, %r385
+  %r388 = phi i32 [ %r387, %bb1 ], [ %r394, %bb8 ]
+  %r389 = phi i32 [ %r386, %bb1 ], [ %r392, %bb8 ]
+  %r390 = icmp slt i32 %r388, %r385
   br i1 %r390, label %bb4, label %bb5
 
 bb4:                                              ; preds = %bb3
-  %r109 = getelementptr i32, ptr %r102, i32 %r389
+  %r109 = getelementptr i32, ptr %r102, i32 %r388
   %r110 = load i32, ptr %r109, align 4
-  %r391 = icmp sgt i32 %r110, %r388
+  %r391 = icmp sgt i32 %r110, %r389
   br i1 %r391, label %bb6, label %bb7
 
 bb6:                                              ; preds = %bb4
-  %r114 = getelementptr i32, ptr %r102, i32 %r389
+  %r114 = getelementptr i32, ptr %r102, i32 %r388
   %r115 = load i32, ptr %r114, align 4
   %r395 = add i32 %r115, 0
   br label %bb8
@@ -63,13 +63,13 @@ bb7:                                              ; preds = %bb4
   br label %bb8
 
 bb8:                                              ; preds = %bb7, %bb6
-  %r392 = phi i32 [ %r395, %bb6 ], [ %r388, %bb7 ]
-  %r393 = add i32 %r389, 1
+  %r392 = phi i32 [ %r395, %bb6 ], [ %r389, %bb7 ]
+  %r393 = add i32 %r388, 1
   %r394 = add i32 %r393, 0
   br label %bb3
 
 bb5:                                              ; preds = %bb3
-  ret i32 %r388
+  ret i32 %r389
 }
 
 define i32 @getNumPos(i32 %r119, i32 %r121) {
@@ -88,25 +88,25 @@ bb9:                                              ; preds = %bb10
   br label %bb11
 
 bb11:                                             ; preds = %bb12, %bb9
-  %r408 = phi i32 [ %r407, %bb9 ], [ %r417, %bb12 ]
-  %r409 = phi i32 [ %r403, %bb9 ], [ %r415, %bb12 ]
-  %r410 = icmp slt i32 %r408, %r405
+  %r408 = phi i32 [ %r403, %bb9 ], [ %r415, %bb12 ]
+  %r409 = phi i32 [ %r407, %bb9 ], [ %r417, %bb12 ]
+  %r410 = icmp slt i32 %r409, %r405
   br i1 %r410, label %bb12, label %bb13
 
 bb12:                                             ; preds = %bb11
   %r129 = load i32, ptr @base, align 4
-  %r414 = sdiv i32 %r409, %r129
+  %r414 = sdiv i32 %r408, %r129
   %r415 = add i32 %r414, 0
-  %r416 = add i32 %r408, 1
+  %r416 = add i32 %r409, 1
   %r417 = add i32 %r416, 0
   br label %bb11
 
 bb13:                                             ; preds = %bb11
   %r135 = load i32, ptr @base, align 4
-  %r411 = sdiv i32 %r409, %r135
+  %r411 = sdiv i32 %r408, %r135
   %r137 = load i32, ptr @base, align 4
   %r412 = mul i32 %r411, %r137
-  %r413 = sub i32 %r409, %r412
+  %r413 = sub i32 %r408, %r412
   ret i32 %r413
 }
 

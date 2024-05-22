@@ -56,19 +56,19 @@ bb3:                                              ; preds = %bb4
   br label %bb5
 
 bb5:                                              ; preds = %bb6, %bb3
-  %r160 = phi i32 [ %r159, %bb3 ], [ %r168, %bb6 ]
-  %r161 = phi i32 [ %r157, %bb3 ], [ %r166, %bb6 ]
+  %r160 = phi i32 [ %r157, %bb3 ], [ %r166, %bb6 ]
+  %r161 = phi i32 [ %r159, %bb3 ], [ %r168, %bb6 ]
   %r162 = sub i32 0, 1
-  %r163 = icmp ne i32 %r160, %r162
+  %r163 = icmp ne i32 %r161, %r162
   br i1 %r163, label %bb6, label %bb7
 
 bb6:                                              ; preds = %bb5
-  %r164 = call i32 @mod(i32 %r161, i32 10)
-  %r123 = getelementptr i32, ptr %r113, i32 %r160
+  %r164 = call i32 @mod(i32 %r160, i32 10)
+  %r123 = getelementptr i32, ptr %r113, i32 %r161
   store i32 %r164, ptr %r123, align 4
-  %r165 = sdiv i32 %r161, 10
+  %r165 = sdiv i32 %r160, 10
   %r166 = add i32 %r165, 0
-  %r167 = sub i32 %r160, 1
+  %r167 = sub i32 %r161, 1
   %r168 = add i32 %r167, 0
   br label %bb5
 

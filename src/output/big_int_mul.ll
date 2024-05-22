@@ -189,14 +189,14 @@ bb10:                                             ; preds = %bb8
   br label %bb11
 
 bb11:                                             ; preds = %bb16, %bb10
-  %r286 = phi i32 [ %r285, %bb10 ], [ %r309, %bb16 ]
-  %r287 = phi i32 [ %r279, %bb10 ], [ %r307, %bb16 ]
+  %r286 = phi i32 [ %r279, %bb10 ], [ %r307, %bb16 ]
+  %r287 = phi i32 [ %r285, %bb10 ], [ %r309, %bb16 ]
   %r288 = sub i32 0, 1
-  %r289 = icmp sgt i32 %r286, %r288
+  %r289 = icmp sgt i32 %r287, %r288
   br i1 %r289, label %bb12, label %bb13
 
 bb12:                                             ; preds = %bb11
-  %r192 = getelementptr [25 x i32], ptr %r152, i32 0, i32 %r286
+  %r192 = getelementptr [25 x i32], ptr %r152, i32 0, i32 %r287
   %r193 = load i32, ptr %r192, align 4
   %r298 = add i32 %r193, 0
   %r299 = sub i32 %r268, 1
@@ -205,7 +205,7 @@ bb12:                                             ; preds = %bb11
 
 bb14:                                             ; preds = %bb19, %bb12
   %r301 = phi i32 [ %r300, %bb12 ], [ %r315, %bb19 ]
-  %r302 = phi i32 [ %r287, %bb12 ], [ %r317, %bb19 ]
+  %r302 = phi i32 [ %r286, %bb12 ], [ %r317, %bb19 ]
   %r303 = sub i32 0, 1
   %r304 = icmp sgt i32 %r301, %r303
   br i1 %r304, label %bb15, label %bb16
@@ -250,7 +250,7 @@ bb16:                                             ; preds = %bb14
   %r305 = add i32 %r302, %r268
   %r306 = sub i32 %r305, 1
   %r307 = add i32 %r306, 0
-  %r308 = sub i32 %r286, 1
+  %r308 = sub i32 %r287, 1
   %r309 = add i32 %r308, 0
   br label %bb11
 
