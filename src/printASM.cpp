@@ -1,324 +1,783 @@
-#include "printASM.h"
-#include "asm_arm.h"
+#include "printLLVM.h"
+#include "llvm_ir.h"
 #include <iostream>
 #include <cassert>
+
 using namespace std;
-using namespace ASM;
+using namespace LLVMIR;
 
-void ASM::printAS_global(std::ostream &os, ASM::AS_global *global)
+void LLVMIR::printL_def(ostream &os,L_def *def)
 {
-    os << global->label->name << ":\n";
-    if (global->len == 1)
+    switch (def->kind)
     {
-        os << "        .quad   " << global->init << "\n";
-    }
-    else
+    case L_DefKind::SRT:
     {
-        os << "        .zero   " << global->len << "\n";
+        os << "%" << def->u.SRT->name << " = type {";
+        bool first = true;
+        for(const auto &m : def->u.SRT->members)
+        {
+            if(first)
+            {
+                os << " ";
+                first = false;
+            }
+            else
+            {
+                os << ", ";
+            }
+            switch (m.kind)
+            {
+            case TempType::INT_TEMP:
+            {
+                os << "i32";
+                break;
+            }
+            case TempType::INT_PTR:
+            {
+                if(m.len <= 0)
+                {
+                    assert(0);
+                }
+                os << "[" << m.len << " x " << "i32 ]";
+                break;
+            }
+            case TempType::STRUCT_TEMP:
+            {
+                os << "%" << m.structname;
+                break;
+            }
+            case TempType::STRUCT_PTR:
+            {
+                if(m.len <= 0)
+                {
+                    assert(0);
+                }
+                os << "[" << m.len << " x " << "%" << m.structname << " ]";
+                break;
+            }
+            default:
+                assert(0);
+                break;
+            }
+        }
+        os << " }";
+        break;
     }
+    case L_DefKind::GLOBAL:
+    {
+        os << "@" << def->u.GLOBAL->name << " = global ";
+        switch (def->u.GLOBAL->def.kind)
+        {
+        case TempType::INT_TEMP:
+        {
+            os << "i32 ";
+            if(def->u.GLOBAL->init.size() == 1)
+            {
+                os << def->u.GLOBAL->init[0];
+            }
+            else
+            {
+                os << "0";
+            }
+            break;
+        }
+        case TempType::INT_PTR:
+        {
+            os << "[ " << def->u.GLOBAL->def.len << " x i32 ]";
+            if(def->u.GLOBAL->init.size() == 0)
+            {
+                os << " zeroinitializer";
+            }
+            else
+            {
+                os << " [";
+                for(int i = 0;i < def->u.GLOBAL->init.size();++i)
+                {
+                    if(i == 0)
+                    {
+                        os << " ";
+                    }
+                    else
+                    {
+                        os << ", ";
+                    }
+                    os << "i32 " << def->u.GLOBAL->init[i];
+                }
+                for(int i = 0;i < def->u.GLOBAL->def.len - def->u.GLOBAL->init.size();++i)
+                {
+                    os << ", i32 0";
+                }
+                os << " ]";
+            }
+            break;    
+        }
+        case TempType::STRUCT_TEMP:
+        {
+            os << "%" << def->u.GLOBAL->def.structname << " zeroinitializer";
+            break;   
+        }
+        case TempType::STRUCT_PTR:
+        {
+            os << "[ "<< def->u.GLOBAL->def.len << " x %" << def->u.GLOBAL->def.structname << " ] zeroinitializer";
+            break;  
+        }
+        default:
+            break;
+        }
+        break;
+    }
+    case L_DefKind::FUNC:
+    {
+        os << "declare ";
+        switch (def->u.FUNC->ret.type)
+        {
+        case ReturnType::VOID_TYPE:
+        {
+            os << "void ";
+            break;
+        }
+        case ReturnType::INT_TYPE:
+        {
+            os << "i32 ";
+            break;
+        }
+        case ReturnType::STRUCT_TYPE:
+        {
+            os << "%" << def->u.FUNC->ret.structname << " ";
+            break;
+        }
+        default:
+            break;
+        }
+        os << "@" << def->u.FUNC->name << "(";
+        bool first = true;
+        for(const auto &v : def->u.FUNC->args)
+        {
+            if(first)
+            {
+                first = false;
+                os << " ";
+            }
+            else
+            {
+                os << ", ";
+            }
+            switch (v.kind)
+            {
+            case TempType::INT_TEMP:
+            {
+                os << "i32";
+                break;
+            }
+            case TempType::INT_PTR:
+            {
+                os << "i32*";
+                break;
+            }
+            case TempType::STRUCT_TEMP:
+            {
+                os << "%" << v.structname;
+                break;
+            }
+            case TempType::STRUCT_PTR:
+            {
+                os << "%" << v.structname << "*";
+                break;
+            }
+            default:
+                break;
+            }
+        }
+        os << " )";
+        break;
+    }
+    default:
+        break;
+    }
+    os << "\n";
 }
 
-void ASM::printAS_decl(std::ostream &os, ASM::AS_decl *decl)
+void LLVMIR::printL_stm(std::ostream &os,LLVMIR::L_stm *stm)
 {
-    // Fixme: add here
-    os << ".global " << decl->name << endl
-       << std::flush;
-}
-
-void ASM::printAS_stm(std::ostream &os, AS_stm *stm)
-{
-    // Fixme: add here
     switch (stm->type)
     {
-    case AS_stmkind::BINOP:
+    case L_StmKind::T_ALLOCA:
     {
-        string temp[] = {"add", "sub", "mul", "sdiv"};
-        os << "        " << temp[static_cast<int>(stm->u.BINOP->op)] << "     "
-           << printAS_reg(stm->u.BINOP->dst)
-           << ", "
-           << printAS_reg(stm->u.BINOP->left)
-           << ", "
-           << printAS_reg(stm->u.BINOP->right)
-           << endl
-           << std::flush;
-
-        break;
-    }
-    case AS_stmkind::MOV:
-    {
-        os << "        mov     "
-           << printAS_reg(stm->u.MOV->dst)
-           << ", "
-           << printAS_reg(stm->u.MOV->src)
-           << endl
-           << std::flush;
-
-        break;
-    }
-    case AS_stmkind::MOVZ:
-    {
-        os << "        movz     "
-           << printAS_reg(stm->u.MOVZ->dst)
-           << ", "
-           << printAS_reg(stm->u.MOVZ->src)
-           << ", LSL #16"
-           << endl
-           << std::flush;
-
-        break;
-    }
-    case AS_stmkind::MOVK:
-    {
-        os << "        movk     "
-           << printAS_reg(stm->u.MOVK->dst)
-           << ", "
-           << printAS_reg(stm->u.MOVK->src)
-           << ", LSL #0"
-           << endl
-           << std::flush;
-
-        break;
-    }
-
-    case AS_stmkind::LDR:
-    {
-        if (stm->u.LDR->post_index)
+        if(stm->u.ALLOCA->dst->kind == OperandKind::TEMP)
         {
-            assert(stm->u.LDR->ptr->type == AS_type::SP);
-            os << "        ldr     "
-               << printAS_reg(stm->u.LDR->dst)
-               << ", [sp], #"
-               << stm->u.LDR->post_index
-               << endl
-               << std::flush;
-            break;
+            os << "  ";
+            printL_oper(os,stm->u.ALLOCA->dst);
+            os << " = alloca ";
+            switch (stm->u.ALLOCA->dst->u.TEMP->type)
+            {
+            case TempType::INT_TEMP:
+            {
+                assert(0);
+                break;
+            }
+            case TempType::INT_PTR:
+            {
+                if(stm->u.ALLOCA->dst->u.TEMP->len == 0)
+                    os << "i32";
+                else
+                    os << "[ " << stm->u.ALLOCA->dst->u.TEMP->len << " x i32 ]";
+                break;
+            }
+            case TempType::STRUCT_TEMP:
+            {
+                assert(0);
+                break;
+            }
+            case TempType::STRUCT_PTR:
+            {
+                if(stm->u.ALLOCA->dst->u.TEMP->len == 0)
+                    os << "%" << stm->u.ALLOCA->dst->u.TEMP->structname;
+                else
+                    os << "[ " << stm->u.ALLOCA->dst->u.TEMP->len << " x %" << stm->u.ALLOCA->dst->u.TEMP->structname << " ]";
+                break;
+            }
+            default:
+                break;
+            }
         }
         else
         {
-            os << "        ldr     "
-               << printAS_reg(stm->u.LDR->dst)
-               << ", "
-               << printAS_reg(stm->u.LDR->ptr, false)
-               << endl
-               << std::flush;
+            assert(0);
         }
-
         break;
     }
-    case AS_stmkind::LDP:
+    case L_StmKind::T_BINOP:
     {
-        assert(stm->u.LDP->ptr->type == AS_type::SP);
-        os << "        ldp     "
-           << printAS_reg(stm->u.LDP->dst1)
-           << ", "
-           << printAS_reg(stm->u.LDP->dst2)
-           << ", [sp], #"
-           << stm->u.LDP->post_index
-           << endl
-           << std::flush;
-
-        break;
-    }
-    case AS_stmkind::STR:
-    {
-        if (stm->u.STR->pre_index)
+        if(stm->u.BINOP->dst->kind != OperandKind::TEMP)
         {
-            assert(stm->u.STR->ptr->type == AS_type::SP);
-            os << "        str     "
-               << printAS_reg(stm->u.STR->src)
-               << ", [sp, #"
-               << stm->u.STR->pre_index
-               << "]!"
-               << endl
-               << std::flush;
+            assert(0);
+        }
+        os << "  ";
+        printL_oper(os,stm->u.BINOP->dst);
+        os << " = ";
+        switch (stm->u.BINOP->op)
+        {
+        case L_binopKind::T_plus:
+        {
+            os << "add";
             break;
         }
-        os << "        str     "
-           << printAS_reg(stm->u.STR->src)
-           << ", "
-           << printAS_reg(stm->u.STR->ptr, false)
-           << endl
-           << std::flush;
-
+        case L_binopKind::T_minus:
+        {
+            os << "sub";
+            break;
+        }
+        case L_binopKind::T_mul:
+        {
+            os << "mul";
+            break;
+        }
+        case L_binopKind::T_div:
+        {
+            os << "sdiv";
+            break;
+        }
+        default:
+            break;
+        }
+        os << " i32 ";
+        printL_oper(os,stm->u.BINOP->left);
+        os << ", ";
+        printL_oper(os,stm->u.BINOP->right);
         break;
     }
-    case AS_stmkind::STP:
+    case L_StmKind::T_CALL:
     {
-
-        assert(stm->u.STP->ptr->type == AS_type::SP);
-        os << "        stp     "
-           << printAS_reg(stm->u.STP->src1)
-           << ", "
-           << printAS_reg(stm->u.STP->src2)
-           << ", [sp, #"
-           << stm->u.STP->pre_index
-           << "]!"
-           << endl
-           << std::flush;
-
+        os << "  ";
+        printL_oper(os,stm->u.CALL->res);
+        os << " = call i32 @" << stm->u.CALL->fun << "(";
+        bool first = true;
+        for(const auto &v : stm->u.CALL->args)
+        {
+            if(first)
+            {
+                first = false;
+            }
+            else
+            {
+                os << ", ";
+            }
+            if(v->kind == OperandKind::TEMP)
+            {
+                if(v->u.TEMP->type == TempType::INT_TEMP)
+                {
+                    os << "i32 ";
+                }
+                else if(v->u.TEMP->type == TempType::INT_PTR)
+                {
+                    os << "i32* ";
+                }
+                else if(v->u.TEMP->type == TempType::STRUCT_TEMP)
+                {
+                    os << "%" << v->u.TEMP->structname << " ";
+                }
+                else
+                {
+                    os << "%" << v->u.TEMP->structname << "* ";
+                }
+            }
+            else if(v->kind == OperandKind::ICONST)
+            {
+                os << "i32 ";
+            }
+            else
+            {
+                if(v->u.NAME->type == TempType::INT_PTR)
+                {
+                    os << "i32* ";
+                }
+                else if(v->u.NAME->type == TempType::STRUCT_TEMP)
+                {
+                    os << "%" << v->u.NAME->structname << "* ";
+                }
+                else if(v->u.NAME->type == TempType::STRUCT_PTR)
+                {
+                    os << "%" << v->u.NAME->structname << "* ";
+                }
+                else
+                {
+                    assert(0);
+                }
+            }
+            printL_oper(os,v);
+        }
+        os << ")";
         break;
     }
-    case AS_stmkind::LABEL:
+    case L_StmKind::T_CJUMP:
     {
-        os << stm->u.LABEL->name << ":\n\n";
+        os << "  br i1 ";
+        printL_oper(os,stm->u.CJUMP->dst);
+        os << ", label %" << stm->u.CJUMP->true_label->name << ", label %" << stm->u.CJUMP->false_label->name << "\n";
         break;
     }
-    case AS_stmkind::B:
+    case L_StmKind::T_CMP:
     {
-
-        os
-            << "        "
-            << "b"
-            << "     " << stm->u.B->jump->name
-            << endl
-            << std::flush;
+        os << "  ";
+        printL_oper(os,stm->u.CMP->dst);
+        os << " = icmp ";
+        switch (stm->u.CMP->op)
+        {
+        case L_relopKind::T_lt:
+        {
+            os << "slt ";
+            break;
+        }
+        case L_relopKind::T_le:
+        {
+            os << "sle ";
+            break;
+        }
+        case L_relopKind::T_gt:
+        {
+            os << "sgt ";
+            break;
+        }
+        case L_relopKind::T_ge:
+        {
+            os << "sge ";
+            break;
+        }
+        case L_relopKind::T_eq:
+        {
+            os << "eq ";
+            break;
+        }
+        case L_relopKind::T_ne:
+        {
+            os << "ne ";
+            break;
+        }
+        default:
+            break;
+        }
+        os << "i32 ";
+        printL_oper(os,stm->u.CMP->left);
+        os << ", ";
+        printL_oper(os,stm->u.CMP->right);
         break;
     }
-    case AS_stmkind::BCOND:
+    case L_StmKind::T_GEP:
     {
-        string temp[] = {"eq", "ne", "lt", "gt", "le", "ge"};
-        os << "        "
-           << "b." << temp[static_cast<int>(stm->u.BCOND->op)]
-           << "     "
-           << stm->u.BCOND->jump->name
-           << endl
-           << std::flush;
-
+        os << "  ";
+        printL_oper(os,stm->u.GEP->new_ptr);
+        os << " = getelementptr ";
+        if(stm->u.GEP->base_ptr->kind == OperandKind::TEMP)
+        {
+            switch (stm->u.GEP->base_ptr->u.TEMP->type)
+            {
+            case TempType::INT_TEMP:
+            {
+                assert(0);
+                break;
+            }
+            case TempType::INT_PTR:
+            {
+                if(stm->u.GEP->base_ptr->u.TEMP->len == -1 || stm->u.GEP->base_ptr->u.TEMP->len == 0)
+                {
+                    os << "i32, i32* ";
+                    printL_oper(os,stm->u.GEP->base_ptr);
+                }
+                else
+                {
+                    os << "[" << stm->u.GEP->base_ptr->u.TEMP->len << " x i32 ], ";
+                    os << "[" << stm->u.GEP->base_ptr->u.TEMP->len << " x i32 ]* ";
+                    printL_oper(os,stm->u.GEP->base_ptr);
+                    os << ", i32 0";
+                }
+                break;
+            }
+            case TempType::STRUCT_TEMP:
+            {
+                assert(0);
+                break;
+            }
+            case TempType::STRUCT_PTR:
+            {
+                if(stm->u.GEP->base_ptr->u.TEMP->len == 0)
+                {
+                    os << "%" << stm->u.GEP->base_ptr->u.TEMP->structname << ", %" << stm->u.GEP->base_ptr->u.TEMP->structname << "* ";
+                    printL_oper(os,stm->u.GEP->base_ptr);
+                    os << ", i32 0";
+                }
+                else if(stm->u.GEP->base_ptr->u.TEMP->len == -1)
+                {
+                    os << "%" << stm->u.GEP->base_ptr->u.TEMP->structname << ", %" << stm->u.GEP->base_ptr->u.TEMP->structname << "* ";
+                    printL_oper(os,stm->u.GEP->base_ptr);
+                }
+                else
+                {
+                    os << "[" << stm->u.GEP->base_ptr->u.TEMP->len << " x " << "%" << stm->u.GEP->base_ptr->u.TEMP->structname << " ], ";
+                    os << "[" << stm->u.GEP->base_ptr->u.TEMP->len << " x " << "%" << stm->u.GEP->base_ptr->u.TEMP->structname << " ]* ";
+                    printL_oper(os,stm->u.GEP->base_ptr);
+                    os << ", i32 0";
+                }
+                break;
+            }
+            default:
+                break;
+            }
+            os << ", i32 ";
+            printL_oper(os,stm->u.GEP->index);
+        }
+        else if(stm->u.GEP->base_ptr->kind == OperandKind::NAME)
+        {
+            switch (stm->u.GEP->base_ptr->u.NAME->type)
+            {
+            case TempType::INT_TEMP:
+            {
+                assert(0);
+                break;
+            }
+            case TempType::INT_PTR:
+            {
+                if(stm->u.GEP->base_ptr->u.NAME->len == -1 || stm->u.GEP->base_ptr->u.NAME->len == 0)
+                {
+                    os << "i32, i32* ";
+                    printL_oper(os,stm->u.GEP->base_ptr);
+                }
+                else
+                {
+                    os << "[" << stm->u.GEP->base_ptr->u.NAME->len << " x i32 ], ";
+                    os << "[" << stm->u.GEP->base_ptr->u.NAME->len << " x i32 ]* ";
+                    printL_oper(os,stm->u.GEP->base_ptr);
+                    os << ", i32 0";
+                }
+                break;
+            }
+            case TempType::STRUCT_TEMP:
+            {
+                os << "%" << stm->u.GEP->base_ptr->u.NAME->structname << ", %" << stm->u.GEP->base_ptr->u.NAME->structname << "* ";
+                printL_oper(os,stm->u.GEP->base_ptr);
+                os << ", i32 0";
+                break;
+            }
+            case TempType::STRUCT_PTR:
+            {
+                if(stm->u.GEP->base_ptr->u.NAME->len == -1 || stm->u.GEP->base_ptr->u.NAME->len == 0)
+                {
+                    os << "%" << stm->u.GEP->base_ptr->u.NAME->structname << ", %" << stm->u.GEP->base_ptr->u.NAME->structname << "* ";
+                    printL_oper(os,stm->u.GEP->base_ptr);
+                    os << ", i32 0";
+                }
+                else
+                {
+                    os << "[" << stm->u.GEP->base_ptr->u.NAME->len << " x " << "%" << stm->u.GEP->base_ptr->u.NAME->structname << " ], ";
+                    os << "[" << stm->u.GEP->base_ptr->u.NAME->len << " x " << "%" << stm->u.GEP->base_ptr->u.NAME->structname << " ]* ";
+                    printL_oper(os,stm->u.GEP->base_ptr);
+                    os << ", i32 0";
+                }
+                break;
+            }
+            default:
+                break;
+            }
+            os << ", i32 ";
+            printL_oper(os,stm->u.GEP->index);
+        }
+        else
+        {
+            assert(0);
+        }
         break;
     }
-    case AS_stmkind::BL:
+    case L_StmKind::T_JUMP:
     {
-        os
-            << "        bl"
-            << "     " << stm->u.BL->jump->name
-            << endl
-            << std::flush;
-
+        os << "  br label %" << stm->u.JUMP->jump->name << "\n";
         break;
     }
-    case AS_stmkind::CMP:
+    case L_StmKind::T_LABEL:
     {
-        os << "        cmp     "
-           << printAS_reg(stm->u.CMP->left)
-           << ", "
-           << printAS_reg(stm->u.CMP->right)
-           << endl
-           << std::flush;
-
+        os << stm->u.LABEL->label->name << ":";
         break;
     }
-    case AS_stmkind::RET:
+    case L_StmKind::T_LOAD:
     {
-        os << "        ret"
-           << endl
-           << std::flush;
-
+        os << "  ";
+        printL_oper(os,stm->u.LOAD->dst);
+        os << " = load i32, i32* ";
+        printL_oper(os,stm->u.LOAD->ptr);
         break;
     }
-    case AS_stmkind::ADR:
+    case L_StmKind::T_MOVE:
     {
-        os << "        adrp     "
-           << printAS_reg(stm->u.ADR->reg)
-           << ", " << stm->u.ADR->label->name
-           << endl
-           << "        add     "
-           << printAS_reg(stm->u.ADR->reg)
-           << ", " << printAS_reg(stm->u.ADR->reg)
-           << ", #:lo12:" << stm->u.ADR->label->name
-           << endl
-           << std::flush;
-
+        os << "  ";
+        printL_oper(os,stm->u.MOVE->dst);
+        os << " = add i32 ";
+        printL_oper(os,stm->u.MOVE->src);
+        os << ", 0";
         break;
     }
-    case AS_stmkind::LLVMIR:
+    case L_StmKind::T_NULL:
     {
-        os << "        //"
-           << stm->u.LLVMIR->llvmir
-           << endl
-           << std::flush;
         break;
     }
+    case L_StmKind::T_PHI:
+    {
+        os << "  ";
+        printL_oper(os,stm->u.PHI->dst);
+        os << " = phi i32";
+        bool first = true;
+        for(const auto &p : stm->u.PHI->phis)
+        {
+            if(first)
+            {
+                first = false;
+                os << " [ ";
+            }
+            else
+            {
+                os << ", [ ";
+            }
+            printL_oper(os,p.first);
+            os << ", %" << p.second->name << " ]";
+        }
+        break;
+    }
+    case L_StmKind::T_RETURN:
+    {
+        if(stm->u.RETURN->ret == nullptr)
+        {
+            os << "  ret void";
+        }
+        else
+        {
+            os << "  ret i32 ";
+            printL_oper(os,stm->u.RETURN->ret);
+        }
+        break;
+    }
+    case L_StmKind::T_STORE:
+    {
+        os << "  store i32 ";
+        printL_oper(os,stm->u.STORE->src);
+        os << ", i32* ";
+        printL_oper(os,stm->u.STORE->ptr);
+        break;
+    }
+    case L_StmKind::T_VOID_CALL:
+    {
+        os << "  call void @" << stm->u.VOID_CALL->fun << "(";
+        bool first = true;
+        for(const auto &v : stm->u.VOID_CALL->args)
+        {
+            if(first)
+            {
+                first = false;
+            }
+            else
+            {
+                os << ", ";
+            }
+            if(v->kind == OperandKind::TEMP)
+            {
+                if(v->u.TEMP->type == TempType::INT_TEMP)
+                {
+                    os << "i32 ";
+                }
+                else if(v->u.TEMP->type == TempType::INT_PTR)
+                {
+                    os << "i32* ";
+                }
+                else if(v->u.TEMP->type == TempType::STRUCT_TEMP)
+                {
+                    os << "%" << v->u.TEMP->structname << " ";
+                }
+                else
+                {
+                    os << "%" << v->u.TEMP->structname << "* ";
+                }
+            }
+            else if(v->kind == OperandKind::ICONST)
+            {
+                os << "i32 ";
+            }
+            else
+            {
+                if(v->u.NAME->type == TempType::INT_PTR)
+                {
+                    os << "i32* ";
+                }
+                else if(v->u.NAME->type == TempType::STRUCT_TEMP)
+                {
+                    os << "%" << v->u.NAME->structname << "* ";
+                }
+                else if(v->u.NAME->type == TempType::STRUCT_PTR)
+                {
+                    os << "%" << v->u.NAME->structname << "* ";
+                }
+                else
+                {
+                    assert(0);
+                }
+            }
+            printL_oper(os,v);
+        }
+        os << ")";
+        break;
+        break;
+    }
+    default:
+        break;
+    }
+    os << "\n";
+}
 
+void LLVMIR::printL_oper(std::ostream &os,AS_operand *oper)
+{
+    switch (oper->kind)
+    {
+    case OperandKind::ICONST:
+    {
+        os << oper->u.ICONST;
+        break;
+    }
+    case OperandKind::TEMP:
+    {
+        os << "%r" << oper->u.TEMP->num;
+        break;
+    }
+    case OperandKind::NAME:
+    {
+        os << "@" << oper->u.NAME->name->name;
+        break;
+    }
     default:
         break;
     }
 }
-string ASM::printAS_add(AS_address *adr)
-{
-    // printf("aaa,%d,%x\n", adr->imm, adr->reg);
-    string res = "";
-    res += printAS_reg(adr->base);
-    if (adr->imm != 0)
-    {
-        res += ",#" + to_string(adr->imm);
-    }
-    if (adr->reg)
-    {
-        res += "," + printAS_reg(adr->reg);
-    }
-    return res;
-}
-string ASM::printAS_reg(AS_reg *reg, bool integer)
-{
-    // Fixme: add here
-    string res = "";
-    if (reg->type == AS_type::Xn)
-    {
-        res += "x" + to_string(reg->u.offset);
-    }
-    else if (reg->type == AS_type::IMM)
-    {
-        res += "#" + to_string(reg->u.offset);
-    }
-    else if (reg->type == AS_type::SP)
-    {
 
-        res += "sp";
-    }
-    else
-    {
-        res = "[" + printAS_add(reg->u.add) + "]";
-    }
-    return res;
-}
-
-void ASM::printAS_func(std::ostream &os, AS_func *func)
+void LLVMIR::printL_prog(std::ostream &os,LLVMIR::L_prog *prog)
 {
-    for (const auto &stm : func->stms)
+    for(const auto &def : prog->defs)
     {
-        printAS_stm(os, stm);
+        printL_def(os,def);
+    }
+    for(const auto &func : prog->funcs)
+    {
+        printL_func(os,func);
     }
 }
 
-void ASM::printAS_prog(std::ostream &os, AS_prog *prog)
+void LLVMIR::printL_func(std::ostream &os,LLVMIR::L_func *func)
 {
-
-    os << ".section .data\n";
-    for (const auto &global : prog->globals)
+    os << "define ";
+    switch (func->ret.type)
     {
-        os << ".global    " << global->label->name << endl;
-        ;
+    case ReturnType::VOID_TYPE:
+    {
+        os << "void ";
+        break;
     }
-    for (const auto &global : prog->globals)
+    case ReturnType::INT_TYPE:
     {
-        printAS_global(os, global);
+        os << "i32 ";
+        break;
     }
-
-    os << ".section .text\n";
-    //     os << ".global _start\n\
-// \n\
-// _start:\n\
-//     b main  \n\
-//     mov x8, #93  \n\
-//     mov x0, #0   \n\
-//     svc #0       \n";
-    for (const auto &decl : prog->decls)
+    case ReturnType::STRUCT_TYPE:
     {
-        printAS_decl(os, decl);
+        os << "%" << func->ret.structname << " ";
+        break;
     }
-
-    for (const auto &func : prog->funcs)
+    default:
+        break;
+    }
+    os << "@" << func->name << "(";
+    bool first = true;
+    for(const auto &v : func->args)
     {
-        printAS_func(os, func);
+        if(first)
+        {
+            first = false;
+            os << " ";
+        }
+        else
+        {
+            os << ", ";
+        }
+        switch (v->type)
+        {
+        case TempType::INT_TEMP:
+        {
+            os << "i32 %r" << v->num; 
+            break;
+        }
+        case TempType::INT_PTR:
+        {
+            os << "i32* %r" << v->num; 
+            break;
+        }
+        case TempType::STRUCT_TEMP:
+        {
+            os << "%" << v->structname << " %r" << v->num;
+            break;
+        }
+        case TempType::STRUCT_PTR:
+        {
+            os << "%" << v->structname << "* %r" << v->num;
+            break;
+        }
+        default:
+            break;
+        }
+    }
+    os << " ) {\n";
+    for(const auto &b : func->blocks)
+    {
+        printL_block(os,b);
+    }
+    os << "}\n\n";
+}
+
+void LLVMIR::printL_block(std::ostream &os,LLVMIR::L_block *block)
+{
+    for(const auto &ir : block->instrs)
+    {
+        printL_stm(os,ir);
     }
 }

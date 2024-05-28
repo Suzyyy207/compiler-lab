@@ -1,5 +1,6 @@
 #include "ssa.h"
 #include <cassert>
+#include <fstream>
 #include <iostream>
 #include <list>
 #include <stack>
@@ -36,13 +37,17 @@ static void init_table() {
 
 LLVMIR::L_prog* SSA(LLVMIR::L_prog* prog) {
     for (auto& fun : prog->funcs) {
+        //std::cout<<fun->name<<std::endl;
         init_table();
         combine_addr(fun);
         mem2reg(fun);
+
+        //std::cout<<"mem2reg finish"<<std::endl;
         auto RA_bg = Create_bg(fun->blocks);
         SingleSourceGraph(RA_bg.mynodes[0], RA_bg,fun);
-        // Show_graph(stdout,RA_bg);
+        
         Liveness(RA_bg.mynodes[0], RA_bg, fun->args);
+        //std::cout<<"df"<<std::endl;
         Dominators(RA_bg);
         // printf_domi();
         tree_Dominators(RA_bg);
@@ -50,9 +55,13 @@ LLVMIR::L_prog* SSA(LLVMIR::L_prog* prog) {
         // 默认0是入口block
         computeDF(RA_bg, RA_bg.mynodes[0]);
         // printf_DF();
+        
         Place_phi_fu(RA_bg, fun);
+        //std::cout<<"phi"<<std::endl;
         Rename(RA_bg);
         combine_addr(fun);
+        
+
     }
     return prog;
 }
@@ -92,56 +101,447 @@ void combine_addr(LLVMIR::L_func* fun) {
 }
 
 void mem2reg(LLVMIR::L_func* fun) {
-   //   Todo
+    temp2ASoper.clear();
+    
+    for (auto& block : fun->blocks) {
+        auto it = block->instrs.begin();
+        while (it != block->instrs.end()) {
+            auto& stm = *it;
+            if (stm->type == L_StmKind::T_ALLOCA) {
+                if (is_mem_variable(stm)){
+                    AS_operand* new_reg = AS_Operand_Temp(Temp_newtemp_int());
+                    temp2ASoper[stm->u.ALLOCA->dst->u.TEMP] = new_reg;
+                    *it = L_Move(AS_Operand_Const(0), new_reg);
+                }
+            }
+            else if (stm->type == L_StmKind::T_STORE) {
+                if (stm->u.STORE->ptr->kind == OperandKind::TEMP && temp2ASoper.find(stm->u.STORE->ptr->u.TEMP) != temp2ASoper.end()){
+                    AS_operand* target = temp2ASoper.find(stm->u.STORE->ptr->u.TEMP)->second;
+                    AS_operand* src = stm->u.STORE->src;
+                    if (src->kind == OperandKind::TEMP && temp2ASoper.find(src->u.TEMP) != temp2ASoper.end()){
+                        src = temp2ASoper.find(stm->u.STORE->src->u.TEMP)->second;
+                    }
+                    *it = L_Move(src, target);
+                }
+                else{
+                    AS_operand* src = stm->u.STORE->src;
+                    if (src->kind == OperandKind::TEMP && temp2ASoper.find(src->u.TEMP) != temp2ASoper.end()){
+                        src = temp2ASoper.find(stm->u.STORE->src->u.TEMP)->second;
+                    }
+                    *it=L_Store(src, stm->u.STORE->ptr);
+                }
+            }
+            else if (stm->type == L_StmKind::T_LOAD) {
+                if (stm->u.LOAD->ptr->kind == OperandKind::TEMP && temp2ASoper.find(stm->u.LOAD->ptr->u.TEMP) != temp2ASoper.end()){
+                    temp2ASoper[stm->u.LOAD->dst->u.TEMP] = temp2ASoper.find(stm->u.LOAD->ptr->u.TEMP)->second;
+                    it = block->instrs.erase(it);
+                    continue;
+                }
+            }
+            else if (stm->type == L_StmKind::T_BINOP){
+                AS_operand* left = stm->u.BINOP->left;
+                AS_operand* right = stm->u.BINOP->right;
+                if (left->kind == OperandKind::TEMP && temp2ASoper.find(left->u.TEMP) != temp2ASoper.end()){
+                    left = temp2ASoper.find(left->u.TEMP)->second;
+                }
+                if (right->kind == OperandKind::TEMP && temp2ASoper.find(right->u.TEMP) != temp2ASoper.end()){
+                    right = temp2ASoper.find(right->u.TEMP)->second;
+                }
+                *it = L_Binop(stm->u.BINOP->op, left, right, stm->u.BINOP->dst);
+            }
+            else if (stm->type == L_StmKind::T_CMP){
+                AS_operand* left = stm->u.CMP->left;
+                AS_operand* right = stm->u.CMP->right;
+                if (left->kind == OperandKind::TEMP && temp2ASoper.find(left->u.TEMP) != temp2ASoper.end()){
+                    left = temp2ASoper.find(left->u.TEMP)->second;
+                }
+                if (right->kind == OperandKind::TEMP && temp2ASoper.find(right->u.TEMP) != temp2ASoper.end()){
+                    right = temp2ASoper.find(right->u.TEMP)->second;
+                }
+                *it = L_Cmp(stm->u.CMP->op, left, right, stm->u.CMP->dst);
+            }
+            else if(stm->type == L_StmKind::T_CJUMP){
+                AS_operand* dst = stm->u.CJUMP->dst;
+                if (dst->kind == OperandKind::TEMP && temp2ASoper.find(dst->u.TEMP) != temp2ASoper.end()){
+                    dst = temp2ASoper.find(dst->u.TEMP)->second;
+                }
+                *it = L_Cjump(dst, stm->u.CJUMP->true_label, stm->u.CJUMP->false_label);
+            }
+            else if(stm->type == L_StmKind::T_GEP){
+                AS_operand* new_ptr = stm->u.GEP->new_ptr;
+                AS_operand* base_ptr = stm->u.GEP->base_ptr;
+                AS_operand* index = stm->u.GEP->index;
+                if (new_ptr->kind == OperandKind::TEMP && temp2ASoper.find(new_ptr->u.TEMP) != temp2ASoper.end()){
+                    new_ptr = temp2ASoper.find(new_ptr->u.TEMP)->second;
+                }
+                if (index->kind == OperandKind::TEMP && temp2ASoper.find(index->u.TEMP) != temp2ASoper.end()){
+                    index = temp2ASoper.find(index->u.TEMP)->second;
+                }
+                *it = L_Gep(new_ptr, base_ptr, index);
+            }
+            else if (fun->ret.type == ReturnType::INT_TYPE &&  stm->type == L_StmKind::T_RETURN){
+                AS_operand* ret = stm->u.RETURN->ret;
+                if (ret->kind == OperandKind::TEMP && temp2ASoper.find(ret->u.TEMP) != temp2ASoper.end()){
+                    ret = temp2ASoper.find(stm->u.RETURN->ret->u.TEMP)->second;
+                }
+                *it = L_Ret(ret);
+            }
+            else if(stm->type == L_StmKind::T_CALL){
+                std::vector<AS_operand*> args;
+                for (int i = 0; i < stm->u.CALL->args.size(); i++){
+                    AS_operand* arg = stm->u.CALL->args[i];
+                    if (arg->kind == OperandKind::TEMP && temp2ASoper.find(arg->u.TEMP) != temp2ASoper.end()){
+                        args.push_back(temp2ASoper[arg->u.TEMP]);
+                    }
+                    else{
+                        args.push_back(arg);
+                    }
+                }
+                AS_operand* ret = stm->u.CALL->res;
+                if (ret->kind == OperandKind::TEMP && temp2ASoper.find(ret->u.TEMP) != temp2ASoper.end()){
+                    ret = temp2ASoper.find(stm->u.RETURN->ret->u.TEMP)->second;
+                }
+                *it = L_Call(stm->u.CALL->fun, ret, args);
+            }
+            else if(stm->type == L_StmKind::T_VOID_CALL){
+                std::vector<AS_operand*> args;
+                for (int i = 0; i < stm->u.VOID_CALL->args.size(); i++){
+                    AS_operand* arg = stm->u.VOID_CALL->args[i];
+                    if (arg->kind == OperandKind::TEMP && temp2ASoper.find(arg->u.TEMP) != temp2ASoper.end()){
+                        args.push_back(temp2ASoper[arg->u.TEMP]);
+                    }
+                    else{
+                        args.push_back(arg);
+                    }
+                }
+                *it = L_Voidcall(stm->u.VOID_CALL->fun, args);
+            }
+            
+            ++it;
+        }
+    }
+}
+
+bool Set_eq(std::unordered_set<LLVMIR::L_block *> &a, std::unordered_set<LLVMIR::L_block *> &b)
+{
+    if (a.size() != b.size())
+    {
+        return false;
+    }
+    for (auto x : a)
+    {
+        if (b.find(x) == b.end())
+        {
+            return false;
+        }
+    }
+    return true;
 }
 
 void Dominators(GRAPH::Graph<LLVMIR::L_block*>& bg) {
-    //   Todo
+    // 初始化
+    unordered_set<L_block*> dom_set;
+    dom_set.emplace(bg.mynodes[0]->info);
+    dominators[bg.mynodes[0]->info] = dom_set;
+
+    for (int i = 1; i < bg.nodecount; i++){
+        if (!bg.mynodes[i]){
+            continue;
+        }
+        
+        unordered_set<L_block*> dom_set;
+        for (int j = 0; j < bg.nodecount; j++){
+            if (!bg.mynodes[j]){
+                continue;
+            }
+            dom_set.emplace(bg.mynodes[j]->info);
+        }
+        dominators[bg.mynodes[i]->info] = dom_set;
+    }
+    
+    bool change = true;
+    while (change){
+        change = false;
+        for (int i = 1; i < bg.nodecount; i++){
+            if (!bg.mynodes[i]){
+                continue;
+            }
+            unordered_set<L_block*> dom_set = dominators[bg.mynodes[i]->info];
+            unordered_set<L_block*> pred_dom_intersection;
+            unordered_set<L_block*> new_dom_set;
+            bool first = true;
+            unordered_set<L_block*> pred_dom_set;
+
+            for (auto& pred_num: bg.mynodes[i]->preds){
+                
+                if (first){
+                    pred_dom_set = dominators.find(bg.mynodes[pred_num]->info)->second;
+                    for (auto& pre_dom: pred_dom_set){
+                        pred_dom_intersection.emplace(pre_dom);
+                    }
+                    first = false;
+                }
+                else{
+                    //for (auto& intersection_dom: pred_dom_intersection){
+                    for(auto it = pred_dom_intersection.begin();it!=pred_dom_intersection.end();){
+                        pred_dom_set = dominators.find(bg.mynodes[pred_num]->info)->second;
+                        if (pred_dom_set.find(*it) == pred_dom_set.end()){
+                                it = pred_dom_intersection.erase(it);
+                        }
+                        else{
+                            it++;
+                        }
+                    }
+                }
+                        
+                
+            }
+            pred_dom_intersection.emplace(bg.mynodes[i]->info);
+
+            /*for (auto& intersection_dom: pred_dom_intersection){
+                if (dom_set.find(intersection_dom) == dom_set.end()){
+                    dom_set.emplace(intersection_dom);
+                    change = true;
+                }
+            }
+            
+            for (auto& origin_dom: dom_set){
+                if (pred_dom_intersection.find(origin_dom) == pred_dom_intersection.end()){
+                    dom_set.erase(origin_dom);
+                    change = true;
+                }
+            }*/
+            if (!Set_eq(dom_set, pred_dom_intersection)){
+                change = true;
+            }
+
+            //dom_set = pred_dom_intersection;
+            dominators[bg.mynodes[i]->info] = pred_dom_intersection;
+
+            /*if (bg.mynodes[i]->info->label->name == "bb10"){
+                for (auto& domi: dominators[bg.mynodes[i]->info]){
+                    std::cout<<domi->label->name<<" ";
+                }
+            }
+            std::cout<<endl;*/
+        }
+    }
+
+    //std::cout<<"dominators finish"<<std::endl;
+
+    printf_domi();
 }
 
 void printf_domi() {
-    printf("Dominator:\n");
+    FILE* f = fopen("./tests/domi.txt","w");
+    fprintf(f,"Dominator:\n");
     for (auto x : dominators) {
-        printf("%s :\n", x.first->label->name.c_str());
+        fprintf(f, "%s :\n", x.first->label->name.c_str());
         for (auto t : x.second) {
-            printf("%s ", t->label->name.c_str());
+            fprintf(f, "%s ", t->label->name.c_str());
         }
-        printf("\n\n");
+        fprintf(f, "\n\n");
     }
+    fclose(f);
 }
 
 void printf_D_tree() {
-    printf("dominator tree:\n");
+    FILE* f = fopen("./tests/domi_tree.txt","w");
+    fprintf(f, "dominator tree:\n");
     for (auto x : tree_dominators) {
-        printf("%s :\n", x.first->label->name.c_str());
+        fprintf(f, "%s :\n", x.first->label->name.c_str());
         for (auto t : x.second.succs) {
-            printf("%s ", t->label->name.c_str());
+            fprintf(f, "%s ", t->label->name.c_str());
         }
-        printf("\n\n");
+        fprintf(f, "\n\n");
     }
+    fclose(f);
 }
 void printf_DF() {
-    printf("DF:\n");
+    FILE* f = fopen("./tests/df.txt","w");
+    fprintf(f, "DF:\n");
     for (auto x : DF_array) {
-        printf("%s :\n", x.first->label->name.c_str());
+        fprintf(f, "%s :\n", x.first->label->name.c_str());
         for (auto t : x.second) {
-            printf("%s ", t->label->name.c_str());
+            fprintf(f, "%s ", t->label->name.c_str());
         }
-        printf("\n\n");
+        fprintf(f, "\n\n");
     }
+    fclose(f);
 }
 
 void tree_Dominators(GRAPH::Graph<LLVMIR::L_block*>& bg) {
-    //   Todo
+    // 初始化
+    for (int i = 0; i < bg.nodecount; i++){
+        if (!bg.mynodes[i]){
+            continue;
+        }
+        imm_Dominator imm_origin;
+        tree_dominators[bg.mynodes[i]->info] = imm_origin;
+    }
+
+    for (int i = 1; i < bg.nodecount; i++){
+        if (!bg.mynodes[i]){
+            continue;
+        }
+        unordered_set<L_block*> doms = dominators[bg.mynodes[i]->info];
+        L_block* nearest = bg.mynodes[i]->info;
+        for (auto& dom: doms){
+            int flag = 0;
+            if (dom == bg.mynodes[i]->info){
+                continue;
+            }
+            for (auto& other_dom: doms){
+                if (dom == other_dom || other_dom == bg.mynodes[i]->info){
+                    continue;
+                }
+                unordered_set<L_block*> other_dom_doms = dominators[other_dom];
+                if (other_dom_doms.find(dom) != other_dom_doms.end()){
+                    flag = 1;
+                    break;
+                }
+            }
+            if (flag == 1){
+                continue;
+            }
+            else{
+                nearest = dom;
+                break;
+            }
+        }
+
+        tree_dominators[bg.mynodes[i]->info].pred = nearest;
+        tree_dominators[nearest].succs.emplace(bg.mynodes[i]->info);
+    }
+    
+    //std::cout<<"tree finish"<<std::endl;
+
+    printf_D_tree();
+}
+
+void computeBlcokDF(GRAPH::Graph<LLVMIR::L_block*>& bg, GRAPH::Node<LLVMIR::L_block*>* n){
+    /*
+        computeDF[n]=
+        S={}
+        for succ[n]中的每一个个结点y		这个循环计算DF_local[n]
+            if idom(y)≠n
+                S=SU{y}
+        for必经结点树中的n 的每个儿子c
+            computeDF[c]
+            for DF[c]中的每个元素
+                if n不是w的必经结点，或者if n==w
+                    S=SU{w}
+        DF[n]=S
+    */
+    unordered_set<L_block*> origin = DF_array[n->info];
+
+    for (auto& j: n->succs){
+        L_block* y = bg.mynodes[j]->info;
+        if (tree_dominators[y].pred != n->info){
+            origin.emplace(y);
+        }
+    }
+
+    for (auto& tree_son: tree_dominators[n->info].succs){
+        computeBlcokDF(bg, revers_graph[tree_son]);
+        for (auto& w: DF_array[tree_son]){
+            unordered_set<L_block*> w_dom = dominators[w];
+            if (w_dom.find(n->info) == w_dom.end() || w == n->info){
+                origin.emplace(w);
+            }
+        }
+    }
+
+    DF_array[n->info] = origin;
 }
 
 void computeDF(GRAPH::Graph<LLVMIR::L_block*>& bg, GRAPH::Node<LLVMIR::L_block*>* r) {
-    //   Todo
+    revers_graph.clear();
+    for (int i = 0; i < bg.nodecount; i++){
+        if (!bg.mynodes[i]){
+            continue;
+        }
+        unordered_set<L_block*> origin;
+        revers_graph[bg.mynodes[i]->info] = bg.mynodes[i];
+        DF_array[bg.mynodes[i]->info] = origin;
+    }
+
+    for (int i = 1; i < bg.nodecount; i++){
+        if (!bg.mynodes[i]){
+            continue;
+        }
+        computeBlcokDF(bg, bg.mynodes[i]);
+    }
+
+    //std::cout<<"DF finish"<<std::endl;
+    printf_DF();
+
 }
 
 // 只对标量做
 void Place_phi_fu(GRAPH::Graph<LLVMIR::L_block*>& bg, L_func* fun) {
-    //   Todo
+    // 创建block -> index的映射
+    unordered_map<L_block*, int> block2index;
+    for (int i = 0; i < bg.nodecount; i++){
+        if (!bg.mynodes[i]){
+            continue;
+        }
+        block2index[bg.mynodes[i]->info] = i;
+    }
+    
+    //step 1
+    unordered_map<Temp_temp*, unordered_set<L_block*>> def_sites;
+    for (int i = 0; i < bg.nodecount; i++){
+        if (!bg.mynodes[i]){
+            continue;
+        }
+        unordered_set<L_block*> def_site;
+        for(auto& def_a: FG_def(bg.mynodes[i])){
+            if (def_sites.find(def_a) == def_sites.end()){
+                def_sites[def_a] = def_site;
+            }
+            if (def_sites[def_a].find(bg.mynodes[i]->info) == def_site.end()){
+                def_sites[def_a].emplace(bg.mynodes[i]->info);
+            }
+        }
+    }
+
+
+    for (auto& temp_pair: def_sites){
+        unordered_set<L_block*> w = temp_pair.second;
+        unordered_set<L_block*> f;
+        while (!w.empty()){
+            L_block* x = *w.begin();
+            w.erase(x);
+            unordered_set<L_block*> df_x = DF_array[x];
+            
+            for(auto& y: df_x){
+                int node_index = block2index[y];
+                TempSet_ y_in = FG_In(bg.mynodes[node_index]);
+                if (f.find(y) == f.end() && y_in.find(temp_pair.first)!= y_in.end()){
+                    // add phi
+                    int y_index = block2index[y];
+                    AS_operand* dst = AS_Operand_Temp(temp_pair.first);
+                    std::vector<std::pair<AS_operand*,Temp_label*>> phis;
+                    std::pair<AS_operand*,Temp_label*> new_phi_src;
+                    for(auto& pred: bg.mynodes[y_index]->preds){
+                        new_phi_src = make_pair(dst, bg.mynodes[pred]->info->label);
+                        phis.push_back(new_phi_src);
+                    }
+                    auto it = y->instrs.begin();
+                    it++;
+                    y->instrs.insert(it, L_Phi(dst, phis));
+
+                    //f and w update
+                    f.emplace(y);
+                    if (w.find(y) == w.end()){
+                        w.emplace(y);
+                    }
+                }
+            }
+        }
+    }
+    //std::cout<<"place phi finished"<<std::endl;
 }
 
 static list<AS_operand**> get_def_int_operand(LLVMIR::L_stm* stm) {
@@ -164,10 +564,124 @@ static list<AS_operand**> get_use_int_operand(LLVMIR::L_stm* stm) {
     return ret2;
 }
 
-static void Rename_temp(GRAPH::Graph<LLVMIR::L_block*>& bg, GRAPH::Node<LLVMIR::L_block*>* n, unordered_map<Temp_temp*, stack<Temp_temp*>>& Stack) {
-   //   Todo
+static void Rename_temp(GRAPH::Graph<LLVMIR::L_block*>& bg, GRAPH::Node<LLVMIR::L_block*>* n, unordered_map<Temp_temp*, stack<Temp_temp*>>& Stack,  unordered_map<Temp_temp*, int>& Count) {
+    // 创建block -> index的映射
+    unordered_map<L_block*, int> block2index;
+    for (int i = 0; i < bg.nodecount; i++){
+        if (!bg.mynodes[i]){
+            continue;
+        }
+        block2index[bg.mynodes[i]->info] = i;
+    }
+    // 处理前保留原def的temp
+    unordered_map<Temp_temp*, int> origin_def_times;
+
+    // 语句处理;
+    for (auto& stm: n->info->instrs){
+        // 先处理非phi的use: 存在i = i+1 的情况
+        if (stm->type != L_StmKind::T_PHI){
+            for (auto use_operand: get_use_int_operand(stm)){
+                Temp_temp* new_temp = Stack[(*use_operand)->u.TEMP].top();
+                *use_operand = AS_Operand_Temp(new_temp);
+            }
+        }
+        // 处理def
+        for (auto def_operand: get_def_int_operand(stm)){
+            Temp_temp* new_temp = Temp_newtemp_int();
+            Stack[(*def_operand)->u.TEMP].push(new_temp);
+            if (origin_def_times.find((*def_operand)->u.TEMP) == origin_def_times.end()){
+                origin_def_times[(*def_operand)->u.TEMP] = 1;
+            }
+            else{
+                origin_def_times[(*def_operand)->u.TEMP] += 1;
+            }
+            
+            *def_operand = AS_Operand_Temp(new_temp);
+        }
+    }
+
+    //std::cout<<"stmt finished"<<std::endl;
+
+    /*
+    ofstream out;
+    out.open("./tests/block/"+n->info->label->name + ".ll");
+    printL_block(out,n->info);
+    out.close();
+    */
+
+    
+    // 后继处理
+    for (auto& succ: n->succs){
+        int j = 0;
+        for (auto& pred: bg.mynodes[succ]->preds){
+            if (n->mykey == pred){
+                break;
+            }
+            j++;
+        }
+        for (auto& stm: bg.mynodes[succ]->info->instrs){
+            if (stm->type == L_StmKind::T_PHI){
+                if (stm->u.PHI->phis[j].second == n->info->label){
+                    stm->u.PHI->phis[j] = make_pair(AS_Operand_Temp(Stack[stm->u.PHI->phis[j].first->u.TEMP].top()),n->info->label);
+                }
+            }
+        }
+    }
+
+    //std::cout<<"succ finished"<<std::endl;
+
+    // 处理子节点
+    for (auto& son: tree_dominators[n->info].succs){
+        int son_index = block2index[son];
+        Rename_temp(bg, bg.mynodes[son_index], Stack, Count);
+    }
+    
+    // pop出这个block压入的v
+    for (auto temp_pair: origin_def_times){
+        for (int i = 0; i<temp_pair.second; i++){
+            Stack[temp_pair.first].pop();
+        }
+        
+    }
+    
 }
 
 void Rename(GRAPH::Graph<LLVMIR::L_block*>& bg) {
-   //   Todo
+    // 初始化set
+    TempSet_ temp_list_def;
+    TempSet_ temp_list_use;
+    int count = 0;
+    unordered_map<Temp_temp*, stack<Temp_temp*>> Stack;
+    unordered_map<Temp_temp*, int> Count;
+
+    for (int i = 0; i < bg.nodecount; i++){
+        if (!bg.mynodes[i]){
+            continue;
+        }
+        temp_list_def = FG_def(bg.mynodes[i]);
+        temp_list_use = FG_use(bg.mynodes[i]);
+        for (auto& temp_def: temp_list_def){
+            if (Stack.find(temp_def) == Stack.end()){
+                count = 0;
+                Count[temp_def] = count;
+                stack<Temp_temp*> stack_empty;
+                stack_empty.emplace(temp_def);
+                Stack[temp_def] = stack_empty;
+            }
+        }
+
+        for (auto& temp_use: temp_list_use){
+            if (Stack.find(temp_use) == Stack.end()){
+                count = 0;
+                Count[temp_use] = count;
+                stack<Temp_temp*> stack_empty;
+                stack_empty.emplace(temp_use);
+                Stack[temp_use] = stack_empty;
+            }
+        }
+    }
+    
+
+    Rename_temp(bg, bg.mynodes[0], Stack, Count);
+    //std::cout<<"rename finish"<<std::endl;
 }
