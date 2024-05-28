@@ -51,7 +51,22 @@ int getMemLength(TempDef &members)
 }
 void structLayoutInit(vector<L_def *> &defs)
 {
-    // ToDo:计算结构体各个位置的偏移
+    for (const auto &def: defs)
+    {
+        if (def->kind == L_DefKind::SRT)
+        {
+            string name = def->u.SRT->name;
+            int size = 0;
+            std::vector<int> offset;
+            for (int i = 0; i < def->u.SRT->members.size(); i++)
+            {
+                offset.push_back(size);
+                size += getMemLength(def->u.SRT->members[i]);
+            }
+            structLayout[name] = new StructDef(offset, size);
+        }
+    }
+    
 }
 
 void set_stack(L_func &func)
