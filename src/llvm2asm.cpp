@@ -409,7 +409,10 @@ void llvm2asmGlobal(vector<AS_global *> &globals, L_def &def)
     {
     case L_DefKind::GLOBAL:
     {
-        //ToDo
+        AS_label* label = new AS_label(def.u.GLOBAL->name);
+        // 这里init？
+        AS_global* new_global = new AS_global(label, def.u.GLOBAL->init[0], def.u.GLOBAL->def.len);
+        globals.push_back(new_global);
         break;
     }
     case L_DefKind::FUNC:
