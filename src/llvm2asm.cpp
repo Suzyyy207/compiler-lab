@@ -73,6 +73,27 @@ void set_stack(L_func &func)
 {
     stack_frame = 0;
     // ToDo:为函数局部变量分配内存，同时记录相对于fp的偏移
+    for(auto &b: func.blocks){
+        for (auto &s: b->instrs){
+            if (s->type == L_StmKind::T_ALLOCA){
+                auto alloca = s->u.ALLOCA->dst->u.TEMP;
+                if (alloca->type == TempType::INT_PTR){
+                    stack_frame += max(INT_LENGTH, INT_LENGTH * alloca->len);
+                    fpOffset.emplace(alloca->num, new AS_address(new AS_reg(AS_type::Xn, XnFP), -stack_frame));
+                }
+                else if(alloca->type == TempType::STRUCT_PTR){
+                    int size = structLayout[alloca->structname]->size;
+                    stack_frame += max(size, size * alloca->len);
+                    fpOffset.emplace(alloca->num, new AS_address(new AS_reg(AS_type::Xn, XnFP), -stack_frame));
+                }
+                else if(alloca->type == TempType::STRUCT_TEMP){
+                    int size = structLayout[alloca->structname]->size;
+                    stack_frame += size;
+                    fpOffset.emplace(alloca->num, new AS_address(new AS_reg(AS_type::Xn, XnFP), -stack_frame));
+                }
+            }
+        }
+    }
 
     stack_frame = ((stack_frame + 15) >> 4) << 4;
 }
@@ -410,8 +431,21 @@ void llvm2asmGlobal(vector<AS_global *> &globals, L_def &def)
     case L_DefKind::GLOBAL:
     {
         AS_label* label = new AS_label(def.u.GLOBAL->name);
-        // 这里init？
-        AS_global* new_global = new AS_global(label, def.u.GLOBAL->init[0], def.u.GLOBAL->def.len);
+        AS_global* new_global;
+        auto temp = def.u.GLOBAL->def;
+        if (temp.kind == TempType::INT_TEMP){
+            new_global = new AS_global(label, def.u.GLOBAL->init[0], 1);
+        }
+        else if (temp.kind == TempType::STRUCT_TEMP){
+            new_global = new AS_global(label, 0, structLayout[def.u.GLOBAL->name]->size);
+        }
+        else if (temp.kind == TempType::INT_PTR){
+            new_global = new AS_global(label, 0, INT_LENGTH * temp.len);
+        }
+        else{
+            new_global = new AS_global(label, 0, structLayout[def.u.GLOBAL->name]->size * temp.len);
+        }
+        
         globals.push_back(new_global);
         break;
     }
