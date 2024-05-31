@@ -128,16 +128,16 @@ void llvm2asmBinop(list<AS_stm *> &as_list, L_stm *binop_stm)
     AS_reg* dst = new AS_reg(AS_type::Xn, binop_stm->u.BINOP->dst->u.TEMP->num);
 
     if (binop_stm->u.BINOP->left->kind == OperandKind::TEMP){
-        left = new AS_reg(AS_type::Xn, binop_stm->u.BINOP->left->u.TEMP->num);
+        getCalls(left, binop_stm->u.BINOP->left, as_list);
     }
     else if(binop_stm->u.BINOP->left->kind == OperandKind::ICONST){
         left = new AS_reg(AS_type::IMM, binop_stm->u.BINOP->left->u.ICONST);
     }
     if (binop_stm->u.BINOP->right->kind == OperandKind::TEMP){
-        left = new AS_reg(AS_type::Xn, binop_stm->u.BINOP->right->u.TEMP->num);
+        getCalls(right, binop_stm->u.BINOP->right, as_list);
     }
     else if(binop_stm->u.BINOP->right->kind == OperandKind::ICONST){
-        left = new AS_reg(AS_type::IMM, binop_stm->u.BINOP->right->u.ICONST);
+        right = new AS_reg(AS_type::IMM, binop_stm->u.BINOP->right->u.ICONST);
     }
     
     switch (binop_stm->u.BINOP->op)
@@ -179,7 +179,18 @@ void llvm2asmCmp(list<AS_stm *> &as_list, L_stm *cmp_stm)
 }
 void llvm2asmMov(list<AS_stm *> &as_list, L_stm *mov_stm)
 {
+    AS_reg* src;
+    AS_reg* dst;
+    if (mov_stm->u.MOVE->src->kind == OperandKind::TEMP){
+        getCalls(src, mov_stm->u.MOVE->src, as_list);
+    }
+    else if(mov_stm->u.MOVE->src->kind == OperandKind::ICONST){
+        src = new AS_reg(AS_type::IMM, mov_stm->u.MOVE->src->u.ICONST);
+    }
 
+    getCalls(src, mov_stm->u.MOVE->dst, as_list);
+    
+    as_list.emplace_back(AS_mov(src, dst));
 }
 void llvm2asmCJmp(list<AS_stm *> &as_list, L_stm *cjmp_stm)
 {
