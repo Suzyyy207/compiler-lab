@@ -101,6 +101,20 @@ void set_stack(L_func &func)
 void new_frame(list<AS_stm *> &as_list, L_func &func)
 {
     // ToDo:在刚刚进入函数的时候，需要调整sp，并将函数参数移入虚拟寄存器
+    as_list.emplace_back(AS_Binop(AS_binopkind::SUB_, sp, new AS_reg(AS_type::IMM, stack_frame), sp));
+
+    for(int i=0; i < 8 && i < func.args.size(); i++){
+        as_list.emplace_back(AS_Mov(new AS_reg(AS_type::Xn, i), new AS_reg(AS_type::Xn, func.args[i]->num)));
+    }
+
+    int offset = 0;
+    for (int i = 8; i < func.args.size(); i++){
+        auto temp = new AS_reg(AS_type::Xn, Temp_newtemp_int()->num);
+        as_list.emplace_back(AS_ldr(temp, new AS_reg(AS_type::ADR, new AS_address(new AS_reg(AS_type::Xn, XnFP), offset))));
+        offset += INT_LENGTH;
+        as_list.emplace_back(AS_Mov(temp,new AS_reg(AS_type::Xn, func.args[i]->num)));
+    }
+    
 }
 
 void free_frame(list<AS_stm *> &as_list)
