@@ -123,7 +123,44 @@ void free_frame(list<AS_stm *> &as_list)
 }
 void llvm2asmBinop(list<AS_stm *> &as_list, L_stm *binop_stm)
 {
+    AS_reg* left;
+    AS_reg* right;
+    AS_reg* dst = new AS_reg(AS_type::Xn, binop_stm->u.BINOP->dst->u.TEMP->num);
 
+    if (binop_stm->u.BINOP->left->kind == OperandKind::TEMP){
+        left = new AS_reg(AS_type::Xn, binop_stm->u.BINOP->left->u.TEMP->num);
+    }
+    else if(binop_stm->u.BINOP->left->kind == OperandKind::ICONST){
+        left = new AS_reg(AS_type::IMM, binop_stm->u.BINOP->left->u.ICONST);
+    }
+    if (binop_stm->u.BINOP->right->kind == OperandKind::TEMP){
+        left = new AS_reg(AS_type::Xn, binop_stm->u.BINOP->right->u.TEMP->num);
+    }
+    else if(binop_stm->u.BINOP->right->kind == OperandKind::ICONST){
+        left = new AS_reg(AS_type::IMM, binop_stm->u.BINOP->right->u.ICONST);
+    }
+    
+    switch (binop_stm->u.BINOP->op)
+    {
+    case L_binopKind::T_plus:{
+        as_list.emplace_back(new AS_binop(AS_binopkind::ADD_, left, right ,dst));
+        break;
+    }
+    case L_binopKind::T_minus:{
+        as_list.emplace_back(new AS_binop(AS_binopkind::SUB_, left, right ,dst));
+        break;
+    }
+    case L_binopKind::T_mul:{
+        as_list.emplace_back(new AS_binop(AS_binopkind::MUL_, left, right ,dst));
+        break;
+    }
+    case L_binopKind::T_div:{
+        as_list.emplace_back(new AS_binop(AS_binopkind::SDIV_, left, right ,dst));
+        break;
+    }
+    default:
+        break;
+    }
 }
 
 void llvm2asmLoad(list<AS_stm *> &as_list, L_stm *load_stm)
