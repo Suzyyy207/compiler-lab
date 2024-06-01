@@ -183,7 +183,31 @@ void llvm2asmLoad(list<AS_stm *> &as_list, L_stm *load_stm)
 
 void llvm2asmStore(list<AS_stm *> &as_list, L_stm *store_stm)
 {
+    auto str_tmp = store_stm->u.STORE;
+    AS_reg *ptr;
+    AS_reg *src;
 
+    if (str_tmp->src->kind == OperandKind::ICONST){
+        int src_num = Temp_newtemp_int()->num;
+        src = new AS_reg(AS_type::Xn, src_num);
+        as_list.emplace_back(AS_mov(new AS_reg(AS_type::IMM, str_tmp->src->u.ICONST),src));
+    }
+    else{
+        src = new AS_reg(AS_type::Xn, str_tmp->src->u.TEMP->num);
+    }
+    
+    if (str_tmp->ptr->kind == OperandKind::NAME){
+        string global_name = str_tmp->ptr->u.NAME->name->name;
+        int ptr_num = Temp_newtemp_int()->num;
+        ptr = new AS_reg(AS_type::Xn, ptr_num);
+        as_list.emplace_back(AS_adr(new AS_label(global_name), ptr));
+    }
+    else{
+        ptr = new AS_reg(AS_type::Xn, str_tmp->ptr->u.TEMP->num);
+    }
+
+    as_list.emplace_back(AS_mov(src, ptr));
+    
 }
 
 void llvm2asmCmp(list<AS_stm *> &as_list, L_stm *cmp_stm)
