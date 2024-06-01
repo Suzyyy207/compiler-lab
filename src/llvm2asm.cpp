@@ -128,13 +128,13 @@ void llvm2asmBinop(list<AS_stm *> &as_list, L_stm *binop_stm)
     AS_reg* dst = new AS_reg(AS_type::Xn, binop_stm->u.BINOP->dst->u.TEMP->num);
 
     if (binop_stm->u.BINOP->left->kind == OperandKind::TEMP){
-        getCalls(left, binop_stm->u.BINOP->left, as_list);
+        left = new AS_reg(AS_type::Xn, binop_stm->u.BINOP->left->u.TEMP->num);
     }
     else if(binop_stm->u.BINOP->left->kind == OperandKind::ICONST){
         left = new AS_reg(AS_type::IMM, binop_stm->u.BINOP->left->u.ICONST);
     }
     if (binop_stm->u.BINOP->right->kind == OperandKind::TEMP){
-        getCalls(right, binop_stm->u.BINOP->right, as_list);
+        right = new AS_reg(AS_type::Xn, binop_stm->u.BINOP->right->u.TEMP->num);
     }
     else if(binop_stm->u.BINOP->right->kind == OperandKind::ICONST){
         right = new AS_reg(AS_type::IMM, binop_stm->u.BINOP->right->u.ICONST);
@@ -180,15 +180,13 @@ void llvm2asmCmp(list<AS_stm *> &as_list, L_stm *cmp_stm)
 void llvm2asmMov(list<AS_stm *> &as_list, L_stm *mov_stm)
 {
     AS_reg* src;
-    AS_reg* dst;
+    AS_reg* dst = new AS_reg(AS_type::Xn, mov_stm->u.MOVE->dst->u.TEMP->num);
     if (mov_stm->u.MOVE->src->kind == OperandKind::TEMP){
-        getCalls(src, mov_stm->u.MOVE->src, as_list);
+        src = new AS_reg(AS_type::Xn, mov_stm->u.MOVE->src->u.TEMP->num);
     }
     else if(mov_stm->u.MOVE->src->kind == OperandKind::ICONST){
         src = new AS_reg(AS_type::IMM, mov_stm->u.MOVE->src->u.ICONST);
     }
-
-    getCalls(src, mov_stm->u.MOVE->dst, as_list);
     
     as_list.emplace_back(AS_mov(src, dst));
 }
@@ -335,6 +333,16 @@ void load_register(list<AS_stm *> &as_list)
 void getCalls(AS_reg *&op_reg, AS_operand *as_operand, list<AS_stm *> &as_list)
 {
     //ToDo:一个工具函数，应该实现将局部变量（这里应该只会出现数组、结构体地址）、全局变量、临时变量加载到目标op_reg等待使用
+    if (as_operand->kind == OperandKind::TEMP) {
+        // 如果是临时变量，根据临时变量的类型和分配的存储位置，从栈或寄存器加载
+        int temp_num = as_operand->u.TEMP->num;
+        // 临时变量在寄存器中
+        op_reg = new AS_reg(AS_type::Xn, temp_num);
+    } else if (as_operand->kind == OperandKind::ICONST) {
+        op_reg = new AS_reg(AS_type::IMM, as_operand->u.ICONST);
+    }else if (as_operand->kind == OperandKind::NAME) {
+        assert(-1);
+    }
 }
 void llvm2asmVoidCall(list<AS_stm *> &as_list, L_stm *call)
 {
