@@ -165,7 +165,20 @@ void llvm2asmBinop(list<AS_stm *> &as_list, L_stm *binop_stm)
 
 void llvm2asmLoad(list<AS_stm *> &as_list, L_stm *load_stm)
 {
-
+    auto load_tmp = load_stm->u.LOAD;
+    AS_reg *ptr;
+    AS_reg *dst = new AS_reg(AS_type::Xn, load_tmp->dst->u.TEMP->num);
+    if (load_tmp->ptr->kind == OperandKind::NAME){
+        string global_name = load_tmp->ptr->u.NAME->name->name;
+        int ptr_num = Temp_newtemp_int()->num;
+        ptr = new AS_reg(AS_type::Xn, ptr_num);
+        as_list.emplace_back(AS_adr(new AS_label(global_name), ptr));
+    }
+    else{
+        ptr = new AS_reg(AS_type::Xn, load_tmp->ptr->u.TEMP->num);
+    }
+    
+    as_list.emplace_back(AS_ldr(dst, ptr));
 }
 
 void llvm2asmStore(list<AS_stm *> &as_list, L_stm *store_stm)
