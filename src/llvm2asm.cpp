@@ -329,6 +329,22 @@ int save_register(list<AS_stm *> &as_list)
 void load_register(list<AS_stm *> &as_list)
 {
     //ToDo:从栈中按**顺序**加载保存的寄存器
+    as_list.push_back(AS_Stp(new AS_reg(AS_type::Xn, XnFP), new AS_reg(AS_type::Xn, XXnl), sp, 2 * INT_LENGTH));
+    auto last = allocateRegs.end();
+    if (allocateRegs.size() % 2 != 0){
+        as_list.push_back(AS_Str(new AS_reg(AS_type::Xn, *last), sp, -INT_LENGTH));
+        --last;
+    }
+
+    for (auto it = last; it != allocateRegs.begin(); it--)
+    {
+        int second = *it;
+        --it;
+        int first = *it;
+        as_list.push_back(AS_Stp(new AS_reg(AS_type::Xn, first), new AS_reg(AS_type::Xn, second), sp, 2 * INT_LENGTH));
+    }
+    
+    
 }
 void getCalls(AS_reg *&op_reg, AS_operand *as_operand, list<AS_stm *> &as_list)
 {
