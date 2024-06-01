@@ -110,7 +110,7 @@ void new_frame(list<AS_stm *> &as_list, L_func &func)
     int offset = 0;
     for (int i = 8; i < func.args.size(); i++){
         auto temp = new AS_reg(AS_type::Xn, Temp_newtemp_int()->num);
-        as_list.emplace_back(AS_ldr(temp, new AS_reg(AS_type::ADR, new AS_address(new AS_reg(AS_type::Xn, XnFP), offset))));
+        as_list.emplace_back(AS_Ldr(temp, new AS_reg(AS_type::ADR, new AS_address(new AS_reg(AS_type::Xn, XnFP), offset))));
         offset += INT_LENGTH;
         as_list.emplace_back(AS_Mov(temp,new AS_reg(AS_type::Xn, func.args[i]->num)));
     }
@@ -143,19 +143,19 @@ void llvm2asmBinop(list<AS_stm *> &as_list, L_stm *binop_stm)
     switch (binop_stm->u.BINOP->op)
     {
     case L_binopKind::T_plus:{
-        as_list.emplace_back(new AS_binop(AS_binopkind::ADD_, left, right ,dst));
+        as_list.emplace_back(AS_Binop(AS_binopkind::ADD_, left, right ,dst));
         break;
     }
     case L_binopKind::T_minus:{
-        as_list.emplace_back(new AS_binop(AS_binopkind::SUB_, left, right ,dst));
+        as_list.emplace_back(AS_Binop(AS_binopkind::SUB_, left, right ,dst));
         break;
     }
     case L_binopKind::T_mul:{
-        as_list.emplace_back(new AS_binop(AS_binopkind::MUL_, left, right ,dst));
+        as_list.emplace_back(AS_Binop(AS_binopkind::MUL_, left, right ,dst));
         break;
     }
     case L_binopKind::T_div:{
-        as_list.emplace_back(new AS_binop(AS_binopkind::SDIV_, left, right ,dst));
+        as_list.emplace_back(AS_Binop(AS_binopkind::SDIV_, left, right ,dst));
         break;
     }
     default:
@@ -172,13 +172,13 @@ void llvm2asmLoad(list<AS_stm *> &as_list, L_stm *load_stm)
         string global_name = load_tmp->ptr->u.NAME->name->name;
         int ptr_num = Temp_newtemp_int()->num;
         ptr = new AS_reg(AS_type::Xn, ptr_num);
-        as_list.emplace_back(AS_adr(new AS_label(global_name), ptr));
+        as_list.emplace_back(AS_Adr(new AS_label(global_name), ptr));
     }
     else{
         ptr = new AS_reg(AS_type::Xn, load_tmp->ptr->u.TEMP->num);
     }
     
-    as_list.emplace_back(AS_ldr(dst, ptr));
+    as_list.emplace_back(AS_Ldr(dst, ptr));
 }
 
 void llvm2asmStore(list<AS_stm *> &as_list, L_stm *store_stm)
@@ -200,19 +200,71 @@ void llvm2asmStore(list<AS_stm *> &as_list, L_stm *store_stm)
         string global_name = str_tmp->ptr->u.NAME->name->name;
         int ptr_num = Temp_newtemp_int()->num;
         ptr = new AS_reg(AS_type::Xn, ptr_num);
-        as_list.emplace_back(AS_adr(new AS_label(global_name), ptr));
+        as_list.emplace_back(AS_Adr(new AS_label(global_name), ptr));
     }
     else{
         ptr = new AS_reg(AS_type::Xn, str_tmp->ptr->u.TEMP->num);
     }
 
-    as_list.emplace_back(AS_mov(src, ptr));
+    as_list.emplace_back(AS_Mov(src, ptr));
     
 }
 
 void llvm2asmCmp(list<AS_stm *> &as_list, L_stm *cmp_stm)
 {
+    auto cmp_tmp = cmp_stm->u.CMP;
+    AS_reg* left;
+    AS_reg* right;
 
+    if (cmp_tmp->left->kind == OperandKind::ICONST){
+        int left_num = Temp_newtemp_int()->num;
+        left = new AS_reg(AS_type::Xn, left_num);
+        as_list.emplace_back(AS_Mov(new AS_reg(AS_type::IMM, cmp_tmp->left->u.ICONST),left));
+    }
+    else{
+        left = new AS_reg(AS_type::Xn, cmp_tmp->left->u.TEMP->num);
+    }
+
+    if (cmp_tmp->right->kind == OperandKind::ICONST){
+        int right_num = Temp_newtemp_int()->num;
+        right = new AS_reg(AS_type::Xn, right_num);
+        as_list.emplace_back(AS_Mov(new AS_reg(AS_type::IMM, cmp_tmp->right->u.ICONST),right));
+    }
+    else{
+        right = new AS_reg(AS_type::Xn, cmp_tmp->right->u.TEMP->num);
+    }
+
+    switch (cmp_tmp->op)
+    {
+    case L_relopKind::T_eq:{
+        condMap[cmp_tmp->dst->u.TEMP->num] = AS_relopkind::EQ_;
+        break;
+    }
+    case L_relopKind::T_ge:{
+        condMap[cmp_tmp->dst->u.TEMP->num] = AS_relopkind::GE_;
+        break;
+    }
+    case L_relopKind::T_gt:{
+        condMap[cmp_tmp->dst->u.TEMP->num] = AS_relopkind::GT_;
+        break;
+    }
+    case L_relopKind::T_le:{
+        condMap[cmp_tmp->dst->u.TEMP->num] = AS_relopkind::LE_;
+        break;
+    }
+    case L_relopKind::T_lt:{
+        condMap[cmp_tmp->dst->u.TEMP->num] = AS_relopkind::LT_;
+        break;
+    }
+    case L_relopKind::T_ne:{
+        condMap[cmp_tmp->dst->u.TEMP->num] = AS_relopkind::NE_;
+        break;
+    }
+    default:
+        break;
+    }
+    
+    as_list.emplace_back(AS_Cmp(left, right));
 }
 void llvm2asmMov(list<AS_stm *> &as_list, L_stm *mov_stm)
 {
@@ -225,11 +277,12 @@ void llvm2asmMov(list<AS_stm *> &as_list, L_stm *mov_stm)
         src = new AS_reg(AS_type::IMM, mov_stm->u.MOVE->src->u.ICONST);
     }
     
-    as_list.emplace_back(AS_mov(src, dst));
+    as_list.emplace_back(AS_Mov(src, dst));
 }
 void llvm2asmCJmp(list<AS_stm *> &as_list, L_stm *cjmp_stm)
 {
-
+    as_list.emplace_back(AS_BCond(condMap[cjmp_stm->u.CJUMP->dst->u.TEMP->num] ,new AS_label(cjmp_stm->u.CJUMP->true_label->name)));
+    as_list.emplace_back(AS_B(new AS_label(cjmp_stm->u.CJUMP->false_label->name)));
 }
 
 void llvm2asmRet(list<AS_stm *> &as_list, L_stm *ret_stm)
