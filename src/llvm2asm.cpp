@@ -306,7 +306,66 @@ void llvm2asmRet(list<AS_stm *> &as_list, L_stm *ret_stm)
 
 void llvm2asmGep(list<AS_stm *> &as_list, L_stm *gep_stm)
 {
+    // 计算数组单位大小，并将其移入size_reg
+    auto gep_tmp = gep_stm->u.GEP;
+    int size;
+    AS_reg* size_reg;
+    if (gep_tmp->base_ptr->kind == OperandKind::NAME){
+        if (gep_tmp->base_ptr->u.NAME->type == TempType::INT_PTR){
+            size = 8;
+        }
+        else{
+            string struct_name = gep_tmp->base_ptr->u.NAME->structname;
+            size = structLayout[struct_name]->size;
+        }
+    }
+    else if(gep_tmp->base_ptr->kind == OperandKind::TEMP){
+        if (gep_tmp->base_ptr->u.TEMP->type == TempType::INT_PTR){
+            size = 8;
+        }
+        else{
+            string struct_name = gep_tmp->base_ptr->u.TEMP->structname;
+            size = structLayout[struct_name]->size;
+        }
+    }
 
+    size_reg = new AS_reg(AS_type::Xn, Temp_newtemp_int()->num);
+    as_list.emplace_back(AS_Mov(new AS_reg(AS_type::IMM, size), size_reg));
+
+    //计算偏移量，并记录在index_reg
+    AS_reg* index_reg;
+    if (gep_tmp->index->kind == OperandKind::TEMP){
+        index_reg = new AS_reg(AS_type::Xn, gep_tmp->index->u.TEMP->num);
+    }
+    else if(gep_tmp->index->kind == OperandKind::ICONST){
+        index_reg = new AS_reg(AS_type::Xn, Temp_newtemp_int()->num);
+        as_list.emplace_back(AS_Mov(new AS_reg(AS_type::IMM, gep_tmp->index->u.ICONST), index_reg));
+    }
+
+    //通过乘法，得到offset
+    AS_reg* offset_reg = new AS_reg(AS_type::Xn, Temp_newtemp_int()->num);
+    as_list.emplace_back(AS_Binop(AS_binopkind::MUL_, size_reg, index_reg, offset_reg));
+
+    //计算基地址
+    AS_reg* base_reg;
+    if (gep_tmp->base_ptr->kind == OperandKind::NAME){
+        base_reg = new AS_reg(AS_type::Xn, Temp_newtemp_int()->num);
+        as_list.emplace_back(AS_Adr(new AS_label(gep_tmp->base_ptr->u.NAME->name->name), base_reg));
+    }
+    else if(gep_tmp->base_ptr->kind == OperandKind::TEMP){
+        if (fpOffset.find(gep_tmp->base_ptr->u.TEMP->num) == fpOffset.end()){
+            base_reg = new AS_reg(AS_type::Xn, gep_tmp->base_ptr->u.TEMP->num);
+        }
+        else{
+            AS_address* address = fpOffset[gep_tmp->base_ptr->u.TEMP->num];
+            base_reg = new AS_reg(AS_type::Xn, Temp_newtemp_int()->num);
+            as_list.emplace_back(AS_Binop(AS_binopkind::ADD_, address->base, new AS_reg(AS_type::IMM, address->imm), base_reg));
+        }
+    }
+
+    //用add得到新地址
+    as_list.emplace_back(AS_Binop(AS_binopkind::ADD_, base_reg, offset_reg, new AS_reg(AS_type::Xn, gep_tmp->new_ptr->u.TEMP->num)));
+    
 }
 
 void llvm2asmStm(list<AS_stm *> &as_list, L_stm &stm, L_func &func)
