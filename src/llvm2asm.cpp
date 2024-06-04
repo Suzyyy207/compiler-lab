@@ -287,7 +287,21 @@ void llvm2asmCJmp(list<AS_stm *> &as_list, L_stm *cjmp_stm)
 
 void llvm2asmRet(list<AS_stm *> &as_list, L_stm *ret_stm)
 {
+    auto ret_tmp = ret_stm->u.RETURN->ret;
+    AS_reg* ret;
+    if (ret_tmp){
+        if (ret_tmp->kind == OperandKind::ICONST){
+            ret = new AS_reg(AS_type::Xn, Temp_newtemp_int()->num);
+            as_list.emplace_back(AS_Mov(new AS_reg(AS_type::IMM, ret_tmp->u.ICONST), ret));
+        }
+        else{
+            ret = new AS_reg(AS_type::Xn, ret_tmp->u.TEMP->num);
+        }
+    }
 
+    as_list.emplace_back(AS_Mov(ret, new AS_reg(AS_type::Xn, XXnret)));
+    as_list.emplace_back(AS_Mov(new AS_reg(AS_type::Xn, XnFP), sp));
+    as_list.emplace_back(AS_Ret());
 }
 
 void llvm2asmGep(list<AS_stm *> &as_list, L_stm *gep_stm)
