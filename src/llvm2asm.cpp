@@ -646,7 +646,19 @@ AS_func *llvm2asmFunc(L_func &func)
             }
         }
     }
-    //ToDo:处理PHI语句
+    //处理PHI语句
+    for (auto it = phi.begin(); it != phi.end(); it++){
+        auto phi_stm = (*it)->phi;
+        auto phi_label = (*it)->label;
+        AS_reg* dst_reg = new AS_reg(AS_type::Xn, phi_stm->u.PHI->dst->u.TEMP->num);
+        for (auto label = phi_stm->u.PHI->phis.begin(); label != phi_stm->u.PHI->phis.end(); label++){
+            auto block = block_map[(*label).second->name];
+            p->stms.insert(block++, AS_Mov(new AS_reg(AS_type::Xn, (*label).first->u.TEMP->num), dst_reg));
+        }
+        auto phi_block = block_map[phi_label];
+        p->stms.erase(phi_block);
+    }
+    
 
     allocReg(p->stms, func);
     return p;
