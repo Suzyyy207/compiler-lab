@@ -373,4 +373,26 @@ void livenessAnalysis(std::list<InstructionNode *> &nodes, std::list<ASM::AS_stm
     }
 
     // select
+    while (spill_stack.size() > 0){
+        int reg = spill_stack.top();
+        spill_stack.pop();
+        Node<RegInfo>* reg_node = regNodes[reg];
+        // 用regNum和color比较来得到是否着色
+        if (reg_node->info.color == reg_node->info.regNum){
+            std::set<int>can_be_use{9, 10, 11, 12, 13, 14, 15};
+            for (auto neighbor = reg_node->preds.begin(); neighbor != reg_node->preds.end(); neighbor++){
+                if (regNodes[(*neighbor)]->info.color != regNodes[(*neighbor)]->info.regNum){
+                    can_be_use.erase(regNodes[(*neighbor)]->info.regNum);
+                }
+            }
+            for (auto neighbor = reg_node->succs.begin(); neighbor != reg_node->succs.end(); neighbor++){
+                if (regNodes[(*neighbor)]->info.color != regNodes[(*neighbor)]->info.regNum){
+                    can_be_use.erase(regNodes[(*neighbor)]->info.regNum);
+                }
+            }
+            assert(can_be_use.size());
+            reg_node->info.color = *(can_be_use.begin());
+        }
+    }
+    
 }
