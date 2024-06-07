@@ -343,6 +343,140 @@ bool simplify(unordered_map<int, Node<RegInfo> *> regNodes, int K, std::stack<in
 
     return check_spill(regNodes, K);
 }
+
+int deal_node(unordered_map<int, Node<RegInfo> *> regNodes, int reg_num, std::list<ASM::AS_stm *> &as_list, list<ASM::AS_stm *>::iterator stm, int use_def){
+    // 假设函数内更改迭代器有效
+    Node<RegInfo>* reg_node;
+    if (regNodes.find(reg_num) == regNodes.end()){
+        return reg_num;
+    }
+    else{
+        reg_node = regNodes[reg_num];
+        if (!reg_node->info.is_spill){
+            return reg_node->info.color;
+        }
+        else{
+            if (reg_node->info.regNum != XnFP){
+                as_list.insert(stm, AS_Str(new AS_reg(AS_type::Xn, XXn1), new AS_reg(AS_type::SP, -1), -INT_LENGTH));
+                stm++;
+                reg_node->info.regNum = XnFP;
+            }
+            if(use_def == 0){
+                // use
+                as_list.insert(stm, AS_Ldr(new AS_reg(AS_type::Xn, XXn1), new AS_reg(AS_type::SP, -1), -INT_LENGTH));
+                stm++;
+                return XXn1;
+            }
+            else{
+                //def
+                stm++;
+                as_list.insert(stm, AS_Str(new AS_reg(AS_type::Xn, XXn1), new AS_reg(AS_type::SP, -1), -INT_LENGTH));
+                stm--;
+                return XXn1;
+            }
+            
+        }
+    }
+    
+    
+    
+}
+
+void actual_spill(unordered_map<int, Node<RegInfo> *> regNodes, std::list<ASM::AS_stm *> &as_list){
+    for(auto stm=as_list.begin(); stm!=as_list.end(); stm++){
+        switch ((*stm)->type)
+        {
+            case AS_stmkind::ADR:
+            {
+                int color = deal_node(regNodes, (*stm)->u.ADR->reg->u.offset, as_list, stm, 0);
+                (*stm)->u.ADR->reg->u.offset = color;
+                break;
+            }
+            case AS_stmkind::BINOP:
+            {
+                int color = deal_node(regNodes, (*stm)->u.BINOP->left->u.offset, as_list, stm, 0);
+                (*stm)->u.BINOP->left->u.offset = color;
+                color = deal_node(regNodes, (*stm)->u.BINOP->right->u.offset, as_list, stm, 0);
+                (*stm)->u.BINOP->right->u.offset = color;
+                color = deal_node(regNodes, (*stm)->u.BINOP->dst->u.offset, as_list, stm, 1);
+                (*stm)->u.BINOP->dst->u.offset = color;
+                break;
+            }
+            case AS_stmkind::CMP:
+            {
+                int color = deal_node(regNodes, (*stm)->u.CMP->left->u.offset, as_list, stm, 0);
+                (*stm)->u.CMP->left->u.offset = color;
+                color = deal_node(regNodes, (*stm)->u.CMP->right->u.offset, as_list, stm, 0);
+                (*stm)->u.CMP->right->u.offset = color;
+                break;
+            }
+            case AS_stmkind::LDP:
+            {
+                int color = deal_node(regNodes, (*stm)->u.LDP->dst1->u.offset, as_list, stm, 1);
+                (*stm)->u.LDP->dst1->u.offset = color;
+                color = deal_node(regNodes, (*stm)->u.LDP->dst2->u.offset, as_list, stm, 1);
+                (*stm)->u.LDP->dst2->u.offset = color;
+                color = deal_node(regNodes, (*stm)->u.LDP->ptr->u.offset, as_list, stm, 0);
+                (*stm)->u.LDP->ptr->u.offset = color;
+                break;
+            }
+            case AS_stmkind::LDR:
+            {
+                int color = deal_node(regNodes, (*stm)->u.LDR->dst->u.offset, as_list, stm, 1);
+                (*stm)->u.LDR->dst->u.offset = color;
+                color = deal_node(regNodes, (*stm)->u.LDR->ptr->u.offset, as_list, stm, 0);
+                (*stm)->u.LDR->ptr->u.offset = color;
+                break;
+            }
+            case AS_stmkind::MOV:
+            {
+                int color = deal_node(regNodes, (*stm)->u.MOV->dst->u.offset, as_list, stm, 1);
+                (*stm)->u.MOV->dst->u.offset = color;
+                color = deal_node(regNodes, (*stm)->u.MOV->src->u.offset, as_list, stm, 0);
+                (*stm)->u.MOV->src->u.offset = color;
+                break;
+            }
+            case AS_stmkind::MOVZ:
+            {
+                int color = deal_node(regNodes, (*stm)->u.MOVZ->dst->u.offset, as_list, stm, 1);
+                (*stm)->u.MOVZ->dst->u.offset = color;
+                color = deal_node(regNodes, (*stm)->u.MOVZ->src->u.offset, as_list, stm, 0);
+                (*stm)->u.MOVZ->src->u.offset = color;
+                break;
+            }
+            case AS_stmkind::MOVK:
+            {
+                int color = deal_node(regNodes, (*stm)->u.MOVK->dst->u.offset, as_list, stm, 1);
+                (*stm)->u.MOVK->dst->u.offset = color;
+                color = deal_node(regNodes, (*stm)->u.MOVK->src->u.offset, as_list, stm, 0);
+                (*stm)->u.MOVK->src->u.offset = color;
+                break;
+            }
+            case AS_stmkind::STP:
+            {
+                int color = deal_node(regNodes, (*stm)->u.STP->src1->u.offset, as_list, stm, 0);
+                (*stm)->u.STP->src1->u.offset = color;
+                color = deal_node(regNodes, (*stm)->u.STP->src2->u.offset, as_list, stm, 0);
+                (*stm)->u.STP->src2->u.offset = color;
+                color = deal_node(regNodes, (*stm)->u.STP->ptr->u.offset, as_list, stm, 1);
+                (*stm)->u.STP->ptr->u.offset = color;
+                break;
+            }
+            case AS_stmkind::STR:
+            {
+                int color = deal_node(regNodes, (*stm)->u.STR->src->u.offset, as_list, stm, 0);
+                (*stm)->u.STR->src->u.offset = color;
+                color = deal_node(regNodes, (*stm)->u.STR->ptr->u.offset, as_list, stm, 1);
+                (*stm)->u.STR->ptr->u.offset = color;
+                break;
+            }
+            default:
+                break;
+        }
+    }
+}
+
+
 void livenessAnalysis(std::list<InstructionNode *> &nodes, std::list<ASM::AS_stm *> &as_list)
 {
     Graph<RegInfo> interferenceGraph;
@@ -368,6 +502,7 @@ void livenessAnalysis(std::list<InstructionNode *> &nodes, std::list<ASM::AS_stm
                         regNodes[(*neighbor)]->info.degree--;
                     }
                 }
+                break;
             }
         }
     }
@@ -394,5 +529,6 @@ void livenessAnalysis(std::list<InstructionNode *> &nodes, std::list<ASM::AS_stm
             reg_node->info.color = *(can_be_use.begin());
         }
     }
-    
+
+    actual_spill(regNodes, as_list);
 }
