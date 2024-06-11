@@ -88,7 +88,7 @@ enum class AS_stmkind {
     BCOND,
     BL,
     CMP,
-    RET,
+    RETURN,
     ADR,
     LLVMIR
 };
@@ -207,7 +207,7 @@ struct AS_stm {
         AS_bl *BL;
         AS_cmp *CMP;
         
-        AS_ret *RET;
+        AS_ret *RETURN;
         AS_llvmir *LLVMIR;
     } u;
 };

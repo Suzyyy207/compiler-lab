@@ -1,0 +1,43 @@
+dominator tree:
+bb14 :
+
+
+bb1 :
+bb2 
+
+bb13 :
+
+
+bb2 :
+bb3 bb5 
+
+bb5 :
+bb4 
+
+bb4 :
+bb9 
+
+bb12 :
+bb10 
+
+bb3 :
+bb8 bb7 bb6 
+
+bb9 :
+bb11 bb12 
+
+bb11 :
+bb14 bb13 
+
+bb6 :
+
+
+bb7 :
+
+
+bb8 :
+
+
+bb10 :
+
+

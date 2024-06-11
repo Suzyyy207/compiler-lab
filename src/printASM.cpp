@@ -207,7 +207,7 @@ void ASM::printAS_stm(std::ostream &os, AS_stm *stm)
 
         break;
     }
-    case AS_stmkind::RET:
+    case AS_stmkind::RETURN:
     {
         os << "        ret"
            << endl

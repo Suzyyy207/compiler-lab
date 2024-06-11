@@ -1,0 +1,42 @@
+bb1 
+pred  0  
+succ  1  bb2  1  
+bb2 
+pred  2  bb1  1  bb8  1  
+succ  2  bb5  1  bb3  1  
+bb5 
+pred  1  bb2  1  
+succ  2  bb3  1  bb4  1  
+bb3 
+pred  2  bb2  1  bb5  1  
+succ  2  bb6  1  bb7  1  
+bb6 
+pred  1  bb3  1  
+succ  1  bb8  1  
+bb7 
+pred  1  bb3  1  
+succ  1  bb8  1  
+bb8 
+pred  2  bb6  1  bb7  1  
+succ  1  bb2  1  
+bb4 
+pred  1  bb5  1  
+succ  1  bb9  1  
+bb9 
+pred  2  bb4  1  bb10  1  
+succ  2  bb12  1  bb11  1  
+bb12 
+pred  1  bb9  1  
+succ  2  bb10  1  bb11  1  
+bb10 
+pred  1  bb12  1  
+succ  1  bb9  1  
+bb11 
+pred  2  bb9  1  bb12  1  
+succ  2  bb13  1  bb14  1  
+bb13 
+pred  1  bb11  1  
+succ  0  
+bb14 
+pred  1  bb11  1  
+succ  0  

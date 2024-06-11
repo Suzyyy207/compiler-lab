@@ -182,8 +182,8 @@ AS_stm *ASM::AS_Mov(AS_reg *src, AS_reg *dst)
 AS_stm *ASM::AS_Ret()
 {
     auto p = new AS_stm();
-    p->type = AS_stmkind::RET;
-    p->u.RET = new AS_ret();
+    p->type = AS_stmkind::RETURN;
+    p->u.RETURN = new AS_ret();
     return p;
 }
 AS_stm *ASM::AS_Llvmir(std::string _str)

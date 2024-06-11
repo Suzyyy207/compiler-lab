@@ -10,6 +10,7 @@ using namespace GRAPH;
 #include <iostream>
 #include "printASM.h"
 stack<Node<RegInfo> *> reg_stack;
+AS_reg *sp = new AS_reg(AS_type::SP, -1);
 void getAllRegs(AS_stm *stm, vector<AS_reg *> &defs, vector<AS_reg *> &uses)
 {
     switch (stm->type)
@@ -168,7 +169,7 @@ void setControlFlowDiagram(std::list<InstructionNode *> &nodes, unordered_map<st
         }
         switch (currentNode->raw->type)
         {
-        case AS_stmkind::RET:
+        case AS_stmkind::RETURN:
 
             break;
         case AS_stmkind::B:
@@ -344,7 +345,7 @@ bool simplify(unordered_map<int, Node<RegInfo> *> regNodes, int K, std::stack<in
     return check_spill(regNodes, K);
 }
 
-int deal_node(unordered_map<int, Node<RegInfo> *> regNodes, int reg_num, std::list<ASM::AS_stm *> &as_list, list<ASM::AS_stm *>::iterator stm, int use_def){
+int deal_node(unordered_map<int, Node<RegInfo> *> regNodes, int reg_num, std::list<ASM::AS_stm *> &as_list, list<ASM::AS_stm *>::iterator& stm, int use_def){
     // 假设函数内更改迭代器有效
     Node<RegInfo>* reg_node;
     if (regNodes.find(reg_num) == regNodes.end()){
@@ -357,20 +358,20 @@ int deal_node(unordered_map<int, Node<RegInfo> *> regNodes, int reg_num, std::li
         }
         else{
             if (reg_node->info.regNum != XnFP){
-                as_list.insert(stm, AS_Str(new AS_reg(AS_type::Xn, XXn1), new AS_reg(AS_type::SP, -1), -INT_LENGTH));
+                as_list.insert(stm, AS_Str(new AS_reg(AS_type::Xn, XXn1), sp, -INT_LENGTH));
                 stm++;
                 reg_node->info.regNum = XnFP;
             }
             if(use_def == 0){
                 // use
-                as_list.insert(stm, AS_Ldr(new AS_reg(AS_type::Xn, XXn1), new AS_reg(AS_type::SP, -1), -INT_LENGTH));
+                as_list.insert(stm, AS_Ldr(new AS_reg(AS_type::Xn, XXn1), sp, -INT_LENGTH));
                 stm++;
                 return XXn1;
             }
             else{
                 //def
                 stm++;
-                as_list.insert(stm, AS_Str(new AS_reg(AS_type::Xn, XXn1), new AS_reg(AS_type::SP, -1), -INT_LENGTH));
+                as_list.insert(stm, AS_Str(new AS_reg(AS_type::Xn, XXn1), sp, -INT_LENGTH));
                 stm--;
                 return XXn1;
             }

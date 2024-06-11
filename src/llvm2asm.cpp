@@ -190,7 +190,7 @@ void llvm2asmStore(list<AS_stm *> &as_list, L_stm *store_stm)
     if (str_tmp->src->kind == OperandKind::ICONST){
         int src_num = Temp_newtemp_int()->num;
         src = new AS_reg(AS_type::Xn, src_num);
-        as_list.emplace_back(AS_mov(new AS_reg(AS_type::IMM, str_tmp->src->u.ICONST),src));
+        as_list.emplace_back(AS_Mov(new AS_reg(AS_type::IMM, str_tmp->src->u.ICONST),src));
     }
     else{
         src = new AS_reg(AS_type::Xn, str_tmp->src->u.TEMP->num);
@@ -624,6 +624,7 @@ AS_func *llvm2asmFunc(L_func &func)
         p->stms.push_back(AS_Llvmir(oss.str()));
     }
     string temp_label = "";
+
     for (const auto &block : func.blocks)
     {
         for (const auto &instr : block->instrs)
@@ -646,21 +647,24 @@ AS_func *llvm2asmFunc(L_func &func)
             }
         }
     }
+    std::cout<<"phi"<<std::endl;
+    std::cout<<phi.size()<<std::endl;
+    int i = 0;
     //处理PHI语句
     for (auto it = phi.begin(); it != phi.end(); it++){
+        std::cout<<i<<std::endl;
         auto phi_stm = (*it)->phi;
         auto phi_label = (*it)->label;
         AS_reg* dst_reg = new AS_reg(AS_type::Xn, phi_stm->u.PHI->dst->u.TEMP->num);
         for (auto label = phi_stm->u.PHI->phis.begin(); label != phi_stm->u.PHI->phis.end(); label++){
+            std::cout<<(*label).second->name<<std::endl;
             auto block = block_map[(*label).second->name];
-            p->stms.insert(block++, AS_Mov(new AS_reg(AS_type::Xn, (*label).first->u.TEMP->num), dst_reg));
+            p->stms.insert(++block, AS_Mov(new AS_reg(AS_type::Xn, (*label).first->u.TEMP->num), dst_reg));
         }
-        auto phi_block = block_map[phi_label];
-        p->stms.erase(phi_block);
     }
-    
+    std::cout<<"reg"<<std::endl;
 
-    allocReg(p->stms, func);
+    //allocReg(p->stms, func);
     return p;
 }
 
