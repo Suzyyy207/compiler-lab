@@ -1,4 +1,34 @@
 .section .data
+.global    n
+.global    m
+.global    to
+.global    next
+.global    head
+.global    cnt
+.global    que
+.global    h
+.global    tail
+.global    inq
+n:
+        .quad   0
+m:
+        .quad   0
+to:
+        .zero   40040
+next:
+        .zero   40040
+head:
+        .zero   8040
+cnt:
+        .quad   0
+que:
+        .zero   8040
+h:
+        .quad   0
+tail:
+        .quad   0
+inq:
+        .zero   8040
 .section .text
 .global getch
 .global getint
@@ -52,20 +82,20 @@ bb1:
 
 
         b     bb2
-        mov     x139, x133
-        mov     x138, x137
+        mov     x139, x137
+        mov     x138, x133
         //bb2:
 
 bb2:
 
-        //  %r138 = phi i32 [ %r137, %bb1 ], [ %r142, %bb8 ]
+        //  %r138 = phi i32 [ %r133, %bb1 ], [ %r144, %bb8 ]
 
-        //  %r139 = phi i32 [ %r133, %bb1 ], [ %r144, %bb8 ]
+        //  %r139 = phi i32 [ %r137, %bb1 ], [ %r142, %bb8 ]
 
-        //  %r140 = icmp slt i32 %r139, 48
+        //  %r140 = icmp slt i32 %r138, 48
 
         mov     x159, #48
-        cmp     x139, x159
+        cmp     x138, x159
         //  br i1 %r140, label %bb3, label %bb5
 
 
@@ -75,10 +105,10 @@ bb2:
 
 bb5:
 
-        //  %r146 = icmp sgt i32 %r139, 57
+        //  %r146 = icmp sgt i32 %r138, 57
 
         mov     x160, #57
-        cmp     x139, x160
+        cmp     x138, x160
         //  br i1 %r146, label %bb3, label %bb4
 
 
@@ -88,10 +118,10 @@ bb5:
 
 bb3:
 
-        //  %r141 = icmp eq i32 %r139, 45
+        //  %r141 = icmp eq i32 %r138, 45
 
         mov     x161, #45
-        cmp     x139, x161
+        cmp     x138, x161
         //  br i1 %r141, label %bb6, label %bb7
 
 
@@ -117,12 +147,12 @@ bb7:
 
 
         b     bb8
-        mov     x142, x138
+        mov     x142, x139
         //bb8:
 
 bb8:
 
-        //  %r142 = phi i32 [ %r145, %bb6 ], [ %r138, %bb7 ]
+        //  %r142 = phi i32 [ %r145, %bb6 ], [ %r139, %bb7 ]
 
         //  %r143 = call i32 @getch()
 
@@ -146,8 +176,8 @@ bb8:
 
 
         b     bb2
-        mov     x139, x144
-        mov     x138, x142
+        mov     x139, x142
+        mov     x138, x144
         //bb4:
 
 bb4:
@@ -157,12 +187,12 @@ bb4:
 
         b     bb9
         mov     x148, x135
-        mov     x147, x139
+        mov     x147, x138
         //bb9:
 
 bb9:
 
-        //  %r147 = phi i32 [ %r139, %bb4 ], [ %r158, %bb10 ]
+        //  %r147 = phi i32 [ %r138, %bb4 ], [ %r158, %bb10 ]
 
         //  %r148 = phi i32 [ %r135, %bb4 ], [ %r156, %bb10 ]
 
@@ -232,10 +262,10 @@ bb10:
 
 bb11:
 
-        //  %r150 = icmp ne i32 %r138, 0
+        //  %r150 = icmp ne i32 %r139, 0
 
         mov     x164, #0
-        cmp     x138, x164
+        cmp     x139, x164
         //  br i1 %r150, label %bb13, label %bb14
 
 
