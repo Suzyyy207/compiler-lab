@@ -649,7 +649,7 @@ AS_func *llvm2asmFunc(L_func &func)
         }
     }
     
-    int i = 0;
+
     //处理PHI语句
     for (auto it = phi.begin(); it != phi.end(); it++){
         auto phi_stm = (*it)->phi;
@@ -661,6 +661,8 @@ AS_func *llvm2asmFunc(L_func &func)
         }
     }
 
+
+    //std::cout<<func.name<<std::endl;
     //allocReg(p->stms, func);
     return p;
 }
@@ -704,13 +706,13 @@ void llvm2asmGlobal(vector<AS_global *> &globals, L_def &def)
             }
         }
         else if (temp.kind == TempType::STRUCT_TEMP){
-            new_global = new AS_global(label, 0, structLayout[def.u.GLOBAL->name]->size);
+            new_global = new AS_global(label, 0, structLayout[def.u.GLOBAL->def.structname]->size);
         }
         else if (temp.kind == TempType::INT_PTR){
             new_global = new AS_global(label, 0, INT_LENGTH * temp.len);
         }
         else{
-            new_global = new AS_global(label, 0, structLayout[def.u.GLOBAL->name]->size * temp.len);
+            new_global = new AS_global(label, 0, structLayout[def.u.GLOBAL->def.structname]->size * temp.len);
         }
         
         globals.push_back(new_global);

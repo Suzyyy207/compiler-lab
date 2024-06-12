@@ -1,34 +1,13 @@
 Dominator:
-bb45 :
-bb45 bb42 bb43 
+bb37 :
+bb37 bb34 bb35 
 
-bb52 :
-bb52 bb48 bb42 bb44 bb43 bb46 
+bb36 :
+bb34 bb36 bb35 
 
-bb50 :
-bb50 bb46 bb43 bb44 bb42 bb48 
+bb35 :
+bb35 bb34 
 
-bb48 :
-bb48 bb42 bb44 bb43 bb46 
-
-bb47 :
-bb47 bb46 bb43 bb44 bb42 bb49 
-
-bb49 :
-bb49 bb42 bb44 bb43 bb46 
-
-bb46 :
-bb46 bb43 bb44 bb42 
-
-bb51 :
-bb51 bb46 bb43 bb44 bb42 bb48 
-
-bb44 :
-bb42 bb44 bb43 
-
-bb43 :
-bb43 bb42 
-
-bb42 :
-bb42 
+bb34 :
+bb34 
 

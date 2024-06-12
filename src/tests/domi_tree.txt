@@ -1,34 +1,13 @@
 dominator tree:
-bb45 :
+bb37 :
 
 
-bb52 :
+bb36 :
 
 
-bb50 :
+bb35 :
+bb37 bb36 
 
-
-bb48 :
-bb52 bb51 bb50 
-
-bb47 :
-
-
-bb49 :
-bb47 
-
-bb46 :
-bb48 bb49 
-
-bb51 :
-
-
-bb44 :
-bb46 
-
-bb43 :
-bb45 bb44 
-
-bb42 :
-bb43 
+bb34 :
+bb35 
 

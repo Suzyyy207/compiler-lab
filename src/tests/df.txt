@@ -1,34 +1,13 @@
 DF:
-bb45 :
+bb37 :
 
 
-bb52 :
-bb43 
+bb36 :
+bb35 
 
-bb50 :
-bb52 
+bb35 :
+bb35 
 
-bb48 :
-bb43 
-
-bb47 :
-bb46 
-
-bb49 :
-bb46 bb48 
-
-bb46 :
-bb46 bb43 
-
-bb51 :
-bb52 
-
-bb44 :
-bb43 
-
-bb43 :
-bb43 
-
-bb42 :
+bb34 :
 
 

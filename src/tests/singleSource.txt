@@ -1,33 +1,12 @@
-bb42 
+bb34 
 pred  0  
-succ  1  bb43  1  
-bb43 
-pred  2  bb42  1  bb52  1  
-succ  2  bb44  1  bb45  1  
-bb44 
-pred  1  bb43  1  
-succ  1  bb46  1  
-bb46 
-pred  2  bb44  1  bb47  1  
-succ  2  bb49  1  bb48  1  
-bb49 
-pred  1  bb46  1  
-succ  2  bb47  1  bb48  1  
-bb47 
-pred  1  bb49  1  
-succ  1  bb46  1  
-bb48 
-pred  2  bb46  1  bb49  1  
-succ  2  bb50  1  bb51  1  
-bb50 
-pred  1  bb48  1  
-succ  1  bb52  1  
-bb51 
-pred  1  bb48  1  
-succ  1  bb52  1  
-bb52 
-pred  2  bb50  1  bb51  1  
-succ  1  bb43  1  
-bb45 
-pred  1  bb43  1  
+succ  1  bb35  1  
+bb35 
+pred  2  bb34  1  bb36  1  
+succ  2  bb36  1  bb37  1  
+bb36 
+pred  1  bb35  1  
+succ  1  bb35  1  
+bb37 
+pred  1  bb35  1  
 succ  0  
