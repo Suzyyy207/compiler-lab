@@ -289,6 +289,7 @@ void llvm2asmRet(list<AS_stm *> &as_list, L_stm *ret_stm)
 {
     auto ret_tmp = ret_stm->u.RETURN->ret;
     AS_reg* ret;
+    
     if (ret_tmp){
         if (ret_tmp->kind == OperandKind::ICONST){
             ret = new AS_reg(AS_type::Xn, Temp_newtemp_int()->num);
@@ -297,9 +298,9 @@ void llvm2asmRet(list<AS_stm *> &as_list, L_stm *ret_stm)
         else{
             ret = new AS_reg(AS_type::Xn, ret_tmp->u.TEMP->num);
         }
+        as_list.emplace_back(AS_Mov(ret, new AS_reg(AS_type::Xn, XXnret)));
     }
 
-    as_list.emplace_back(AS_Mov(ret, new AS_reg(AS_type::Xn, XXnret)));
     as_list.emplace_back(AS_Mov(new AS_reg(AS_type::Xn, XnFP), sp));
     as_list.emplace_back(AS_Ret());
 }
@@ -647,11 +648,10 @@ AS_func *llvm2asmFunc(L_func &func)
             }
         }
     }
-    std::cout<<"phi"<<std::endl;
+    
     int i = 0;
     //处理PHI语句
     for (auto it = phi.begin(); it != phi.end(); it++){
-        std::cout<<i<<std::endl;
         auto phi_stm = (*it)->phi;
         auto phi_label = (*it)->label;
         AS_reg* dst_reg = new AS_reg(AS_type::Xn, phi_stm->u.PHI->dst->u.TEMP->num);
@@ -660,7 +660,6 @@ AS_func *llvm2asmFunc(L_func &func)
             p->stms.insert(++block, AS_Mov(new AS_reg(AS_type::Xn, (*label).first->u.TEMP->num), dst_reg));
         }
     }
-    std::cout<<"reg"<<std::endl;
 
     //allocReg(p->stms, func);
     return p;

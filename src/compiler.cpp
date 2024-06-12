@@ -70,6 +70,7 @@ int main(int argc, char * argv[]) {
 
     printAS_prog(ASMStream,as_prog);
     ASMStream.close();
+    
 
     return 0;
 }
