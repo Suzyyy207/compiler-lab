@@ -101,7 +101,8 @@ void set_stack(L_func &func)
 void new_frame(list<AS_stm *> &as_list, L_func &func)
 {
     // ToDo:在刚刚进入函数的时候，需要调整sp，并将函数参数移入虚拟寄存器
-    as_list.emplace_back(AS_Binop(AS_binopkind::SUB_, sp, new AS_reg(AS_type::IMM, stack_frame), sp));
+    as_list.emplace_back(AS_Mov(new AS_reg(AS_type::IMM, stack_frame),new AS_reg(AS_type::Xn, XXn1)));
+    as_list.emplace_back(AS_Binop(AS_binopkind::SUB_, sp, new AS_reg(AS_type::Xn, XXn1), sp));
 
     for(int i=0; i < 8 && i < func.args.size(); i++){
         as_list.emplace_back(AS_Mov(new AS_reg(AS_type::Xn, i), new AS_reg(AS_type::Xn, func.args[i]->num)));
@@ -493,19 +494,24 @@ int save_register(list<AS_stm *> &as_list)
 void load_register(list<AS_stm *> &as_list)
 {
     //ToDo:从栈中按**顺序**加载保存的寄存器
-    as_list.push_back(AS_Stp(new AS_reg(AS_type::Xn, XnFP), new AS_reg(AS_type::Xn, XXnl), sp, 2 * INT_LENGTH));
+    as_list.push_back(AS_Ldp(new AS_reg(AS_type::Xn, XnFP), new AS_reg(AS_type::Xn, XXnl), sp, 2 * INT_LENGTH));
     auto last = allocateRegs.end();
+    last = --last;
     if (allocateRegs.size() % 2 != 0){
-        as_list.push_back(AS_Str(new AS_reg(AS_type::Xn, *last), sp, -INT_LENGTH));
+        as_list.push_back(AS_Ldr(new AS_reg(AS_type::Xn, *last), sp, INT_LENGTH));
         --last;
     }
 
     for (auto it = last; it != allocateRegs.begin(); it--)
-    {
+    {   
         int second = *it;
         --it;
         int first = *it;
-        as_list.push_back(AS_Stp(new AS_reg(AS_type::Xn, first), new AS_reg(AS_type::Xn, second), sp, 2 * INT_LENGTH));
+        as_list.push_back(AS_Ldp(new AS_reg(AS_type::Xn, first), new AS_reg(AS_type::Xn, second), sp, 2 * INT_LENGTH));
+        if (it == allocateRegs.begin()){
+            break;
+        }
+        
     }
     
     
@@ -657,7 +663,19 @@ AS_func *llvm2asmFunc(L_func &func)
         AS_reg* dst_reg = new AS_reg(AS_type::Xn, phi_stm->u.PHI->dst->u.TEMP->num);
         for (auto label = phi_stm->u.PHI->phis.begin(); label != phi_stm->u.PHI->phis.end(); label++){
             auto block = block_map[(*label).second->name];
-            p->stms.insert(++block, AS_Mov(new AS_reg(AS_type::Xn, (*label).first->u.TEMP->num), dst_reg));
+            auto find_pos = block;
+            while((*find_pos)->type != AS_stmkind::LABEL){
+                if ((*find_pos)->type == AS_stmkind::B && (*find_pos)->u.B->jump->name == phi_label){
+                    p->stms.insert(--block, AS_Mov(new AS_reg(AS_type::Xn, (*label).first->u.TEMP->num), dst_reg));
+                }
+                else if ((*find_pos)->type == AS_stmkind::BCOND && (*find_pos)->u.BCOND->jump->name == phi_label){
+                    p->stms.insert(--block, AS_Mov(new AS_reg(AS_type::Xn, (*label).first->u.TEMP->num), dst_reg));
+                }
+                else if ((*find_pos)->type == AS_stmkind::BL && (*find_pos)->u.BL->jump->name == phi_label){
+                    p->stms.insert(--block, AS_Mov(new AS_reg(AS_type::Xn, (*label).first->u.TEMP->num), dst_reg));
+                }
+                --find_pos;
+            }
         }
     }
 

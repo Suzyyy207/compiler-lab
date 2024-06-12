@@ -62,10 +62,10 @@ bb1:
         mov     x29, sp
         bl     getch
         ldp     x29, x30, [sp], #16
-        ldr     x15, [sp], #8
-        ldp     x13, x14, [sp], #16
-        ldp     x11, x12, [sp], #16
-        ldp     x9, x10, [sp], #16
+        ldr     x7, [sp], #8
+        ldp     x14, x15, [sp], #16
+        ldp     x12, x13, [sp], #16
+        ldp     x10, x11, [sp], #16
         mov     x263, x0
         //  %r264 = add i32 0, 0
 
@@ -85,12 +85,12 @@ bb1:
         //  %r269 = add i32 0, 0
 
         mov     x269, #0
-        mov     x270, x265
-        mov     x271, x269
         //  br label %bb2
 
 
         b     bb2
+        mov     x271, x269
+        mov     x270, x265
         //bb2:
 
 bb2:
@@ -141,20 +141,20 @@ bb6:
         //  %r277 = add i32 1, 0
 
         mov     x277, #1
-        mov     x274, x277
         //  br label %bb8
 
 
         b     bb8
+        mov     x274, x277
         //bb7:
 
 bb7:
 
-        mov     x274, x271
         //  br label %bb8
 
 
         b     bb8
+        mov     x274, x271
         //bb8:
 
 bb8:
@@ -171,30 +171,30 @@ bb8:
         mov     x29, sp
         bl     getch
         ldp     x29, x30, [sp], #16
-        ldr     x15, [sp], #8
-        ldp     x13, x14, [sp], #16
-        ldp     x11, x12, [sp], #16
-        ldp     x9, x10, [sp], #16
+        ldr     x7, [sp], #8
+        ldp     x14, x15, [sp], #16
+        ldp     x12, x13, [sp], #16
+        ldp     x10, x11, [sp], #16
         mov     x275, x0
         //  %r276 = add i32 %r275, 0
 
         mov     x276, x275
-        mov     x270, x276
-        mov     x271, x274
         //  br label %bb2
 
 
         b     bb2
+        mov     x271, x274
+        mov     x270, x276
         //bb4:
 
 bb4:
 
-        mov     x279, x270
-        mov     x280, x267
         //  br label %bb9
 
 
         b     bb9
+        mov     x280, x267
+        mov     x279, x270
         //bb9:
 
 bb9:
@@ -251,20 +251,20 @@ bb10:
         mov     x29, sp
         bl     getch
         ldp     x29, x30, [sp], #16
-        ldr     x15, [sp], #8
-        ldp     x13, x14, [sp], #16
-        ldp     x11, x12, [sp], #16
-        ldp     x9, x10, [sp], #16
+        ldr     x7, [sp], #8
+        ldp     x14, x15, [sp], #16
+        ldp     x12, x13, [sp], #16
+        ldp     x10, x11, [sp], #16
         mov     x289, x0
         //  %r290 = add i32 %r289, 0
 
         mov     x290, x289
-        mov     x279, x290
-        mov     x280, x288
         //  br label %bb9
 
 
         b     bb9
+        mov     x280, x288
+        mov     x279, x290
         //bb11:
 
 bb11:
@@ -483,11 +483,11 @@ bb18:
         //  %r301 = add i32 0, 0
 
         mov     x301, #0
-        mov     x302, x301
         //  br label %bb19
 
 
         b     bb19
+        mov     x302, x301
         //bb19:
 
 bb19:
@@ -526,11 +526,11 @@ bb20:
         //  %r306 = add i32 %r305, 0
 
         mov     x306, x305
-        mov     x302, x306
         //  br label %bb19
 
 
         b     bb19
+        mov     x302, x306
         //bb21:
 
 bb21:
@@ -732,10 +732,10 @@ bb25:
         mov     x29, sp
         bl     inqueue
         ldp     x29, x30, [sp], #16
-        ldr     x15, [sp], #8
-        ldp     x13, x14, [sp], #16
-        ldp     x11, x12, [sp], #16
-        ldp     x9, x10, [sp], #16
+        ldr     x7, [sp], #8
+        ldp     x14, x15, [sp], #16
+        ldp     x12, x13, [sp], #16
+        ldp     x10, x11, [sp], #16
         //  %r329 = add i32 0, 0
 
         mov     x329, #0
@@ -748,11 +748,11 @@ bb25:
         //  %r332 = add i32 0, 0
 
         mov     x332, #0
-        mov     x333, x329
         //  br label %bb27
 
 
         b     bb27
+        mov     x333, x329
         //bb27:
 
 bb27:
@@ -791,10 +791,10 @@ bb28:
         mov     x29, sp
         bl     popqueue
         ldp     x29, x30, [sp], #16
-        ldr     x15, [sp], #8
-        ldp     x13, x14, [sp], #16
-        ldp     x11, x12, [sp], #16
-        ldp     x9, x10, [sp], #16
+        ldr     x7, [sp], #8
+        ldp     x14, x15, [sp], #16
+        ldp     x12, x13, [sp], #16
+        ldp     x10, x11, [sp], #16
         mov     x341, x0
         //  %r342 = add i32 %r341, 0
 
@@ -814,20 +814,20 @@ bb30:
         //  %r352 = add i32 1, 0
 
         mov     x352, #1
-        mov     x344, x352
         //  br label %bb32
 
 
         b     bb32
+        mov     x344, x352
         //bb31:
 
 bb31:
 
-        mov     x344, x333
         //  br label %bb32
 
 
         b     bb32
+        mov     x344, x333
         //bb32:
 
 bb32:
@@ -847,11 +847,11 @@ bb32:
         //  %r345 = add i32 %r203, 0
 
         mov     x345, x203
-        mov     x346, x345
         //  br label %bb33
 
 
         b     bb33
+        mov     x346, x345
         //bb33:
 
 bb33:
@@ -930,10 +930,10 @@ bb36:
         mov     x29, sp
         bl     inqueue
         ldp     x29, x30, [sp], #16
-        ldr     x15, [sp], #8
-        ldp     x13, x14, [sp], #16
-        ldp     x11, x12, [sp], #16
-        ldp     x9, x10, [sp], #16
+        ldr     x7, [sp], #8
+        ldp     x14, x15, [sp], #16
+        ldp     x12, x13, [sp], #16
+        ldp     x10, x11, [sp], #16
         //  br label %bb38
 
 
@@ -963,20 +963,20 @@ bb38:
         //  %r351 = add i32 %r219, 0
 
         mov     x351, x219
-        mov     x346, x351
         //  br label %bb33
 
 
         b     bb33
+        mov     x346, x351
         //bb35:
 
 bb35:
 
-        mov     x333, x344
         //  br label %bb27
 
 
         b     bb27
+        mov     x333, x344
         //bb29:
 
 bb29:
@@ -984,11 +984,11 @@ bb29:
         //  %r335 = add i32 0, 0
 
         mov     x335, #0
-        mov     x336, x335
         //  br label %bb39
 
 
         b     bb39
+        mov     x336, x335
         //bb39:
 
 bb39:
@@ -1042,11 +1042,11 @@ bb40:
         //  %r340 = add i32 %r339, 0
 
         mov     x340, x339
-        mov     x336, x340
         //  br label %bb39
 
 
         b     bb39
+        mov     x336, x340
         //bb41:
 
 bb41:
@@ -1074,10 +1074,10 @@ bb42:
         mov     x29, sp
         bl     quickread
         ldp     x29, x30, [sp], #16
-        ldr     x15, [sp], #8
-        ldp     x13, x14, [sp], #16
-        ldp     x11, x12, [sp], #16
-        ldp     x9, x10, [sp], #16
+        ldr     x7, [sp], #8
+        ldp     x14, x15, [sp], #16
+        ldp     x12, x13, [sp], #16
+        ldp     x10, x11, [sp], #16
         mov     x356, x0
         //  store i32 %r356, i32* @n
 
@@ -1094,10 +1094,10 @@ bb42:
         mov     x29, sp
         bl     quickread
         ldp     x29, x30, [sp], #16
-        ldr     x15, [sp], #8
-        ldp     x13, x14, [sp], #16
-        ldp     x11, x12, [sp], #16
-        ldp     x9, x10, [sp], #16
+        ldr     x7, [sp], #8
+        ldp     x14, x15, [sp], #16
+        ldp     x12, x13, [sp], #16
+        ldp     x10, x11, [sp], #16
         mov     x357, x0
         //  store i32 %r357, i32* @m
 
@@ -1115,10 +1115,10 @@ bb42:
         mov     x29, sp
         bl     _sysy_starttime
         ldp     x29, x30, [sp], #16
-        ldr     x15, [sp], #8
-        ldp     x13, x14, [sp], #16
-        ldp     x11, x12, [sp], #16
-        ldp     x9, x10, [sp], #16
+        ldr     x7, [sp], #8
+        ldp     x14, x15, [sp], #16
+        ldp     x12, x13, [sp], #16
+        ldp     x10, x11, [sp], #16
         //  call void @init()
 
         stp     x9, x10, [sp, #-16]!
@@ -1129,10 +1129,10 @@ bb42:
         mov     x29, sp
         bl     init
         ldp     x29, x30, [sp], #16
-        ldr     x15, [sp], #8
-        ldp     x13, x14, [sp], #16
-        ldp     x11, x12, [sp], #16
-        ldp     x9, x10, [sp], #16
+        ldr     x7, [sp], #8
+        ldp     x14, x15, [sp], #16
+        ldp     x12, x13, [sp], #16
+        ldp     x10, x11, [sp], #16
         //  %r358 = add i32 0, 0
 
         mov     x358, #0
@@ -1187,19 +1187,19 @@ bb44:
         mov     x29, sp
         bl     getch
         ldp     x29, x30, [sp], #16
-        ldr     x15, [sp], #8
-        ldp     x13, x14, [sp], #16
-        ldp     x11, x12, [sp], #16
-        ldp     x9, x10, [sp], #16
+        ldr     x7, [sp], #8
+        ldp     x14, x15, [sp], #16
+        ldp     x12, x13, [sp], #16
+        ldp     x10, x11, [sp], #16
         mov     x365, x0
         //  %r366 = add i32 %r365, 0
 
         mov     x366, x365
-        mov     x367, x366
         //  br label %bb46
 
 
         b     bb46
+        mov     x367, x366
         //bb46:
 
 bb46:
@@ -1242,19 +1242,19 @@ bb47:
         mov     x29, sp
         bl     getch
         ldp     x29, x30, [sp], #16
-        ldr     x15, [sp], #8
-        ldp     x13, x14, [sp], #16
-        ldp     x11, x12, [sp], #16
-        ldp     x9, x10, [sp], #16
+        ldr     x7, [sp], #8
+        ldp     x14, x15, [sp], #16
+        ldp     x12, x13, [sp], #16
+        ldp     x10, x11, [sp], #16
         mov     x381, x0
         //  %r382 = add i32 %r381, 0
 
         mov     x382, x381
-        mov     x367, x382
         //  br label %bb46
 
 
         b     bb46
+        mov     x367, x382
         //bb48:
 
 bb48:
@@ -1282,10 +1282,10 @@ bb50:
         mov     x29, sp
         bl     quickread
         ldp     x29, x30, [sp], #16
-        ldr     x15, [sp], #8
-        ldp     x13, x14, [sp], #16
-        ldp     x11, x12, [sp], #16
-        ldp     x9, x10, [sp], #16
+        ldr     x7, [sp], #8
+        ldp     x14, x15, [sp], #16
+        ldp     x12, x13, [sp], #16
+        ldp     x10, x11, [sp], #16
         mov     x375, x0
         //  %r376 = add i32 %r375, 0
 
@@ -1300,10 +1300,10 @@ bb50:
         mov     x29, sp
         bl     quickread
         ldp     x29, x30, [sp], #16
-        ldr     x15, [sp], #8
-        ldp     x13, x14, [sp], #16
-        ldp     x11, x12, [sp], #16
-        ldp     x9, x10, [sp], #16
+        ldr     x7, [sp], #8
+        ldp     x14, x15, [sp], #16
+        ldp     x12, x13, [sp], #16
+        ldp     x10, x11, [sp], #16
         mov     x377, x0
         //  %r378 = add i32 %r377, 0
 
@@ -1320,10 +1320,10 @@ bb50:
         mov     x29, sp
         bl     same
         ldp     x29, x30, [sp], #16
-        ldr     x15, [sp], #8
-        ldp     x13, x14, [sp], #16
-        ldp     x11, x12, [sp], #16
-        ldp     x9, x10, [sp], #16
+        ldr     x7, [sp], #8
+        ldp     x14, x15, [sp], #16
+        ldp     x12, x13, [sp], #16
+        ldp     x10, x11, [sp], #16
         mov     x379, x0
         //  call void @putint(i32 %r379)
 
@@ -1336,10 +1336,10 @@ bb50:
         mov     x29, sp
         bl     putint
         ldp     x29, x30, [sp], #16
-        ldr     x15, [sp], #8
-        ldp     x13, x14, [sp], #16
-        ldp     x11, x12, [sp], #16
-        ldp     x9, x10, [sp], #16
+        ldr     x7, [sp], #8
+        ldp     x14, x15, [sp], #16
+        ldp     x12, x13, [sp], #16
+        ldp     x10, x11, [sp], #16
         //  call void @putch(i32 10)
 
         mov     x0, #10
@@ -1351,10 +1351,10 @@ bb50:
         mov     x29, sp
         bl     putch
         ldp     x29, x30, [sp], #16
-        ldr     x15, [sp], #8
-        ldp     x13, x14, [sp], #16
-        ldp     x11, x12, [sp], #16
-        ldp     x9, x10, [sp], #16
+        ldr     x7, [sp], #8
+        ldp     x14, x15, [sp], #16
+        ldp     x12, x13, [sp], #16
+        ldp     x10, x11, [sp], #16
         //  br label %bb52
 
 
@@ -1373,10 +1373,10 @@ bb51:
         mov     x29, sp
         bl     quickread
         ldp     x29, x30, [sp], #16
-        ldr     x15, [sp], #8
-        ldp     x13, x14, [sp], #16
-        ldp     x11, x12, [sp], #16
-        ldp     x9, x10, [sp], #16
+        ldr     x7, [sp], #8
+        ldp     x14, x15, [sp], #16
+        ldp     x12, x13, [sp], #16
+        ldp     x10, x11, [sp], #16
         mov     x371, x0
         //  %r372 = add i32 %r371, 0
 
@@ -1391,10 +1391,10 @@ bb51:
         mov     x29, sp
         bl     quickread
         ldp     x29, x30, [sp], #16
-        ldr     x15, [sp], #8
-        ldp     x13, x14, [sp], #16
-        ldp     x11, x12, [sp], #16
-        ldp     x9, x10, [sp], #16
+        ldr     x7, [sp], #8
+        ldp     x14, x15, [sp], #16
+        ldp     x12, x13, [sp], #16
+        ldp     x10, x11, [sp], #16
         mov     x373, x0
         //  %r374 = add i32 %r373, 0
 
@@ -1411,10 +1411,10 @@ bb51:
         mov     x29, sp
         bl     addedge
         ldp     x29, x30, [sp], #16
-        ldr     x15, [sp], #8
-        ldp     x13, x14, [sp], #16
-        ldp     x11, x12, [sp], #16
-        ldp     x9, x10, [sp], #16
+        ldr     x7, [sp], #8
+        ldp     x14, x15, [sp], #16
+        ldp     x12, x13, [sp], #16
+        ldp     x10, x11, [sp], #16
         //  br label %bb52
 
 
@@ -1455,10 +1455,10 @@ bb45:
         mov     x29, sp
         bl     _sysy_stoptime
         ldp     x29, x30, [sp], #16
-        ldr     x15, [sp], #8
-        ldp     x13, x14, [sp], #16
-        ldp     x11, x12, [sp], #16
-        ldp     x9, x10, [sp], #16
+        ldr     x7, [sp], #8
+        ldp     x14, x15, [sp], #16
+        ldp     x12, x13, [sp], #16
+        ldp     x10, x11, [sp], #16
         //  ret i32 0
 
         mov     x486, #0
