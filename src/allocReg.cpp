@@ -501,7 +501,7 @@ void livenessAnalysis(std::list<InstructionNode *> &nodes, std::list<ASM::AS_stm
     Graph<RegInfo> interferenceGraph;
     unordered_map<int, Node<RegInfo> *> regNodes;//虚拟器寄存器根据编号到干扰图上的映射
     init(nodes, regNodes, interferenceGraph, as_list);
-    std::cout<<"init"<<std::endl;
+    //std::cout<<"init"<<std::endl;
 
     //寄存器分配
 
@@ -522,7 +522,7 @@ void livenessAnalysis(std::list<InstructionNode *> &nodes, std::list<ASM::AS_stm
             }
         }
     }
-    std::cout<<"simplify"<<std::endl;
+    //std::cout<<"simplify"<<std::endl;
 
     // select
     while (spill_stack.size() > 0){

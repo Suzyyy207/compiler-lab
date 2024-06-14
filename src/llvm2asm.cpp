@@ -132,13 +132,15 @@ void llvm2asmBinop(list<AS_stm *> &as_list, L_stm *binop_stm)
         left = new AS_reg(AS_type::Xn, binop_stm->u.BINOP->left->u.TEMP->num);
     }
     else if(binop_stm->u.BINOP->left->kind == OperandKind::ICONST){
-        left = new AS_reg(AS_type::IMM, binop_stm->u.BINOP->left->u.ICONST);
+        left = new  AS_reg(AS_type::Xn, Temp_newtemp_int()->num);
+        as_list.emplace_back(AS_Mov(new AS_reg(AS_type::IMM, binop_stm->u.BINOP->left->u.ICONST), left));
     }
     if (binop_stm->u.BINOP->right->kind == OperandKind::TEMP){
         right = new AS_reg(AS_type::Xn, binop_stm->u.BINOP->right->u.TEMP->num);
     }
     else if(binop_stm->u.BINOP->right->kind == OperandKind::ICONST){
-        right = new AS_reg(AS_type::IMM, binop_stm->u.BINOP->right->u.ICONST);
+        right = new  AS_reg(AS_type::Xn, Temp_newtemp_int()->num);
+        as_list.emplace_back(AS_Mov(new AS_reg(AS_type::IMM, binop_stm->u.BINOP->right->u.ICONST), right));
     }
     
     switch (binop_stm->u.BINOP->op)
