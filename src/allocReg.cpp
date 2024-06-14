@@ -11,6 +11,7 @@ using namespace GRAPH;
 #include "printASM.h"
 stack<Node<RegInfo> *> reg_stack;
 AS_reg *sp = new AS_reg(AS_type::SP, -1);
+int reg_size = allocateRegs.size();
 void getAllRegs(AS_stm *stm, vector<AS_reg *> &defs, vector<AS_reg *> &uses)
 {
     switch (stm->type)
@@ -301,7 +302,7 @@ void init(std::list<InstructionNode *> &nodes, unordered_map<int, Node<RegInfo> 
 bool check_K(unordered_map<int, Node<RegInfo> *> regNodes, int K){
     //检查是否还有度数低于K的节点
     for (auto node = regNodes.begin(); node != regNodes.end(); node++){
-        if ((*node).second->info.degree < allocateRegs.size()){
+        if ((*node).second->info.degree < reg_size && !(*node).second->info.bit_map && !(*node).second->info.is_spill){
             return true;
         }
     }
@@ -311,7 +312,10 @@ bool check_K(unordered_map<int, Node<RegInfo> *> regNodes, int K){
 
 bool check_spill(unordered_map<int, Node<RegInfo> *> regNodes, int K){
     for (auto node = regNodes.begin(); node != regNodes.end(); node++){
-        if ((*node).second->info.degree >= allocateRegs.size() && !(*node).second->info.bit_map && !(*node).second->info.is_spill){
+        if ((*node).second->info.degree >= reg_size && !(*node).second->info.bit_map && !(*node).second->info.is_spill){
+
+            //std::cout<<((*node).second->info.degree)<<" "<<reg_size<<std::endl;
+            //std::cout<<(((*node).second->info.degree) >= int(reg_size))<<std::endl;
             return true;
         }
     }
@@ -319,20 +323,16 @@ bool check_spill(unordered_map<int, Node<RegInfo> *> regNodes, int K){
     return false;
 }
 
-bool simplify(unordered_map<int, Node<RegInfo> *> regNodes, int K, std::stack<int>* spill_stack){
+bool simplify(unordered_map<int, Node<RegInfo> *> regNodes, int K, std::stack<int>* spill_stack, Graph<RegInfo> interferenceGraph){
     
     while(check_K(regNodes,K)){
         for (auto node = regNodes.begin(); node != regNodes.end(); node++){
-            if ((*node).second->info.degree < allocateRegs.size()){
+            if ((*node).second->info.degree < reg_size){
                 //删除节点
-                for (auto neighbor = (*node).second->preds.begin(); neighbor != (*node).second->preds.end(); neighbor++){
-                    if (!regNodes[(*neighbor)]->info.is_spill && !regNodes[(*neighbor)]->info.bit_map){
-                        regNodes[(*neighbor)]->info.degree--;
-                    }
-                }
                 for (auto neighbor = (*node).second->succs.begin(); neighbor != (*node).second->succs.end(); neighbor++){
-                    if (!regNodes[(*neighbor)]->info.is_spill && !regNodes[(*neighbor)]->info.bit_map){
-                        regNodes[(*neighbor)]->info.degree--;
+                    Node<RegInfo> *neighbor_node = interferenceGraph.mynodes[(*neighbor)];
+                    if (!neighbor_node->info.is_spill && !neighbor_node->info.bit_map){
+                        neighbor_node->info.degree--;
                     }
                 }
                 (*node).second->info.degree = 0;
@@ -489,19 +489,15 @@ void livenessAnalysis(std::list<InstructionNode *> &nodes, std::list<ASM::AS_stm
 
     //simplify & potential spill
     std::stack<int> spill_stack;
-    while (simplify(regNodes, allocateRegs.size(), &spill_stack)){
+    while (simplify(regNodes, reg_size, &spill_stack, interferenceGraph)){
         for (auto node = regNodes.begin(); node != regNodes.end(); node++){
-            if ((*node).second->info.degree >= allocateRegs.size()){
+            if ((*node).second->info.degree >= reg_size){
                 (*node).second->info.is_spill = true;
                 (*node).second->info.degree = 0;
-                for (auto neighbor = (*node).second->preds.begin(); neighbor != (*node).second->preds.end(); neighbor++){
-                    if (!regNodes[(*neighbor)]->info.is_spill && !regNodes[(*neighbor)]->info.bit_map){
-                        regNodes[(*neighbor)]->info.degree--;
-                    }
-                }
                 for (auto neighbor = (*node).second->succs.begin(); neighbor != (*node).second->succs.end(); neighbor++){
-                    if (!regNodes[(*neighbor)]->info.is_spill && !regNodes[(*neighbor)]->info.bit_map){
-                        regNodes[(*neighbor)]->info.degree--;
+                    Node<RegInfo> *neighbor_node = interferenceGraph.mynodes[(*neighbor)];
+                    if (!neighbor_node->info.is_spill && !neighbor_node->info.bit_map){
+                        neighbor_node->info.degree--;
                     }
                 }
                 break;
@@ -509,6 +505,7 @@ void livenessAnalysis(std::list<InstructionNode *> &nodes, std::list<ASM::AS_stm
         }
     }
     std::cout<<"simplify"<<std::endl;
+
     // select
     while (spill_stack.size() > 0){
         int reg = spill_stack.top();
@@ -517,14 +514,10 @@ void livenessAnalysis(std::list<InstructionNode *> &nodes, std::list<ASM::AS_stm
         // 用regNum和color比较来得到是否着色
         if (reg_node->info.color == reg_node->info.regNum){
             std::set<int>can_be_use{9, 10, 11, 12, 13, 14, 15};
-            for (auto neighbor = reg_node->preds.begin(); neighbor != reg_node->preds.end(); neighbor++){
-                if (regNodes[(*neighbor)]->info.color != regNodes[(*neighbor)]->info.regNum){
-                    can_be_use.erase(regNodes[(*neighbor)]->info.regNum);
-                }
-            }
             for (auto neighbor = reg_node->succs.begin(); neighbor != reg_node->succs.end(); neighbor++){
-                if (regNodes[(*neighbor)]->info.color != regNodes[(*neighbor)]->info.regNum){
-                    can_be_use.erase(regNodes[(*neighbor)]->info.regNum);
+                Node<RegInfo> *neighbor_node = interferenceGraph.mynodes[(*neighbor)];
+                if (neighbor_node->info.color != neighbor_node->info.regNum){
+                    can_be_use.erase(neighbor_node->info.regNum);
                 }
             }
             assert(can_be_use.size());

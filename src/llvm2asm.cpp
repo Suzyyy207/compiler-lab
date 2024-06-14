@@ -666,13 +666,13 @@ AS_func *llvm2asmFunc(L_func &func)
             auto find_pos = block;
             while((*find_pos)->type != AS_stmkind::LABEL){
                 if ((*find_pos)->type == AS_stmkind::B && (*find_pos)->u.B->jump->name == phi_label){
-                    p->stms.insert(--block, AS_Mov(new AS_reg(AS_type::Xn, (*label).first->u.TEMP->num), dst_reg));
+                    p->stms.insert(--find_pos, AS_Mov(new AS_reg(AS_type::Xn, (*label).first->u.TEMP->num), dst_reg));
                 }
                 else if ((*find_pos)->type == AS_stmkind::BCOND && (*find_pos)->u.BCOND->jump->name == phi_label){
-                    p->stms.insert(--block, AS_Mov(new AS_reg(AS_type::Xn, (*label).first->u.TEMP->num), dst_reg));
+                    p->stms.insert(--find_pos, AS_Mov(new AS_reg(AS_type::Xn, (*label).first->u.TEMP->num), dst_reg));
                 }
                 else if ((*find_pos)->type == AS_stmkind::BL && (*find_pos)->u.BL->jump->name == phi_label){
-                    p->stms.insert(--block, AS_Mov(new AS_reg(AS_type::Xn, (*label).first->u.TEMP->num), dst_reg));
+                    p->stms.insert(--find_pos, AS_Mov(new AS_reg(AS_type::Xn, (*label).first->u.TEMP->num), dst_reg));
                 }
                 --find_pos;
             }
@@ -681,7 +681,7 @@ AS_func *llvm2asmFunc(L_func &func)
 
 
     //std::cout<<func.name<<std::endl;
-    //allocReg(p->stms, func);
+    allocReg(p->stms, func);
     return p;
 }
 
