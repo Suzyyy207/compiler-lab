@@ -12,6 +12,8 @@ using namespace GRAPH;
 stack<Node<RegInfo> *> reg_stack;
 AS_reg *sp = new AS_reg(AS_type::SP, -1);
 int reg_size = allocateRegs.size();
+list<int> param = {XXn1, XXn2, XXn3, XXn4};
+auto param_p = param.begin();
 void getAllRegs(AS_stm *stm, vector<AS_reg *> &defs, vector<AS_reg *> &uses)
 {
     switch (stm->type)
@@ -358,22 +360,38 @@ int deal_node(unordered_map<int, Node<RegInfo> *> regNodes, int reg_num, std::li
         }
         else{
             if (reg_node->info.regNum != XnFP){
-                as_list.insert(stm, AS_Str(new AS_reg(AS_type::Xn, XXn1), sp, -INT_LENGTH));
+                if (param_p == param.end()){
+                    param_p = param.begin();
+                }
+                int X = (*param_p);
+                param_p++;
+
+                as_list.insert(stm, AS_Str(new AS_reg(AS_type::Xn, X), sp, -INT_LENGTH));
                 stm++;
                 reg_node->info.regNum = XnFP;
             }
             if(use_def == 0){
                 // use
-                as_list.insert(stm, AS_Ldr(new AS_reg(AS_type::Xn, XXn1), sp, -INT_LENGTH));
+                if (param_p == param.end()){
+                    param_p = param.begin();
+                }
+                int X = (*param_p);
+                param_p++;
+                as_list.insert(stm, AS_Ldr(new AS_reg(AS_type::Xn, X), sp, -INT_LENGTH));
                 stm++;
-                return XXn1;
+                return X;
             }
             else{
                 //def
+                if (param_p == param.end()){
+                    param_p = param.begin();
+                }
+                int X = (*param_p);
+                param_p++;
                 stm++;
-                as_list.insert(stm, AS_Str(new AS_reg(AS_type::Xn, XXn1), sp, -INT_LENGTH));
+                as_list.insert(stm, AS_Str(new AS_reg(AS_type::Xn, X), sp, -INT_LENGTH));
                 stm--;
-                return XXn1;
+                return X;
             }
             
         }
@@ -517,7 +535,7 @@ void livenessAnalysis(std::list<InstructionNode *> &nodes, std::list<ASM::AS_stm
             for (auto neighbor = reg_node->succs.begin(); neighbor != reg_node->succs.end(); neighbor++){
                 Node<RegInfo> *neighbor_node = interferenceGraph.mynodes[(*neighbor)];
                 if (neighbor_node->info.color != neighbor_node->info.regNum){
-                    can_be_use.erase(neighbor_node->info.regNum);
+                    can_be_use.erase(neighbor_node->info.color);
                 }
             }
             assert(can_be_use.size());
