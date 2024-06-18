@@ -315,9 +315,6 @@ bool check_K(unordered_map<int, Node<RegInfo> *> regNodes, int K){
 bool check_spill(unordered_map<int, Node<RegInfo> *> regNodes, int K){
     for (auto node = regNodes.begin(); node != regNodes.end(); node++){
         if ((*node).second->info.degree >= reg_size && !(*node).second->info.bit_map && !(*node).second->info.is_spill){
-
-            //std::cout<<((*node).second->info.degree)<<" "<<reg_size<<std::endl;
-            //std::cout<<(((*node).second->info.degree) >= int(reg_size))<<std::endl;
             return true;
         }
     }
@@ -329,7 +326,7 @@ bool simplify(unordered_map<int, Node<RegInfo> *> regNodes, int K, std::stack<in
     
     while(check_K(regNodes,K)){
         for (auto node = regNodes.begin(); node != regNodes.end(); node++){
-            if ((*node).second->info.degree < reg_size){
+            if ((*node).second->info.degree < reg_size && (*node).second->info.bit_map == false && (*node).second->info.is_spill == false){
                 //删除节点
                 for (auto neighbor = (*node).second->succs.begin(); neighbor != (*node).second->succs.end(); neighbor++){
                     Node<RegInfo> *neighbor_node = interferenceGraph.mynodes[(*neighbor)];
@@ -360,6 +357,9 @@ int deal_node(unordered_map<int, Node<RegInfo> *> regNodes, int reg_num, std::li
         }
         else{
             if (reg_node->info.regNum != XnFP){
+                if ((*stm)->type == AS_stmkind::MOV&&(*stm)->u.MOV->dst->u.offset == 381){
+                        std::cout<<"first: "<<std::endl;
+                }
                 if (param_p == param.end()){
                     param_p = param.begin();
                 }
@@ -367,7 +367,6 @@ int deal_node(unordered_map<int, Node<RegInfo> *> regNodes, int reg_num, std::li
                 param_p++;
 
                 as_list.insert(stm, AS_Str(new AS_reg(AS_type::Xn, X), sp, -INT_LENGTH));
-                stm++;
                 reg_node->info.regNum = XnFP;
             }
             if(use_def == 0){
@@ -377,8 +376,11 @@ int deal_node(unordered_map<int, Node<RegInfo> *> regNodes, int reg_num, std::li
                 }
                 int X = (*param_p);
                 param_p++;
-                as_list.insert(stm, AS_Ldr(new AS_reg(AS_type::Xn, X), sp, -INT_LENGTH));
-                stm++;
+                as_list.insert(stm, AS_Ldr(new AS_reg(AS_type::Xn, X), sp, INT_LENGTH));
+                
+                if ((*stm)->type == AS_stmkind::MOV&&(*stm)->u.MOV->dst->u.offset == 381){
+                        std::cout<<"use: "<<X<<std::endl;
+                }
                 return X;
             }
             else{
@@ -390,6 +392,10 @@ int deal_node(unordered_map<int, Node<RegInfo> *> regNodes, int reg_num, std::li
                 param_p++;
                 stm++;
                 as_list.insert(stm, AS_Str(new AS_reg(AS_type::Xn, X), sp, -INT_LENGTH));
+                if ((*stm)->type == AS_stmkind::MOV &&(*stm)->u.MOV->dst->u.offset == 381){
+                        std::cout<<"def: "<<X<<std::endl;
+                }
+                stm--;
                 stm--;
                 return X;
             }
@@ -443,17 +449,31 @@ void actual_spill(unordered_map<int, Node<RegInfo> *> regNodes, std::list<ASM::A
             {
                 int color = deal_node(regNodes, (*stm)->u.LDR->dst->u.offset, as_list, stm, 1);
                 (*stm)->u.LDR->dst->u.offset = color;
-                color = deal_node(regNodes, (*stm)->u.LDR->ptr->u.offset, as_list, stm, 0);
-                (*stm)->u.LDR->ptr->u.offset = color;
+                if ((*stm)->u.LDR->ptr->type == AS_type::ADR){
+                    color = deal_node(regNodes, (*stm)->u.LDR->ptr->u.add->base->u.offset, as_list, stm, 0);
+                    (*stm)->u.LDR->ptr->u.add->base->u.offset = color;
+                }
+                
                 break;
             }
             case AS_stmkind::MOV:
             {
-                int color = deal_node(regNodes, (*stm)->u.MOV->dst->u.offset, as_list, stm, 1);
-                (*stm)->u.MOV->dst->u.offset = color;
-                color = deal_node(regNodes, (*stm)->u.MOV->src->u.offset, as_list, stm, 0);
-                (*stm)->u.MOV->src->u.offset = color;
-                break;
+                int color;
+                if ((*stm)->u.MOV->dst->type == AS_type::Xn){
+                    /*if ((*stm)->u.MOV->dst->u.offset == 381){
+                        std::cout<<"hi"<<std::endl;
+                    }*/
+                    color = deal_node(regNodes, (*stm)->u.MOV->dst->u.offset, as_list, stm, 1);
+                    
+                    
+                    (*stm)->u.MOV->dst->u.offset = color;
+                }
+                
+                if ((*stm)->u.MOV->src->type == AS_type::Xn){
+                    color = deal_node(regNodes, (*stm)->u.MOV->src->u.offset, as_list, stm, 0);
+                    (*stm)->u.MOV->src->u.offset = color;
+                    break;
+                }
             }
             case AS_stmkind::MOVZ:
             {
@@ -485,8 +505,12 @@ void actual_spill(unordered_map<int, Node<RegInfo> *> regNodes, std::list<ASM::A
             {
                 int color = deal_node(regNodes, (*stm)->u.STR->src->u.offset, as_list, stm, 0);
                 (*stm)->u.STR->src->u.offset = color;
-                color = deal_node(regNodes, (*stm)->u.STR->ptr->u.offset, as_list, stm, 1);
-                (*stm)->u.STR->ptr->u.offset = color;
+                if ((*stm)->u.STR->ptr->type == AS_type::ADR){
+                    color = deal_node(regNodes, (*stm)->u.STR->ptr->u.add->base->u.offset, as_list, stm, 1);
+                    (*stm)->u.STR->ptr->u.add->base->u.offset = color;
+                }
+                
+                
                 break;
             }
             default:
@@ -501,7 +525,6 @@ void livenessAnalysis(std::list<InstructionNode *> &nodes, std::list<ASM::AS_stm
     Graph<RegInfo> interferenceGraph;
     unordered_map<int, Node<RegInfo> *> regNodes;//虚拟器寄存器根据编号到干扰图上的映射
     init(nodes, regNodes, interferenceGraph, as_list);
-    //std::cout<<"init"<<std::endl;
 
     //寄存器分配
 
@@ -522,7 +545,7 @@ void livenessAnalysis(std::list<InstructionNode *> &nodes, std::list<ASM::AS_stm
             }
         }
     }
-    //std::cout<<"simplify"<<std::endl;
+
 
     // select
     while (spill_stack.size() > 0){
@@ -531,17 +554,30 @@ void livenessAnalysis(std::list<InstructionNode *> &nodes, std::list<ASM::AS_stm
         Node<RegInfo>* reg_node = regNodes[reg];
         // 用regNum和color比较来得到是否着色
         if (reg_node->info.color == reg_node->info.regNum){
-            std::set<int>can_be_use{9, 10, 11, 12, 13, 14, 15};
+            std::set<int>can_be_use = {9, 10, 11, 12, 13, 14, 15};
             for (auto neighbor = reg_node->succs.begin(); neighbor != reg_node->succs.end(); neighbor++){
                 Node<RegInfo> *neighbor_node = interferenceGraph.mynodes[(*neighbor)];
                 if (neighbor_node->info.color != neighbor_node->info.regNum){
                     can_be_use.erase(neighbor_node->info.color);
                 }
             }
+            if (can_be_use.size() == 0){
+                std::cout<<reg_node->info.regNum<<" "<<reg_node->info.bit_map<<std::endl;
+                for (auto neighbor = reg_node->succs.begin(); neighbor != reg_node->succs.end(); neighbor++){
+                    Node<RegInfo> *neighbor_node = interferenceGraph.mynodes[(*neighbor)];
+                    std::cout<<neighbor_node->info.regNum<<": "<<neighbor_node->info.color<<std::endl;
+                }
+            }
+            
             assert(can_be_use.size());
+            
             reg_node->info.color = *(can_be_use.begin());
         }
     }
+
+    /*if(regNodes.find(381) != regNodes.end()){
+        std::cout<<regNodes[381]->info.bit_map<<" "<<regNodes[381]->info.is_spill<<" "<<regNodes[381]->info.color<<std::endl;
+    }*/
 
     actual_spill(regNodes, as_list);
 }

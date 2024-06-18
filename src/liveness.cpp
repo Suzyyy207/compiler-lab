@@ -289,7 +289,7 @@ static void Use_def(GRAPH::Node<LLVMIR::L_block*>* r, GRAPH::Graph<LLVMIR::L_blo
     
 }
 static int gi=0;
-static bool LivenessIteration(GRAPH::Node<LLVMIR::L_block*>* r, GRAPH::Graph<LLVMIR::L_block*>& bg, FILE* f) {
+static bool LivenessIteration(GRAPH::Node<LLVMIR::L_block*>* r, GRAPH::Graph<LLVMIR::L_block*>& bg) {
 
     // in[b] = use[b] + (out[b] - def[b])
     // out[b] = sum(in[s])
@@ -366,14 +366,14 @@ void Liveness(GRAPH::Node<LLVMIR::L_block*>* r, GRAPH::Graph<LLVMIR::L_block*>& 
     //std::cout<< "use-def finish"<<std::endl;
     gi=0;
     bool changed = true;
-    FILE* f=fopen("./tests/liveness.txt", "w");
+    //FILE* f=fopen("./tests/liveness.txt", "w");
     while (changed){
-        changed = LivenessIteration(r, bg,f);
+        changed = LivenessIteration(r, bg);
         gi++;
     }
     //std::cout<< "liveness finish"<<std::endl;
 
     
     //Show_Liveness(f, bg);
-    fclose(f);
+    //fclose(f);
 }

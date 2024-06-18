@@ -1,16 +1,12 @@
 #!/bin/bash
-# 获取脚本所在目录的绝对路径
-script_dir=$(cd "$(dirname "$0")" && pwd)
-func_testcase_dir="$script_dir/tests/public"
-#func_testcase_dir="$script_dir/tests/private"
+testcase_dir=$2
+test_name=$1
 
+func_testcase_dir=$(realpath $(dirname "$0")/./${testcase_dir})
 
 test_single() {
-	# 获取测试文件的相对路径
-    test_file="$func_testcase_dir/$1.tea"
-    # 获取测试文件的相对路径
-    test_name="${test_file#$func_testcase_dir/}"
-    test_name="${test_name%.tea}"
+	test_file=`realpath --relative-base=$func_testcase_dir $func_testcase_dir/$1.tea`	
+	test_name=${test_file%.tea}
 	
 	echo -n $test_name
 	echo ": "
@@ -21,7 +17,7 @@ test_single() {
 	fi
 
 
-	aarch64-linux-gnu-gcc -c $func_testcase_dir/$test_name.S -o output/$test_name.o
+	aarch64-linux-gnu-gcc -fPIC -c  $func_testcase_dir/$test_name.S -o output/$test_name.o
     aarch64-linux-gnu-gcc output/$test_name.o sylib/sylib.o -o output/$test_name
 	if [ $? != 0 ]; then
 		echo "fail to compile"; exit -1

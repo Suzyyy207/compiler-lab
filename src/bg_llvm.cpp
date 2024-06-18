@@ -64,9 +64,9 @@ Graph<L_block*>& Create_bg(list<L_block*>& bl) {
         }
     }
 
-    FILE* f=fopen("./tests/originGraph.txt", "w");
-    Show_graph(f, RA_bg);
-    fclose(f);
+    //FILE* f=fopen("./tests/originGraph.txt", "w");
+    //Show_graph(f, RA_bg);
+    //fclose(f);
 
     return RA_bg;
 }
@@ -132,9 +132,9 @@ void SingleSourceGraph(Node<L_block*>* r, Graph<L_block*>& bg,L_func*fun) {
 
     //std::cout<<"rebuild graph finish"<<std::endl;
 
-    FILE* f=fopen("./tests/singleSource.txt", "w");
-    Show_graph(f, bg);
-    fclose(f);
+    //FILE* f=fopen("./tests/singleSource.txt", "w");
+    //Show_graph(f, bg);
+    //fclose(f);
     
     return;
 }

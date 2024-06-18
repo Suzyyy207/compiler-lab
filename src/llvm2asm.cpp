@@ -176,9 +176,10 @@ void llvm2asmLoad(list<AS_stm *> &as_list, L_stm *load_stm)
         int ptr_num = Temp_newtemp_int()->num;
         ptr = new AS_reg(AS_type::Xn, ptr_num);
         as_list.emplace_back(AS_Adr(new AS_label(global_name), ptr));
+        ptr = new AS_reg(AS_type::ADR, new AS_address(new AS_reg(AS_type::Xn, ptr_num), 0));
     }
     else{
-        ptr = new AS_reg(AS_type::Xn, load_tmp->ptr->u.TEMP->num);
+        ptr = new AS_reg(AS_type::ADR, new AS_address(new AS_reg(AS_type::Xn, load_tmp->ptr->u.TEMP->num), 0));
     }
     
     as_list.emplace_back(AS_Ldr(dst, ptr));
@@ -204,12 +205,14 @@ void llvm2asmStore(list<AS_stm *> &as_list, L_stm *store_stm)
         int ptr_num = Temp_newtemp_int()->num;
         ptr = new AS_reg(AS_type::Xn, ptr_num);
         as_list.emplace_back(AS_Adr(new AS_label(global_name), ptr));
+        ptr = new AS_reg(AS_type::ADR, new AS_address(new AS_reg(AS_type::Xn, ptr_num), 0));
+        
     }
     else{
-        ptr = new AS_reg(AS_type::Xn, str_tmp->ptr->u.TEMP->num);
+        ptr = new AS_reg(AS_type::ADR, new AS_address(new AS_reg(AS_type::Xn, str_tmp->ptr->u.TEMP->num), 0));
     }
 
-    as_list.emplace_back(AS_Mov(src, ptr));
+    as_list.emplace_back(AS_Str(src, ptr));
     
 }
 
@@ -682,7 +685,6 @@ AS_func *llvm2asmFunc(L_func &func)
     }
 
 
-    //std::cout<<func.name<<std::endl;
     allocReg(p->stms, func);
     return p;
 }

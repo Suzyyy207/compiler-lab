@@ -329,7 +329,7 @@ void Dominators(GRAPH::Graph<LLVMIR::L_block*>& bg) {
 
     //std::cout<<"dominators finish"<<std::endl;
 
-    printf_domi();
+    //printf_domi();
 }
 
 void printf_domi() {
@@ -416,7 +416,7 @@ void tree_Dominators(GRAPH::Graph<LLVMIR::L_block*>& bg) {
     
     //std::cout<<"tree finish"<<std::endl;
 
-    printf_D_tree();
+    //printf_D_tree();
 }
 
 void computeBlcokDF(GRAPH::Graph<LLVMIR::L_block*>& bg, GRAPH::Node<LLVMIR::L_block*>* n){
@@ -474,7 +474,7 @@ void computeDF(GRAPH::Graph<LLVMIR::L_block*>& bg, GRAPH::Node<LLVMIR::L_block*>
     }
 
     //std::cout<<"DF finish"<<std::endl;
-    printf_DF();
+    //printf_DF();
 
 }
 
