@@ -532,7 +532,7 @@ void getCalls(AS_reg *&op_reg, AS_operand *as_operand, list<AS_stm *> &as_list)
     } else if (as_operand->kind == OperandKind::ICONST) {
         op_reg = new AS_reg(AS_type::IMM, as_operand->u.ICONST);
     }else if (as_operand->kind == OperandKind::NAME) {
-        assert(-1);
+        op_reg = nullptr;
     }
 }
 void llvm2asmVoidCall(list<AS_stm *> &as_list, L_stm *call)
@@ -542,6 +542,17 @@ void llvm2asmVoidCall(list<AS_stm *> &as_list, L_stm *call)
     {
         AS_reg *param;
         getCalls(param, call->u.VOID_CALL->args[i], as_list);
+        if (param == nullptr){
+            AS_label *global = new AS_label(call->u.VOID_CALL->args[i]->u.NAME->name->name);
+            Temp_temp* temp = Temp_newtemp_int();
+            AS_reg *ptr = new AS_reg(AS_type::Xn, temp->num);
+            as_list.emplace_back(AS_Adr(global, ptr));
+            ptr = new AS_reg(AS_type::ADR, new AS_address(new AS_reg(AS_type::Xn, temp->num), 0));
+            AS_reg *dst = new AS_reg(AS_type::Xn, Temp_newtemp_int()->num);
+            as_list.emplace_back(AS_Ldr(dst, ptr));
+            param = dst;
+        }
+        
         as_list.emplace_back(AS_Mov(param, new AS_reg(AS_type::Xn, paramRegs[i])));
     }
     vector<AS_reg *> abcd;
@@ -660,6 +671,7 @@ AS_func *llvm2asmFunc(L_func &func)
         }
     }
     
+    
 
     //处理PHI语句
     for (auto it = phi.begin(); it != phi.end(); it++){
@@ -684,7 +696,7 @@ AS_func *llvm2asmFunc(L_func &func)
         }
     }
 
-
+    //std::cout<<"phi"<<std::endl;
     allocReg(p->stms, func);
     return p;
 }

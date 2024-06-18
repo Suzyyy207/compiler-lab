@@ -219,3 +219,193 @@ bb3:
         ldp     x9, x10, [sp], #16
         //  call void @foo(%Node* @d)
 
+        adrp     x9, d
+        add     x9, x9, #:lo12:d
+        ldr     x9, [x9]
+        mov     x0, x9
+        stp     x9, x10, [sp, #-16]!
+        stp     x11, x12, [sp, #-16]!
+        stp     x13, x14, [sp, #-16]!
+        str     x15, [sp, #-8]!
+        stp     x29, x30, [sp, #-16]!
+        mov     x29, sp
+        bl     foo
+        ldp     x29, x30, [sp], #16
+        ldr     x15, [sp], #8
+        ldp     x13, x14, [sp], #16
+        ldp     x11, x12, [sp], #16
+        ldp     x9, x10, [sp], #16
+        //  %r116 = getelementptr [10 x %Node ], [10 x %Node ]* @e, i32 0, i32 0
+
+        mov     x9, #16
+        mov     x10, #0
+        mul     x9, x9, x10
+        adrp     x10, e
+        add     x10, x10, #:lo12:e
+        add     x9, x10, x9
+        //  call void @baz(%Node* %r116)
+
+        mov     x0, x9
+        stp     x9, x10, [sp, #-16]!
+        stp     x11, x12, [sp, #-16]!
+        stp     x13, x14, [sp, #-16]!
+        str     x15, [sp, #-8]!
+        stp     x29, x30, [sp, #-16]!
+        mov     x29, sp
+        bl     baz
+        ldp     x29, x30, [sp], #16
+        ldr     x15, [sp], #8
+        ldp     x13, x14, [sp], #16
+        ldp     x11, x12, [sp], #16
+        ldp     x9, x10, [sp], #16
+        //  %r144 = getelementptr %Node, %Node* %r112, i32 0, i32 0
+
+        str     x18, [sp, #-8]!
+        mov     x19, #16
+        str     x19, [sp, #-8]!
+        mov     x9, #0
+        mul     x10, x19, x9
+        add     x9, x29, #-16
+        //  %r118 = load i32, i32* %r117
+
+        ldr     x9, [x14]
+        //  %r145 = getelementptr %Node, %Node* %r112, i32 0, i32 1
+
+        mov     x14, #16
+        mov     x10, #1
+        mul     x14, x14, x10
+        add     x10, x29, #-16
+        //  %r120 = load i32, i32* %r119
+
+        ldr     x10, [x13]
+        //  %r146 = add i32 %r118, %r120
+
+        add     x9, x9, x10
+        //  call void @putint(i32 %r146)
+
+        mov     x0, x9
+        stp     x9, x10, [sp, #-16]!
+        stp     x11, x12, [sp, #-16]!
+        stp     x13, x14, [sp, #-16]!
+        str     x15, [sp, #-8]!
+        stp     x29, x30, [sp, #-16]!
+        mov     x29, sp
+        bl     putint
+        ldp     x29, x30, [sp], #16
+        ldr     x15, [sp], #8
+        ldp     x13, x14, [sp], #16
+        ldp     x11, x12, [sp], #16
+        ldp     x9, x10, [sp], #16
+        //  %r147 = getelementptr %Node, %Node* @d, i32 0, i32 0
+
+        mov     x10, #16
+        mov     x9, #0
+        mul     x9, x10, x9
+        adrp     x10, d
+        add     x10, x10, #:lo12:d
+        //  %r123 = load i32, i32* %r122
+
+        ldr     x10, [x12]
+        //  %r148 = getelementptr %Node, %Node* @d, i32 0, i32 1
+
+        mov     x9, #16
+        mov     x12, #1
+        mul     x9, x9, x12
+        adrp     x12, d
+        add     x12, x12, #:lo12:d
+        //  %r125 = load i32, i32* %r124
+
+        ldr     x9, [x11]
+        //  %r149 = add i32 %r123, %r125
+
+        add     x9, x10, x9
+        //  call void @putint(i32 %r149)
+
+        mov     x0, x9
+        stp     x9, x10, [sp, #-16]!
+        stp     x11, x12, [sp, #-16]!
+        stp     x13, x14, [sp, #-16]!
+        str     x15, [sp, #-8]!
+        stp     x29, x30, [sp, #-16]!
+        mov     x29, sp
+        bl     putint
+        ldp     x29, x30, [sp], #16
+        ldr     x15, [sp], #8
+        ldp     x13, x14, [sp], #16
+        ldp     x11, x12, [sp], #16
+        ldp     x9, x10, [sp], #16
+        //  %r127 = getelementptr [10 x %Node ], [10 x %Node ]* @e, i32 0, i32 2
+
+        mov     x9, #16
+        mov     x10, #2
+        mul     x9, x9, x10
+        adrp     x10, e
+        add     x10, x10, #:lo12:e
+        add     x9, x10, x9
+        //  %r150 = getelementptr %Node, %Node* %r127, i32 0, i32 0
+
+        mov     x10, #16
+        mov     x11, #0
+        mul     x10, x10, x11
+        //  %r129 = load i32, i32* %r128
+
+        str     x16, [sp, #-8]!
+        ldr     x17, [sp], #8
+        ldr     x9, [x17]
+        //  %r130 = getelementptr [10 x %Node ], [10 x %Node ]* @e, i32 0, i32 2
+
+        mov     x10, #16
+        mov     x11, #2
+        mul     x10, x10, x11
+        adrp     x11, e
+        add     x11, x11, #:lo12:e
+        add     x10, x11, x10
+        //  %r151 = getelementptr %Node, %Node* %r130, i32 0, i32 1
+
+        mov     x11, #16
+        mov     x12, #1
+        mul     x11, x11, x12
+        //  %r132 = load i32, i32* %r131
+
+        str     x18, [sp, #-8]!
+        ldr     x19, [sp], #8
+        ldr     x10, [x19]
+        //  %r152 = add i32 %r129, %r132
+
+        add     x9, x9, x10
+        //  call void @putint(i32 %r152)
+
+        mov     x0, x9
+        stp     x9, x10, [sp, #-16]!
+        stp     x11, x12, [sp, #-16]!
+        stp     x13, x14, [sp, #-16]!
+        str     x15, [sp, #-8]!
+        stp     x29, x30, [sp, #-16]!
+        mov     x29, sp
+        bl     putint
+        ldp     x29, x30, [sp], #16
+        ldr     x15, [sp], #8
+        ldp     x13, x14, [sp], #16
+        ldp     x11, x12, [sp], #16
+        ldp     x9, x10, [sp], #16
+        //  call void @_sysy_stoptime(i32 19)
+
+        mov     x0, #19
+        stp     x9, x10, [sp, #-16]!
+        stp     x11, x12, [sp, #-16]!
+        stp     x13, x14, [sp, #-16]!
+        str     x15, [sp, #-8]!
+        stp     x29, x30, [sp, #-16]!
+        mov     x29, sp
+        bl     _sysy_stoptime
+        ldp     x29, x30, [sp], #16
+        ldr     x15, [sp], #8
+        ldp     x13, x14, [sp], #16
+        ldp     x11, x12, [sp], #16
+        ldp     x9, x10, [sp], #16
+        //  ret i32 0
+
+        mov     x9, #0
+        mov     x0, x9
+        mov     sp, x29
+        ret
