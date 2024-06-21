@@ -9,46 +9,53 @@ declare void @_sysy_stoptime( i32 )
 @newline = global i32 0
 define i32 @factor( i32 %r100 ) {
 bb2:
-  %r129 = add i32 0, 0
-  %r130 = add i32 0, 0
-  %r131 = add i32 0, 0
-  %r132 = add i32 %r100, 0
+  %r103 = alloca i32
+  %r102 = alloca i32
+  %r101 = alloca i32
+  store i32 %r100, i32* %r101
   br label %bb1
 
 bb1:
-  %r133 = add i32 0, 0
-  %r134 = add i32 1, 0
+  store i32 0, i32* %r103
+  store i32 1, i32* %r102
   br label %bb3
 
 bb3:
-  %r135 = phi i32 [ %r134, %bb1 ], [ %r144, %bb8 ]
-  %r136 = phi i32 [ %r133, %bb1 ], [ %r142, %bb8 ]
-  %r137 = add i32 %r132, 1
-  %r138 = icmp slt i32 %r135, %r137
-  br i1 %r138, label %bb4, label %bb5
+  %r104 = load i32, i32* %r102
+  %r105 = load i32, i32* %r101
+  %r106 = add i32 %r105, 1
+  %r107 = icmp slt i32 %r104, %r106
+  br i1 %r107, label %bb4, label %bb5
 
 bb4:
-  %r139 = sdiv i32 %r132, %r135
-  %r140 = mul i32 %r139, %r135
-  %r141 = icmp eq i32 %r140, %r132
-  br i1 %r141, label %bb6, label %bb7
+  %r108 = load i32, i32* %r101
+  %r109 = load i32, i32* %r102
+  %r110 = sdiv i32 %r108, %r109
+  %r111 = load i32, i32* %r102
+  %r112 = mul i32 %r110, %r111
+  %r113 = load i32, i32* %r101
+  %r114 = icmp eq i32 %r112, %r113
+  br i1 %r114, label %bb6, label %bb7
 
 bb6:
-  %r145 = add i32 %r136, %r135
-  %r146 = add i32 %r145, 0
+  %r115 = load i32, i32* %r103
+  %r116 = load i32, i32* %r102
+  %r117 = add i32 %r115, %r116
+  store i32 %r117, i32* %r103
   br label %bb8
 
 bb7:
   br label %bb8
 
 bb8:
-  %r142 = phi i32 [ %r146, %bb6 ], [ %r136, %bb7 ]
-  %r143 = add i32 %r135, 1
-  %r144 = add i32 %r143, 0
+  %r118 = load i32, i32* %r102
+  %r119 = add i32 %r118, 1
+  store i32 %r119, i32* %r102
   br label %bb3
 
 bb5:
-  ret i32 %r136
+  %r120 = load i32, i32* %r103
+  ret i32 %r120
 }
 
 define i32 @main( ) {
@@ -56,12 +63,13 @@ bb9:
   call void @_sysy_starttime(i32 24)
   store i32 4, i32* @N
   store i32 10, i32* @newline
-  %r150 = add i32 0, 0
-  %r151 = add i32 0, 0
-  %r152 = add i32 1478, 0
-  %r153 = add i32 0, 0
+  %r121 = alloca i32
+  %r122 = alloca i32
+  store i32 1478, i32* %r122
+  %r123 = alloca i32
   call void @_sysy_stoptime(i32 31)
-  %r154 = call i32 @factor(i32 %r152)
-  ret i32 %r154
+  %r124 = load i32, i32* %r122
+  %r125 = call i32 @factor(i32 %r124)
+  ret i32 %r125
 }
 

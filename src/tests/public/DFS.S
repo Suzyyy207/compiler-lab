@@ -34,6 +34,7 @@ vis:
 .global clear
 .global same
 .global main
+        sub     sp, sp, #0
 quickread:
 
         //bb1:
@@ -289,6 +290,7 @@ bb14:
         mov     x0, x9
         mov     sp, x29
         ret
+        sub     sp, sp, #0
 addedge:
 
         //bb17:
@@ -459,6 +461,7 @@ bb16:
 
         mov     sp, x29
         ret
+        sub     sp, sp, #0
 init:
 
         //bb18:
@@ -531,6 +534,7 @@ bb21:
 
         mov     sp, x29
         ret
+        sub     sp, sp, #0
 clear:
 
         //bb22:
@@ -603,6 +607,7 @@ bb25:
 
         mov     sp, x29
         ret
+        sub     sp, sp, #0
 same:
 
         //bb27:
@@ -829,6 +834,7 @@ bb33:
         mov     x0, x9
         mov     sp, x29
         ret
+        sub     sp, sp, #0
 main:
 
         //bb38:

@@ -12,6 +12,9 @@ using namespace GRAPH;
 stack<Node<RegInfo> *> reg_stack;
 AS_reg *sp = new AS_reg(AS_type::SP, -1);
 int reg_size = allocateRegs.size();
+
+unordered_map<int, int> sp_off;
+int off = 0;
 list<int> param = {XXn1, XXn2, XXn3, XXn4};
 auto param_p = param.begin();
 void getAllRegs(AS_stm *stm, vector<AS_reg *> &defs, vector<AS_reg *> &uses)
@@ -356,18 +359,11 @@ int deal_node(unordered_map<int, Node<RegInfo> *> regNodes, int reg_num, std::li
             return reg_node->info.color;
         }
         else{
-            if (reg_node->info.regNum != XnFP){
-                if ((*stm)->type == AS_stmkind::MOV&&(*stm)->u.MOV->dst->u.offset == 381){
-                        std::cout<<"first: "<<std::endl;
-                }
-                if (param_p == param.end()){
-                    param_p = param.begin();
-                }
-                int X = (*param_p);
-                param_p++;
-
-                as_list.insert(stm, AS_Str(new AS_reg(AS_type::Xn, X), sp, -INT_LENGTH));
-                reg_node->info.regNum = XnFP;
+            if (sp_off.find(reg_node->info.regNum) == sp_off.end()){
+                sp_off[reg_node->info.regNum] = off;
+                off += 8;
+                //as_list.insert(stm, AS_Str(new AS_reg(AS_type::Xn, X), sp, -INT_LENGTH));
+                //reg_node->info.regNum = XnFP;
             }
             if(use_def == 0){
                 // use
@@ -376,11 +372,11 @@ int deal_node(unordered_map<int, Node<RegInfo> *> regNodes, int reg_num, std::li
                 }
                 int X = (*param_p);
                 param_p++;
-                as_list.insert(stm, AS_Ldr(new AS_reg(AS_type::Xn, X), sp, INT_LENGTH));
                 
-                if ((*stm)->type == AS_stmkind::MOV&&(*stm)->u.MOV->dst->u.offset == 381){
-                        std::cout<<"use: "<<X<<std::endl;
-                }
+                int offset = sp_off[reg_node->info.regNum];
+                as_list.insert(stm, AS_Binop(AS_binopkind::ADD_, sp, new AS_reg(AS_type::IMM, offset), new AS_reg(AS_type::Xn, X)));
+                as_list.insert(stm, AS_Ldr(new AS_reg(AS_type::Xn, X), new AS_reg(AS_type::ADR, new AS_address(new AS_reg(AS_type::Xn, X), 0))));
+                
                 return X;
             }
             else{
@@ -391,10 +387,10 @@ int deal_node(unordered_map<int, Node<RegInfo> *> regNodes, int reg_num, std::li
                 int X = (*param_p);
                 param_p++;
                 stm++;
-                as_list.insert(stm, AS_Str(new AS_reg(AS_type::Xn, X), sp, -INT_LENGTH));
-                if ((*stm)->type == AS_stmkind::MOV &&(*stm)->u.MOV->dst->u.offset == 381){
-                        std::cout<<"def: "<<X<<std::endl;
-                }
+                int offset = sp_off[reg_node->info.regNum];
+                as_list.insert(stm, AS_Binop(AS_binopkind::ADD_, sp, new AS_reg(AS_type::IMM, offset), new AS_reg(AS_type::Xn, X)));
+                as_list.insert(stm, AS_Str(new AS_reg(AS_type::Xn, X), new AS_reg(AS_type::ADR, new AS_address(new AS_reg(AS_type::Xn, X), 0))));
+                stm--;
                 stm--;
                 stm--;
                 return X;
@@ -546,6 +542,27 @@ void livenessAnalysis(std::list<InstructionNode *> &nodes, std::list<ASM::AS_stm
         }
     }
 
+    int spill_size = (regNodes.size() - spill_stack.size()) * INT_LENGTH;
+    as_list.emplace_front(AS_Binop(AS_binopkind::SUB_, sp, new AS_reg(AS_type::IMM, spill_size), sp));
+    int find = 0;
+    if (spill_size > 0){
+        for (auto it = as_list.begin(); it != as_list.end(); it++)
+        {
+            if ((*it)->type == AS_stmkind::LABEL)
+            {
+                find += 1;
+                if (find == 2)
+                {
+                    it++;
+                    as_list.insert(it, AS_Binop(AS_binopkind::SUB_, sp, new AS_reg(AS_type::IMM, spill_size), sp));
+                    break;
+                }
+            }
+        }
+    }
+    off = 0;
+    
+
 
     // select
     while (spill_stack.size() > 0){
@@ -575,9 +592,6 @@ void livenessAnalysis(std::list<InstructionNode *> &nodes, std::list<ASM::AS_stm
         }
     }
 
-    /*if(regNodes.find(381) != regNodes.end()){
-        std::cout<<regNodes[381]->info.bit_map<<" "<<regNodes[381]->info.is_spill<<" "<<regNodes[381]->info.color<<std::endl;
-    }*/
 
     actual_spill(regNodes, as_list);
 }

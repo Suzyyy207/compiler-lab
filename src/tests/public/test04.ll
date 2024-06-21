@@ -8,41 +8,43 @@ declare void @_sysy_stoptime( i32 )
 @a = global i32 1
 define i32 @foo( i32 %r100 ) {
 bb2:
-  %r113 = add i32 0, 0
-  %r114 = add i32 %r100, 0
+  %r101 = alloca i32
+  store i32 %r100, i32* %r101
   br label %bb1
 
 bb1:
-  store i32 %r114, i32* @a
+  %r102 = load i32, i32* %r101
+  store i32 %r102, i32* @a
   ret i32 1
 }
 
 define i32 @main( ) {
 bb3:
   call void @_sysy_starttime(i32 9)
-  %r116 = add i32 0, 0
-  %r117 = add i32 1, 0
-  %r118 = call i32 @foo(i32 2)
-  %r119 = icmp sgt i32 %r118, 0
-  br i1 %r119, label %bb4, label %bb7
+  %r103 = alloca i32
+  store i32 1, i32* %r103
+  %r105 = call i32 @foo(i32 2)
+  %r106 = icmp sgt i32 %r105, 0
+  br i1 %r106, label %bb4, label %bb7
 
 bb7:
-  %r122 = call i32 @foo(i32 3)
-  %r123 = icmp sgt i32 %r122, 0
-  br i1 %r123, label %bb4, label %bb5
+  %r107 = call i32 @foo(i32 3)
+  %r108 = icmp sgt i32 %r107, 0
+  br i1 %r108, label %bb4, label %bb5
 
 bb4:
-  %r121 = add i32 2, 0
+  store i32 2, i32* %r103
   br label %bb6
 
 bb5:
   br label %bb6
 
 bb6:
-  %r120 = phi i32 [ %r121, %bb4 ], [ %r117, %bb5 ]
   %r109 = load i32, i32* @a
   call void @putint(i32 %r109)
-  call void @putint(i32 %r120)
+  %r110 = load i32, i32* %r103
+  %r111 = load i32, i32* %r103
+  call void @putint(i32 %r111)
   call void @_sysy_stoptime(i32 17)
   ret i32 0
 }

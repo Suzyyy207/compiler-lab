@@ -95,6 +95,8 @@ void set_stack(L_func &func)
         }
     }
 
+    //std::cout<<stack_frame<<std::endl;
+
     stack_frame = ((stack_frame + 15) >> 4) << 4;
 }
 
@@ -548,9 +550,9 @@ void llvm2asmVoidCall(list<AS_stm *> &as_list, L_stm *call)
             AS_reg *ptr = new AS_reg(AS_type::Xn, temp->num);
             as_list.emplace_back(AS_Adr(global, ptr));
             ptr = new AS_reg(AS_type::ADR, new AS_address(new AS_reg(AS_type::Xn, temp->num), 0));
-            AS_reg *dst = new AS_reg(AS_type::Xn, Temp_newtemp_int()->num);
-            as_list.emplace_back(AS_Ldr(dst, ptr));
-            param = dst;
+            //AS_reg *dst = new AS_reg(AS_type::Xn, Temp_newtemp_int()->num);
+            //as_list.emplace_back(AS_Ldr(dst, ptr));
+            param = new AS_reg(AS_type::Xn, temp->num);
         }
         
         as_list.emplace_back(AS_Mov(param, new AS_reg(AS_type::Xn, paramRegs[i])));

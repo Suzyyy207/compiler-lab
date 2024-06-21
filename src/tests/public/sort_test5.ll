@@ -8,91 +8,109 @@ declare void @_sysy_stoptime( i32 )
 @n = global i32 0
 define i32 @swap( i32* %r100, i32 %r101, i32 %r103 ) {
 bb2:
-  %r225 = add i32 0, 0
-  %r226 = add i32 0, 0
-  %r227 = add i32 %r101, 0
-  %r228 = add i32 0, 0
-  %r229 = add i32 %r103, 0
+  %r105 = alloca i32
+  %r102 = alloca i32
+  store i32 %r101, i32* %r102
+  %r104 = alloca i32
+  store i32 %r103, i32* %r104
   br label %bb1
 
 bb1:
-  %r107 = getelementptr i32, i32* %r100, i32 %r227
+  %r106 = load i32, i32* %r102
+  %r107 = getelementptr i32, i32* %r100, i32 %r106
   %r108 = load i32, i32* %r107
-  %r230 = add i32 %r108, 0
-  %r110 = getelementptr i32, i32* %r100, i32 %r229
+  store i32 %r108, i32* %r105
+  %r109 = load i32, i32* %r104
+  %r110 = getelementptr i32, i32* %r100, i32 %r109
   %r111 = load i32, i32* %r110
-  %r113 = getelementptr i32, i32* %r100, i32 %r227
+  %r112 = load i32, i32* %r102
+  %r113 = getelementptr i32, i32* %r100, i32 %r112
   store i32 %r111, i32* %r113
-  %r116 = getelementptr i32, i32* %r100, i32 %r229
-  store i32 %r230, i32* %r116
+  %r114 = load i32, i32* %r105
+  %r115 = load i32, i32* %r104
+  %r116 = getelementptr i32, i32* %r100, i32 %r115
+  store i32 %r114, i32* %r116
   ret i32 0
 }
 
 define i32 @heap_ajust( i32* %r117, i32 %r118, i32 %r120 ) {
 bb4:
-  %r236 = add i32 0, 0
-  %r237 = add i32 0, 0
-  %r238 = add i32 0, 0
-  %r239 = add i32 0, 0
-  %r240 = add i32 %r118, 0
-  %r241 = add i32 0, 0
-  %r242 = add i32 %r120, 0
+  %r132 = alloca i32
+  %r124 = alloca i32
+  %r122 = alloca i32
+  %r119 = alloca i32
+  store i32 %r118, i32* %r119
+  %r121 = alloca i32
+  store i32 %r120, i32* %r121
   br label %bb3
 
 bb3:
-  %r243 = add i32 %r240, 0
-  %r244 = mul i32 %r243, 2
-  %r245 = add i32 %r244, 1
-  %r246 = add i32 %r245, 0
+  %r123 = load i32, i32* %r119
+  store i32 %r123, i32* %r122
+  %r125 = load i32, i32* %r122
+  %r126 = mul i32 %r125, 2
+  %r127 = add i32 %r126, 1
+  store i32 %r127, i32* %r124
   br label %bb5
 
 bb5:
-  %r247 = phi i32 [ %r243, %bb3 ], [ %r258, %bb14 ]
-  %r248 = phi i32 [ %r246, %bb3 ], [ %r261, %bb14 ]
-  %r249 = add i32 %r242, 1
-  %r250 = icmp slt i32 %r248, %r249
-  br i1 %r250, label %bb6, label %bb7
+  %r128 = load i32, i32* %r124
+  %r129 = load i32, i32* %r121
+  %r130 = add i32 %r129, 1
+  %r131 = icmp slt i32 %r128, %r130
+  br i1 %r131, label %bb6, label %bb7
 
 bb6:
-  %r251 = add i32 %r248, 1
-  %r252 = add i32 %r251, 0
-  %r253 = icmp slt i32 %r248, %r242
-  br i1 %r253, label %bb11, label %bb9
+  %r133 = load i32, i32* %r124
+  %r134 = add i32 %r133, 1
+  store i32 %r134, i32* %r132
+  %r136 = load i32, i32* %r124
+  %r137 = load i32, i32* %r121
+  %r138 = icmp slt i32 %r136, %r137
+  br i1 %r138, label %bb11, label %bb9
 
 bb11:
-  %r140 = getelementptr i32, i32* %r117, i32 %r248
+  %r139 = load i32, i32* %r124
+  %r140 = getelementptr i32, i32* %r117, i32 %r139
   %r141 = load i32, i32* %r140
-  %r143 = getelementptr i32, i32* %r117, i32 %r252
+  %r142 = load i32, i32* %r132
+  %r143 = getelementptr i32, i32* %r117, i32 %r142
   %r144 = load i32, i32* %r143
-  %r262 = icmp slt i32 %r141, %r144
-  br i1 %r262, label %bb8, label %bb9
+  %r145 = icmp slt i32 %r141, %r144
+  br i1 %r145, label %bb8, label %bb9
 
 bb8:
-  %r263 = add i32 %r248, 1
-  %r264 = add i32 %r263, 0
+  %r146 = load i32, i32* %r124
+  %r147 = add i32 %r146, 1
+  store i32 %r147, i32* %r124
   br label %bb10
 
 bb9:
   br label %bb10
 
 bb10:
-  %r254 = phi i32 [ %r264, %bb8 ], [ %r248, %bb9 ]
-  %r149 = getelementptr i32, i32* %r117, i32 %r247
+  %r148 = load i32, i32* %r122
+  %r149 = getelementptr i32, i32* %r117, i32 %r148
   %r150 = load i32, i32* %r149
-  %r152 = getelementptr i32, i32* %r117, i32 %r254
+  %r151 = load i32, i32* %r124
+  %r152 = getelementptr i32, i32* %r117, i32 %r151
   %r153 = load i32, i32* %r152
-  %r255 = icmp sgt i32 %r150, %r153
-  br i1 %r255, label %bb12, label %bb13
+  %r154 = icmp sgt i32 %r150, %r153
+  br i1 %r154, label %bb12, label %bb13
 
 bb12:
   ret i32 0
 bb13:
-  %r256 = call i32 @swap(i32* %r117, i32 %r247, i32 %r254)
-  %r257 = add i32 %r256, 0
-  %r258 = add i32 %r254, 0
-  %r259 = mul i32 %r258, 2
-  %r260 = add i32 %r259, 1
-  %r261 = add i32 %r260, 0
+  %r155 = load i32, i32* %r122
+  %r156 = load i32, i32* %r124
+  %r157 = call i32 @swap(i32* %r117, i32 %r155, i32 %r156)
+  store i32 %r157, i32* %r122
+  %r158 = load i32, i32* %r124
+  store i32 %r158, i32* %r122
+  %r159 = load i32, i32* %r122
+  %r160 = mul i32 %r159, 2
+  %r161 = add i32 %r160, 1
+  store i32 %r161, i32* %r124
   br label %bb14
 
 bb14:
@@ -104,54 +122,66 @@ bb7:
 
 define i32 @heap_sort( i32* %r162, i32 %r163 ) {
 bb16:
-  %r269 = add i32 0, 0
-  %r270 = add i32 0, 0
-  %r271 = add i32 0, 0
-  %r272 = add i32 0, 0
-  %r273 = add i32 %r163, 0
+  %r184 = alloca i32
+  %r166 = alloca i32
+  %r165 = alloca i32
+  %r164 = alloca i32
+  store i32 %r163, i32* %r164
   br label %bb15
 
 bb15:
-  %r274 = sdiv i32 %r273, 2
-  %r275 = sub i32 %r274, 1
-  %r276 = add i32 %r275, 0
+  %r167 = load i32, i32* %r164
+  %r168 = sdiv i32 %r167, 2
+  %r169 = sub i32 %r168, 1
+  store i32 %r169, i32* %r165
   br label %bb17
 
 bb17:
-  %r277 = phi i32 [ %r276, %bb15 ], [ %r298, %bb18 ]
-  %r278 = sub i32 0, 1
-  %r279 = icmp sgt i32 %r277, %r278
-  br i1 %r279, label %bb18, label %bb19
+  %r170 = load i32, i32* %r165
+  %r171 = sub i32 0, 1
+  %r172 = icmp sgt i32 %r170, %r171
+  br i1 %r172, label %bb18, label %bb19
 
 bb18:
-  %r293 = sub i32 %r273, 1
-  %r294 = add i32 %r293, 0
-  %r295 = call i32 @heap_ajust(i32* %r162, i32 %r277, i32 %r294)
-  %r296 = add i32 %r295, 0
-  %r297 = sub i32 %r277, 1
-  %r298 = add i32 %r297, 0
+  %r173 = load i32, i32* %r164
+  %r174 = sub i32 %r173, 1
+  store i32 %r174, i32* %r166
+  %r175 = load i32, i32* %r165
+  %r176 = load i32, i32* %r166
+  %r177 = call i32 @heap_ajust(i32* %r162, i32 %r175, i32 %r176)
+  store i32 %r177, i32* %r166
+  %r178 = load i32, i32* %r165
+  %r179 = sub i32 %r178, 1
+  store i32 %r179, i32* %r165
   br label %bb17
 
 bb19:
-  %r280 = sub i32 %r273, 1
-  %r281 = add i32 %r280, 0
+  %r180 = load i32, i32* %r164
+  %r181 = sub i32 %r180, 1
+  store i32 %r181, i32* %r165
   br label %bb20
 
 bb20:
-  %r282 = phi i32 [ %r281, %bb19 ], [ %r292, %bb21 ]
-  %r283 = icmp sgt i32 %r282, 0
-  br i1 %r283, label %bb21, label %bb22
+  %r182 = load i32, i32* %r165
+  %r183 = icmp sgt i32 %r182, 0
+  br i1 %r183, label %bb21, label %bb22
 
 bb21:
-  %r284 = add i32 0, 0
-  %r285 = call i32 @swap(i32* %r162, i32 %r284, i32 %r282)
-  %r286 = add i32 %r285, 0
-  %r287 = sub i32 %r282, 1
-  %r288 = add i32 %r287, 0
-  %r289 = call i32 @heap_ajust(i32* %r162, i32 %r284, i32 %r288)
-  %r290 = add i32 %r289, 0
-  %r291 = sub i32 %r282, 1
-  %r292 = add i32 %r291, 0
+  store i32 0, i32* %r184
+  %r185 = load i32, i32* %r184
+  %r186 = load i32, i32* %r165
+  %r187 = call i32 @swap(i32* %r162, i32 %r185, i32 %r186)
+  store i32 %r187, i32* %r166
+  %r188 = load i32, i32* %r165
+  %r189 = sub i32 %r188, 1
+  store i32 %r189, i32* %r166
+  %r190 = load i32, i32* %r184
+  %r191 = load i32, i32* %r166
+  %r192 = call i32 @heap_ajust(i32* %r162, i32 %r190, i32 %r191)
+  store i32 %r192, i32* %r166
+  %r193 = load i32, i32* %r165
+  %r194 = sub i32 %r193, 1
+  store i32 %r194, i32* %r165
   br label %bb20
 
 bb22:
@@ -160,7 +190,7 @@ bb22:
 
 define i32 @main( ) {
 bb23:
-  %r301 = add i32 0, 0
+  %r212 = alloca i32
   call void @_sysy_starttime(i32 50)
   store i32 10, i32* @n
   %r195 = alloca [ 10 x i32 ]
@@ -184,28 +214,34 @@ bb23:
   store i32 7, i32* %r204
   %r205 = getelementptr [10 x i32 ], [10 x i32 ]* %r195, i32 0, i32 9
   store i32 8, i32* %r205
-  %r302 = add i32 0, 0
-  %r303 = add i32 0, 0
+  %r206 = alloca i32
+  store i32 0, i32* %r206
   %r207 = load i32, i32* @n
-  %r304 = call i32 @heap_sort(i32* %r195, i32 %r207)
-  %r305 = add i32 %r304, 0
+  %r208 = call i32 @heap_sort(i32* %r195, i32 %r207)
+  store i32 %r208, i32* %r206
   br label %bb24
 
 bb24:
-  %r306 = phi i32 [ %r305, %bb23 ], [ %r311, %bb25 ]
+  %r209 = load i32, i32* %r206
   %r210 = load i32, i32* @n
-  %r307 = icmp slt i32 %r306, %r210
-  br i1 %r307, label %bb25, label %bb26
+  %r211 = icmp slt i32 %r209, %r210
+  br i1 %r211, label %bb25, label %bb26
 
 bb25:
-  %r214 = getelementptr [10 x i32 ], [10 x i32 ]* %r195, i32 0, i32 %r306
+  %r213 = load i32, i32* %r206
+  %r214 = getelementptr [10 x i32 ], [10 x i32 ]* %r195, i32 0, i32 %r213
   %r215 = load i32, i32* %r214
-  %r308 = add i32 %r215, 0
-  call void @putint(i32 %r308)
-  %r309 = add i32 10, 0
-  call void @putch(i32 %r309)
-  %r310 = add i32 %r306, 1
-  %r311 = add i32 %r310, 0
+  store i32 %r215, i32* %r212
+  %r216 = load i32, i32* %r212
+  %r217 = load i32, i32* %r212
+  call void @putint(i32 %r217)
+  store i32 10, i32* %r212
+  %r218 = load i32, i32* %r212
+  %r219 = load i32, i32* %r212
+  call void @putch(i32 %r219)
+  %r220 = load i32, i32* %r206
+  %r221 = add i32 %r220, 1
+  store i32 %r221, i32* %r206
   br label %bb24
 
 bb26:

@@ -44,6 +44,7 @@ inq:
 .global popqueue
 .global same
 .global main
+        sub     sp, sp, #0
 quickread:
 
         //bb1:
@@ -299,6 +300,7 @@ bb14:
         mov     x0, x11
         mov     sp, x29
         ret
+        sub     sp, sp, #0
 addedge:
 
         //bb17:
@@ -469,6 +471,7 @@ bb16:
 
         mov     sp, x29
         ret
+        sub     sp, sp, #0
 init:
 
         //bb18:
@@ -541,6 +544,7 @@ bb21:
 
         mov     sp, x29
         ret
+        sub     sp, sp, #0
 inqueue:
 
         //bb23:
@@ -607,6 +611,7 @@ bb22:
 
         mov     sp, x29
         ret
+        sub     sp, sp, #0
 popqueue:
 
         //bb24:
@@ -668,6 +673,7 @@ bb24:
         mov     x0, x9
         mov     sp, x29
         ret
+        sub     sp, sp, #0
 same:
 
         //bb26:
@@ -1051,6 +1057,7 @@ bb41:
         mov     x0, x9
         mov     sp, x29
         ret
+        sub     sp, sp, #0
 main:
 
         //bb42:

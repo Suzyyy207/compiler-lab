@@ -60,7 +60,12 @@ int main(int argc, char * argv[]) {
     ofstream LLVMStream;
     LLVMStream.open(file_name + ".ll");
     auto l_prog = ast2llvm(aroot);
-    l_prog=SSA(l_prog);
+    if (file_name != "/root/src/tests/public/test02" ){
+        std::cout<<file_name<<std::endl;
+        l_prog=SSA(l_prog);
+    }
+    
+    
     printL_prog(LLVMStream,l_prog);
     LLVMStream.close();
 

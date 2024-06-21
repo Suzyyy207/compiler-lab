@@ -11,6 +11,7 @@ len:
 .global _sysy_starttime
 .global _sysy_stoptime
 .global main
+        sub     sp, sp, #10
 main:
 
         //153:x29,#-1040
@@ -27,6 +28,7 @@ main:
 
 bb1:
 
+        sub     sp, sp, #10
         //  %r261 = add i32 0, 0
 
         mov     x16, #1040
@@ -778,12 +780,12 @@ bb12:
         //  %r300 = add i32 %r299, 0
 
         mov     x13, x13
-        str     x16, [sp, #-8]!
-        mov     x17, x10
-        str     x17, [sp, #-8]!
-        str     x18, [sp, #-8]!
-        mov     x19, x13
-        str     x19, [sp, #-8]!
+        mov     x16, x10
+        add     x16, sp, #0
+        str     x16, [x16]
+        mov     x17, x13
+        add     x17, sp, #8
+        str     x17, [x17]
         //  br label %bb14
 
 
@@ -799,14 +801,15 @@ bb14:
         //  %r303 = sub i32 0, 1
 
         mov     x10, #0
-        str     x16, [sp, #-8]!
-        mov     x17, #1
-        str     x17, [sp, #-8]!
-        sub     x10, x10, x17
+        mov     x18, #1
+        add     x18, sp, #16
+        str     x18, [x18]
+        sub     x10, x10, x18
         //  %r304 = icmp sgt i32 %r302, %r303
 
-        ldr     x18, [sp], #8
-        cmp     x18, x10
+        add     x19, sp, #8
+        ldr     x19, [x19]
+        cmp     x19, x10
         //  br i1 %r304, label %bb15, label %bb16
 
 
@@ -819,28 +822,30 @@ bb15:
         //  %r200 = getelementptr [40 x i32 ], [40 x i32 ]* %r153, i32 0, i32 %r301
 
         mov     x10, #8
-        ldr     x19, [sp], #8
-        mul     x10, x10, x19
-        str     x16, [sp, #-8]!
+        add     x16, sp, #0
+        ldr     x16, [x16]
+        mul     x10, x10, x16
         add     x17, x29, #-1040
-        str     x17, [sp, #-8]!
+        add     x17, sp, #24
+        str     x17, [x17]
         add     x10, x17, x10
         //  %r201 = load i32, i32* %r200
 
         ldr     x10, [x10]
         //  %r204 = getelementptr [25 x i32 ], [25 x i32 ]* %r151, i32 0, i32 %r302
 
-        str     x18, [sp, #-8]!
-        mov     x19, #8
-        str     x19, [sp, #-8]!
-        ldr     x16, [sp], #8
-        str     x17, [sp, #-8]!
-        mul     x18, x19, x16
-        str     x18, [sp, #-8]!
-        str     x19, [sp, #-8]!
-        add     x16, x29, #-520
-        str     x16, [sp, #-8]!
-        add     x13, x16, x18
+        mov     x18, #8
+        add     x18, sp, #32
+        str     x18, [x18]
+        add     x19, sp, #8
+        ldr     x19, [x19]
+        mul     x16, x18, x19
+        add     x16, sp, #40
+        str     x16, [x16]
+        add     x17, x29, #-520
+        add     x17, sp, #48
+        str     x17, [x17]
+        add     x13, x17, x16
         //  %r205 = load i32, i32* %r204
 
         ldr     x13, [x13]
@@ -852,16 +857,17 @@ bb15:
         add     x10, x10, x13
         //  %r312 = add i32 %r311, 0
 
-        str     x17, [sp, #-8]!
         mov     x18, x10
-        str     x18, [sp, #-8]!
+        add     x18, sp, #56
+        str     x18, [x18]
         //  %r313 = icmp sge i32 %r312, 10
 
-        str     x19, [sp, #-8]!
-        mov     x16, #10
-        str     x16, [sp, #-8]!
-        ldr     x17, [sp], #8
-        cmp     x17, x16
+        mov     x19, #10
+        add     x19, sp, #64
+        str     x19, [x19]
+        add     x16, sp, #56
+        ldr     x16, [x16]
+        cmp     x16, x19
         //  br i1 %r313, label %bb17, label %bb18
 
 
@@ -873,77 +879,83 @@ bb17:
 
         //  %r212 = getelementptr [40 x i32 ], [40 x i32 ]* %r153, i32 0, i32 %r301
 
-        str     x18, [sp, #-8]!
-        mov     x19, #8
-        str     x19, [sp, #-8]!
-        ldr     x16, [sp], #8
-        str     x17, [sp, #-8]!
-        mul     x18, x19, x16
-        str     x18, [sp, #-8]!
-        str     x19, [sp, #-8]!
+        mov     x17, #8
+        add     x17, sp, #72
+        str     x17, [x17]
+        add     x18, sp, #0
+        ldr     x18, [x18]
+        mul     x19, x17, x18
+        add     x19, sp, #80
+        str     x19, [x19]
         add     x16, x29, #-1040
-        str     x16, [sp, #-8]!
-        add     x10, x16, x18
+        add     x16, sp, #88
+        str     x16, [x16]
+        add     x10, x16, x19
         //  store i32 %r312, i32* %r212
 
-        ldr     x17, [sp], #8
+        add     x17, sp, #56
+        ldr     x17, [x17]
         str     x17, [x10]
         //  %r318 = sub i32 %r301, 1
 
-        str     x18, [sp, #-8]!
-        mov     x19, #1
-        str     x19, [sp, #-8]!
-        ldr     x16, [sp], #8
-        str     x17, [sp, #-8]!
-        sub     x18, x16, x19
-        str     x18, [sp, #-8]!
+        mov     x18, #1
+        add     x18, sp, #96
+        str     x18, [x18]
+        add     x19, sp, #0
+        ldr     x19, [x19]
+        sub     x16, x19, x18
+        add     x16, sp, #104
+        str     x16, [x16]
         //  %r319 = add i32 %r318, 0
 
-        ldr     x19, [sp], #8
-        mov     x13, x19
+        add     x17, sp, #104
+        ldr     x17, [x17]
+        mov     x13, x17
         //  %r217 = getelementptr [40 x i32 ], [40 x i32 ]* %r153, i32 0, i32 %r319
 
-        str     x16, [sp, #-8]!
-        mov     x17, #8
-        str     x17, [sp, #-8]!
-        str     x18, [sp, #-8]!
-        mul     x19, x17, x13
-        str     x19, [sp, #-8]!
-        str     x16, [sp, #-8]!
-        add     x17, x29, #-1040
-        str     x17, [sp, #-8]!
-        add     x10, x17, x19
+        mov     x18, #8
+        add     x18, sp, #10
+        str     x18, [x18]
+        mul     x19, x18, x13
+        add     x19, sp, #10
+        str     x19, [x19]
+        add     x16, x29, #-1040
+        add     x16, sp, #10
+        str     x16, [x16]
+        add     x10, x16, x19
         //  %r218 = load i32, i32* %r217
 
         ldr     x10, [x10]
         //  %r320 = sdiv i32 %r312, 10
 
-        str     x18, [sp, #-8]!
-        mov     x19, #10
-        str     x19, [sp, #-8]!
-        ldr     x16, [sp], #8
-        sdiv     x14, x16, x19
+        mov     x17, #10
+        add     x17, sp, #9
+        str     x17, [x17]
+        add     x18, sp, #56
+        ldr     x18, [x18]
+        sdiv     x14, x18, x17
         //  %r321 = add i32 %r218, %r320
 
-        str     x17, [sp, #-8]!
-        add     x18, x10, x14
-        str     x18, [sp, #-8]!
+        add     x19, x10, x14
+        add     x19, sp, #9
+        str     x19, [x19]
         //  %r223 = getelementptr [40 x i32 ], [40 x i32 ]* %r153, i32 0, i32 %r319
 
-        str     x19, [sp, #-8]!
         mov     x16, #8
-        str     x16, [sp, #-8]!
-        str     x17, [sp, #-8]!
-        mul     x18, x16, x13
-        str     x18, [sp, #-8]!
-        str     x19, [sp, #-8]!
-        add     x16, x29, #-1040
-        str     x16, [sp, #-8]!
-        add     x10, x16, x18
+        add     x16, sp, #152
+        str     x16, [x16]
+        mul     x17, x16, x13
+        add     x17, sp, #10
+        str     x17, [x17]
+        add     x18, x29, #-1040
+        add     x18, sp, #168
+        str     x18, [x18]
+        add     x10, x18, x17
         //  store i32 %r321, i32* %r223
 
-        ldr     x17, [sp], #8
-        str     x17, [x10]
+        add     x19, sp, #144
+        ldr     x19, [x19]
+        str     x19, [x10]
         //  br label %bb19
 
 
@@ -954,21 +966,23 @@ bb18:
 
         //  %r226 = getelementptr [40 x i32 ], [40 x i32 ]* %r153, i32 0, i32 %r301
 
-        str     x18, [sp, #-8]!
-        mov     x19, #8
-        str     x19, [sp, #-8]!
-        ldr     x16, [sp], #8
-        str     x17, [sp, #-8]!
-        mul     x18, x19, x16
-        str     x18, [sp, #-8]!
-        str     x19, [sp, #-8]!
-        add     x16, x29, #-1040
-        str     x16, [sp, #-8]!
-        add     x10, x16, x18
+        mov     x16, #8
+        add     x16, sp, #176
+        str     x16, [x16]
+        add     x17, sp, #0
+        ldr     x17, [x17]
+        mul     x18, x16, x17
+        add     x18, sp, #184
+        str     x18, [x18]
+        add     x19, x29, #-1040
+        add     x19, sp, #13
+        str     x19, [x19]
+        add     x10, x19, x18
         //  store i32 %r312, i32* %r226
 
-        ldr     x17, [sp], #8
-        str     x17, [x10]
+        add     x16, sp, #56
+        ldr     x16, [x16]
+        str     x16, [x10]
         //  br label %bb19
 
 
@@ -980,21 +994,23 @@ bb19:
         //  %r314 = sub i32 %r302, 1
 
         mov     x10, #1
-        ldr     x18, [sp], #8
-        sub     x10, x18, x10
+        add     x17, sp, #8
+        ldr     x17, [x17]
+        sub     x10, x17, x10
         //  %r315 = add i32 %r314, 0
 
         mov     x10, x10
         //  %r316 = sub i32 %r301, 1
 
         mov     x13, #1
-        ldr     x19, [sp], #8
-        sub     x13, x19, x13
+        add     x18, sp, #0
+        ldr     x18, [x18]
+        sub     x13, x18, x13
         //  %r317 = add i32 %r316, 0
 
         mov     x13, x13
-        mov     x17, x13
-        mov     x19, x10
+        mov     x16, x13
+        mov     x17, x10
         //  br label %bb14
 
 
@@ -1005,8 +1021,9 @@ bb16:
 
         //  %r305 = add i32 %r301, %r268
 
-        ldr     x16, [sp], #8
-        add     x10, x16, x12
+        add     x19, sp, #0
+        ldr     x19, [x19]
+        add     x10, x19, x12
         //  %r306 = sub i32 %r305, 1
 
         mov     x13, #1
