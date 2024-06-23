@@ -18,28 +18,22 @@ newline:
         sub     sp, sp, #0
 factor:
 
-        //101:x29,#-24
-
-        //102:x29,#-16
-
-        //103:x29,#-8
-
         //bb2:
 
 bb2:
 
-        //  %r103 = alloca i32
+        //  %r129 = add i32 0, 0
 
-        mov     x16, #32
+        mov     x16, #0
         sub     sp, sp, x16
-        mov     x12, x0
-        //  %r102 = alloca i32
+        mov     x9, x0
+        //  %r130 = add i32 0, 0
 
-        //  %r101 = alloca i32
+        //  %r131 = add i32 0, 0
 
-        //  store i32 %r100, i32* %r101
+        //  %r132 = add i32 %r100, 0
 
-        str     x12, [x11]
+        mov     x12, x9
         //  br label %bb1
 
 
@@ -48,14 +42,14 @@ bb2:
 
 bb1:
 
-        //  store i32 0, i32* %r103
+        //  %r133 = add i32 0, 0
 
-        mov     x12, #0
-        str     x12, [x9]
-        //  store i32 1, i32* %r102
+        mov     x10, #0
+        //  %r134 = add i32 1, 0
 
-        mov     x12, #1
-        str     x12, [x10]
+        mov     x9, #1
+        mov     x11, x9
+        mov     x10, x10
         //  br label %bb3
 
 
@@ -64,20 +58,18 @@ bb1:
 
 bb3:
 
-        //  %r104 = load i32, i32* %r102
+        //  %r135 = phi i32 [ %r134, %bb1 ], [ %r144, %bb8 ]
 
-        ldr     x13, [x10]
-        //  %r105 = load i32, i32* %r101
+        //  %r136 = phi i32 [ %r133, %bb1 ], [ %r142, %bb8 ]
 
-        ldr     x12, [x11]
-        //  %r106 = add i32 %r105, 1
+        //  %r137 = add i32 %r132, 1
 
-        mov     x14, #1
-        add     x12, x12, x14
-        //  %r107 = icmp slt i32 %r104, %r106
+        mov     x9, #1
+        add     x9, x12, x9
+        //  %r138 = icmp slt i32 %r135, %r137
 
-        cmp     x13, x12
-        //  br i1 %r107, label %bb4, label %bb5
+        cmp     x11, x9
+        //  br i1 %r138, label %bb4, label %bb5
 
 
         b.lt     bb4
@@ -86,28 +78,16 @@ bb3:
 
 bb4:
 
-        //  %r108 = load i32, i32* %r101
+        //  %r139 = sdiv i32 %r132, %r135
 
-        ldr     x13, [x11]
-        //  %r109 = load i32, i32* %r102
+        sdiv     x9, x12, x11
+        //  %r140 = mul i32 %r139, %r135
 
-        ldr     x12, [x10]
-        //  %r110 = sdiv i32 %r108, %r109
+        mul     x9, x9, x11
+        //  %r141 = icmp eq i32 %r140, %r132
 
-        sdiv     x13, x13, x12
-        //  %r111 = load i32, i32* %r102
-
-        ldr     x12, [x10]
-        //  %r112 = mul i32 %r110, %r111
-
-        mul     x12, x13, x12
-        //  %r113 = load i32, i32* %r101
-
-        ldr     x13, [x11]
-        //  %r114 = icmp eq i32 %r112, %r113
-
-        cmp     x12, x13
-        //  br i1 %r114, label %bb6, label %bb7
+        cmp     x9, x12
+        //  br i1 %r141, label %bb6, label %bb7
 
 
         b.eq     bb6
@@ -116,18 +96,13 @@ bb4:
 
 bb6:
 
-        //  %r115 = load i32, i32* %r103
+        //  %r145 = add i32 %r136, %r135
 
-        ldr     x12, [x9]
-        //  %r116 = load i32, i32* %r102
+        add     x9, x10, x11
+        //  %r146 = add i32 %r145, 0
 
-        ldr     x13, [x10]
-        //  %r117 = add i32 %r115, %r116
-
-        add     x12, x12, x13
-        //  store i32 %r117, i32* %r103
-
-        str     x12, [x9]
+        mov     x9, x9
+        mov     x9, x9
         //  br label %bb8
 
 
@@ -136,6 +111,7 @@ bb6:
 
 bb7:
 
+        mov     x9, x10
         //  br label %bb8
 
 
@@ -144,16 +120,17 @@ bb7:
 
 bb8:
 
-        //  %r118 = load i32, i32* %r102
+        //  %r142 = phi i32 [ %r146, %bb6 ], [ %r136, %bb7 ]
 
-        ldr     x13, [x10]
-        //  %r119 = add i32 %r118, 1
+        //  %r143 = add i32 %r135, 1
 
-        mov     x12, #1
-        add     x12, x13, x12
-        //  store i32 %r119, i32* %r102
+        mov     x10, #1
+        add     x10, x11, x10
+        //  %r144 = add i32 %r143, 0
 
-        str     x12, [x10]
+        mov     x10, x10
+        mov     x11, x10
+        mov     x10, x9
         //  br label %bb3
 
 
@@ -162,22 +139,13 @@ bb8:
 
 bb5:
 
-        //  %r120 = load i32, i32* %r103
+        //  ret i32 %r136
 
-        ldr     x9, [x9]
-        //  ret i32 %r120
-
-        mov     x0, x9
+        mov     x0, x10
         mov     sp, x29
         ret
         sub     sp, sp, #0
 main:
-
-        //123:x29,#-24
-
-        //122:x29,#-16
-
-        //121:x29,#-8
 
         //bb9:
 
@@ -185,7 +153,7 @@ bb9:
 
         //  call void @_sysy_starttime(i32 24)
 
-        mov     x16, #32
+        mov     x16, #0
         sub     sp, sp, x16
         mov     x0, #24
         stp     x9, x10, [sp, #-16]!
@@ -202,25 +170,24 @@ bb9:
         ldp     x9, x10, [sp], #16
         //  store i32 4, i32* @N
 
-        mov     x10, #4
-        adrp     x11, N
-        add     x11, x11, #:lo12:N
-        str     x10, [x11]
+        mov     x9, #4
+        adrp     x10, N
+        add     x10, x10, #:lo12:N
+        str     x9, [x10]
         //  store i32 10, i32* @newline
 
-        mov     x10, #10
-        adrp     x11, newline
-        add     x11, x11, #:lo12:newline
-        str     x10, [x11]
-        //  %r121 = alloca i32
+        mov     x9, #10
+        adrp     x10, newline
+        add     x10, x10, #:lo12:newline
+        str     x9, [x10]
+        //  %r150 = add i32 0, 0
 
-        //  %r122 = alloca i32
+        //  %r151 = add i32 0, 0
 
-        //  store i32 1478, i32* %r122
+        //  %r152 = add i32 1478, 0
 
-        mov     x10, #1478
-        str     x10, [x9]
-        //  %r123 = alloca i32
+        mov     x9, #1478
+        //  %r153 = add i32 0, 0
 
         //  call void @_sysy_stoptime(i32 31)
 
@@ -237,10 +204,7 @@ bb9:
         ldp     x13, x14, [sp], #16
         ldp     x11, x12, [sp], #16
         ldp     x9, x10, [sp], #16
-        //  %r124 = load i32, i32* %r122
-
-        ldr     x9, [x9]
-        //  %r125 = call i32 @factor(i32 %r124)
+        //  %r154 = call i32 @factor(i32 %r152)
 
         mov     x0, x9
         stp     x9, x10, [sp, #-16]!
@@ -256,7 +220,7 @@ bb9:
         ldp     x11, x12, [sp], #16
         ldp     x9, x10, [sp], #16
         mov     x9, x0
-        //  ret i32 %r125
+        //  ret i32 %r154
 
         mov     x0, x9
         mov     sp, x29

@@ -23,20 +23,18 @@ d:
         sub     sp, sp, #0
 set_a:
 
-        //101:x29,#-8
-
         //bb2:
 
 bb2:
 
-        //  %r101 = alloca i32
+        //  %r189 = add i32 0, 0
 
-        mov     x16, #16
+        mov     x16, #0
         sub     sp, sp, x16
         mov     x9, x0
-        //  store i32 %r100, i32* %r101
+        //  %r190 = add i32 %r100, 0
 
-        str     x9, [x10]
+        mov     x10, x9
         //  br label %bb1
 
 
@@ -45,14 +43,11 @@ bb2:
 
 bb1:
 
-        //  %r102 = load i32, i32* %r101
+        //  store i32 %r190, i32* @a
 
-        ldr     x9, [x10]
-        //  store i32 %r102, i32* @a
-
-        adrp     x10, a
-        add     x10, x10, #:lo12:a
-        str     x9, [x10]
+        adrp     x9, a
+        add     x9, x9, #:lo12:a
+        str     x10, [x9]
         //  %r103 = load i32, i32* @a
 
         adrp     x9, a
@@ -66,20 +61,18 @@ bb1:
         sub     sp, sp, #0
 set_b:
 
-        //105:x29,#-8
-
         //bb4:
 
 bb4:
 
-        //  %r105 = alloca i32
+        //  %r192 = add i32 0, 0
 
-        mov     x16, #16
+        mov     x16, #0
         sub     sp, sp, x16
         mov     x9, x0
-        //  store i32 %r104, i32* %r105
+        //  %r193 = add i32 %r104, 0
 
-        str     x9, [x10]
+        mov     x9, x9
         //  br label %bb3
 
 
@@ -88,10 +81,7 @@ bb4:
 
 bb3:
 
-        //  %r106 = load i32, i32* %r105
-
-        ldr     x9, [x10]
-        //  store i32 %r106, i32* @b
+        //  store i32 %r193, i32* @b
 
         adrp     x10, b
         add     x10, x10, #:lo12:b
@@ -109,20 +99,18 @@ bb3:
         sub     sp, sp, #0
 set_d:
 
-        //109:x29,#-8
-
         //bb6:
 
 bb6:
 
-        //  %r109 = alloca i32
+        //  %r195 = add i32 0, 0
 
-        mov     x16, #16
+        mov     x16, #0
         sub     sp, sp, x16
         mov     x9, x0
-        //  store i32 %r108, i32* %r109
+        //  %r196 = add i32 %r108, 0
 
-        str     x9, [x10]
+        mov     x10, x9
         //  br label %bb5
 
 
@@ -131,14 +119,11 @@ bb6:
 
 bb5:
 
-        //  %r110 = load i32, i32* %r109
+        //  store i32 %r196, i32* @d
 
-        ldr     x9, [x10]
-        //  store i32 %r110, i32* @d
-
-        adrp     x10, d
-        add     x10, x10, #:lo12:d
-        str     x9, [x10]
+        adrp     x9, d
+        add     x9, x9, #:lo12:d
+        str     x10, [x9]
         //  %r111 = load i32, i32* @d
 
         adrp     x9, d
@@ -149,39 +134,26 @@ bb5:
         mov     x0, x9
         mov     sp, x29
         ret
-        sub     sp, sp, #40
+        sub     sp, sp, #0
 main:
-
-        //126:x29,#-48
-
-        //139:x29,#-40
-
-        //140:x29,#-32
-
-        //141:x29,#-24
-
-        //142:x29,#-16
-
-        //143:x29,#-8
 
         //bb7:
 
 bb7:
 
-        sub     sp, sp, #40
-        //  %r143 = alloca i32
+        //  %r203 = add i32 0, 0
 
-        mov     x16, #48
+        mov     x16, #0
         sub     sp, sp, x16
-        //  %r142 = alloca i32
+        //  %r204 = add i32 0, 0
 
-        //  %r141 = alloca i32
+        //  %r205 = add i32 0, 0
 
-        //  %r140 = alloca i32
+        //  %r206 = add i32 0, 0
 
-        //  %r139 = alloca i32
+        //  %r207 = add i32 0, 0
 
-        //  %r126 = alloca i32
+        //  %r208 = add i32 0, 0
 
         //  call void @_sysy_starttime(i32 97)
 
@@ -200,17 +172,17 @@ bb7:
         ldp     x9, x10, [sp], #16
         //  store i32 2, i32* @a
 
-        mov     x14, #2
-        adrp     x15, a
-        add     x15, x15, #:lo12:a
-        str     x14, [x15]
+        mov     x10, #2
+        adrp     x9, a
+        add     x9, x9, #:lo12:a
+        str     x10, [x9]
         //  store i32 3, i32* @b
 
-        mov     x14, #3
-        adrp     x15, b
-        add     x15, x15, #:lo12:b
-        str     x14, [x15]
-        //  %r113 = call i32 @set_a(i32 0)
+        mov     x10, #3
+        adrp     x9, b
+        add     x9, x9, #:lo12:b
+        str     x10, [x9]
+        //  %r209 = call i32 @set_a(i32 0)
 
         mov     x0, #0
         stp     x9, x10, [sp, #-16]!
@@ -225,12 +197,12 @@ bb7:
         ldp     x13, x14, [sp], #16
         ldp     x11, x12, [sp], #16
         ldp     x9, x10, [sp], #16
-        mov     x14, x0
-        //  %r114 = icmp ne i32 %r113, 0
+        mov     x10, x0
+        //  %r210 = icmp ne i32 %r209, 0
 
-        mov     x15, #0
-        cmp     x14, x15
-        //  br i1 %r114, label %bb11, label %bb9
+        mov     x9, #0
+        cmp     x10, x9
+        //  br i1 %r210, label %bb11, label %bb9
 
 
         b.ne     bb11
@@ -239,7 +211,7 @@ bb7:
 
 bb11:
 
-        //  %r115 = call i32 @set_b(i32 1)
+        //  %r241 = call i32 @set_b(i32 1)
 
         mov     x0, #1
         stp     x9, x10, [sp, #-16]!
@@ -254,12 +226,12 @@ bb11:
         ldp     x13, x14, [sp], #16
         ldp     x11, x12, [sp], #16
         ldp     x9, x10, [sp], #16
-        mov     x14, x0
-        //  %r116 = icmp ne i32 %r115, 0
+        mov     x9, x0
+        //  %r242 = icmp ne i32 %r241, 0
 
-        mov     x15, #0
-        cmp     x14, x15
-        //  br i1 %r116, label %bb8, label %bb9
+        mov     x10, #0
+        cmp     x9, x10
+        //  br i1 %r242, label %bb8, label %bb9
 
 
         b.ne     bb8
@@ -286,12 +258,12 @@ bb10:
 
         //  %r117 = load i32, i32* @a
 
-        adrp     x14, a
-        add     x14, x14, #:lo12:a
-        ldr     x14, [x14]
+        adrp     x9, a
+        add     x9, x9, #:lo12:a
+        ldr     x9, [x9]
         //  call void @putint(i32 %r117)
 
-        mov     x0, x14
+        mov     x0, x9
         stp     x9, x10, [sp, #-16]!
         stp     x11, x12, [sp, #-16]!
         stp     x13, x14, [sp, #-16]!
@@ -321,12 +293,12 @@ bb10:
         ldp     x9, x10, [sp], #16
         //  %r118 = load i32, i32* @b
 
-        adrp     x14, b
-        add     x14, x14, #:lo12:b
-        ldr     x14, [x14]
+        adrp     x9, b
+        add     x9, x9, #:lo12:b
+        ldr     x9, [x9]
         //  call void @putint(i32 %r118)
 
-        mov     x0, x14
+        mov     x0, x9
         stp     x9, x10, [sp, #-16]!
         stp     x11, x12, [sp, #-16]!
         stp     x13, x14, [sp, #-16]!
@@ -356,19 +328,17 @@ bb10:
         ldp     x9, x10, [sp], #16
         //  store i32 2, i32* @a
 
-        mov     x15, #2
-        adrp     x14, a
-        add     x14, x14, #:lo12:a
-        str     x15, [x14]
+        mov     x9, #2
+        adrp     x10, a
+        add     x10, x10, #:lo12:a
+        str     x9, [x10]
         //  store i32 3, i32* @b
 
-        mov     x16, #3
-        add     x16, sp, #0
-        str     x16, [x16]
-        adrp     x14, b
-        add     x14, x14, #:lo12:b
-        str     x16, [x14]
-        //  %r120 = call i32 @set_a(i32 0)
+        mov     x9, #3
+        adrp     x10, b
+        add     x10, x10, #:lo12:b
+        str     x9, [x10]
+        //  %r211 = call i32 @set_a(i32 0)
 
         mov     x0, #0
         stp     x9, x10, [sp, #-16]!
@@ -383,12 +353,12 @@ bb10:
         ldp     x13, x14, [sp], #16
         ldp     x11, x12, [sp], #16
         ldp     x9, x10, [sp], #16
-        mov     x14, x0
-        //  %r121 = icmp ne i32 %r120, 0
+        mov     x9, x0
+        //  %r212 = icmp ne i32 %r211, 0
 
-        mov     x15, #0
-        cmp     x14, x15
-        //  br i1 %r121, label %bb15, label %bb13
+        mov     x10, #0
+        cmp     x9, x10
+        //  br i1 %r212, label %bb15, label %bb13
 
 
         b.ne     bb15
@@ -397,7 +367,7 @@ bb10:
 
 bb15:
 
-        //  %r122 = call i32 @set_b(i32 1)
+        //  %r239 = call i32 @set_b(i32 1)
 
         mov     x0, #1
         stp     x9, x10, [sp, #-16]!
@@ -412,12 +382,12 @@ bb15:
         ldp     x13, x14, [sp], #16
         ldp     x11, x12, [sp], #16
         ldp     x9, x10, [sp], #16
-        mov     x15, x0
-        //  %r123 = icmp ne i32 %r122, 0
+        mov     x9, x0
+        //  %r240 = icmp ne i32 %r239, 0
 
-        mov     x14, #0
-        cmp     x15, x14
-        //  br i1 %r123, label %bb12, label %bb13
+        mov     x10, #0
+        cmp     x9, x10
+        //  br i1 %r240, label %bb12, label %bb13
 
 
         b.ne     bb12
@@ -444,12 +414,12 @@ bb14:
 
         //  %r124 = load i32, i32* @a
 
-        adrp     x14, a
-        add     x14, x14, #:lo12:a
-        ldr     x14, [x14]
+        adrp     x9, a
+        add     x9, x9, #:lo12:a
+        ldr     x9, [x9]
         //  call void @putint(i32 %r124)
 
-        mov     x0, x14
+        mov     x0, x9
         stp     x9, x10, [sp, #-16]!
         stp     x11, x12, [sp, #-16]!
         stp     x13, x14, [sp, #-16]!
@@ -479,12 +449,12 @@ bb14:
         ldp     x9, x10, [sp], #16
         //  %r125 = load i32, i32* @b
 
-        adrp     x14, b
-        add     x14, x14, #:lo12:b
-        ldr     x14, [x14]
+        adrp     x9, b
+        add     x9, x9, #:lo12:b
+        ldr     x9, [x9]
         //  call void @putint(i32 %r125)
 
-        mov     x0, x14
+        mov     x0, x9
         stp     x9, x10, [sp, #-16]!
         stp     x11, x12, [sp, #-16]!
         stp     x13, x14, [sp, #-16]!
@@ -512,30 +482,20 @@ bb14:
         ldp     x13, x14, [sp], #16
         ldp     x11, x12, [sp], #16
         ldp     x9, x10, [sp], #16
-        //  store i32 1, i32* %r126
+        //  %r213 = add i32 1, 0
 
-        mov     x14, #1
-        str     x14, [x9]
+        mov     x10, #1
         //  store i32 2, i32* @d
 
-        mov     x14, #2
-        add     x17, sp, #8
-        ldr     x17, [x17]
-        adrp     x17, d
-        add     x17, x17, #:lo12:d
-        str     x14, [x18]
-        add     x18, sp, #8
-        str     x18, [x18]
-        //  %r128 = load i32, i32* %r126
+        mov     x9, #2
+        adrp     x11, d
+        add     x11, x11, #:lo12:d
+        str     x9, [x11]
+        //  %r214 = icmp sge i32 %r213, 1
 
-        ldr     x14, [x9]
-        //  %r129 = icmp sge i32 %r128, 1
-
-        mov     x19, #1
-        add     x19, sp, #16
-        str     x19, [x19]
-        cmp     x14, x19
-        //  br i1 %r129, label %bb19, label %bb17
+        mov     x9, #1
+        cmp     x10, x9
+        //  br i1 %r214, label %bb19, label %bb17
 
 
         b.ge     bb19
@@ -544,7 +504,7 @@ bb14:
 
 bb19:
 
-        //  %r130 = call i32 @set_d(i32 3)
+        //  %r237 = call i32 @set_d(i32 3)
 
         mov     x0, #3
         stp     x9, x10, [sp, #-16]!
@@ -559,14 +519,12 @@ bb19:
         ldp     x13, x14, [sp], #16
         ldp     x11, x12, [sp], #16
         ldp     x9, x10, [sp], #16
-        mov     x14, x0
-        //  %r131 = icmp ne i32 %r130, 0
+        mov     x9, x0
+        //  %r238 = icmp ne i32 %r237, 0
 
-        mov     x16, #0
-        add     x16, sp, #24
-        str     x16, [x16]
-        cmp     x14, x16
-        //  br i1 %r131, label %bb16, label %bb17
+        mov     x11, #0
+        cmp     x9, x11
+        //  br i1 %r238, label %bb16, label %bb17
 
 
         b.ne     bb16
@@ -593,12 +551,12 @@ bb18:
 
         //  %r132 = load i32, i32* @d
 
-        adrp     x14, d
-        add     x14, x14, #:lo12:d
-        ldr     x14, [x14]
+        adrp     x9, d
+        add     x9, x9, #:lo12:d
+        ldr     x9, [x9]
         //  call void @putint(i32 %r132)
 
-        mov     x0, x14
+        mov     x0, x9
         stp     x9, x10, [sp, #-16]!
         stp     x11, x12, [sp, #-16]!
         stp     x13, x14, [sp, #-16]!
@@ -626,14 +584,11 @@ bb18:
         ldp     x13, x14, [sp], #16
         ldp     x11, x12, [sp], #16
         ldp     x9, x10, [sp], #16
-        //  %r134 = load i32, i32* %r126
+        //  %r215 = icmp sle i32 %r213, 1
 
-        ldr     x9, [x9]
-        //  %r135 = icmp sle i32 %r134, 1
-
-        mov     x14, #1
-        cmp     x9, x14
-        //  br i1 %r135, label %bb20, label %bb23
+        mov     x9, #1
+        cmp     x10, x9
+        //  br i1 %r215, label %bb20, label %bb23
 
 
         b.le     bb20
@@ -642,7 +597,7 @@ bb18:
 
 bb23:
 
-        //  %r136 = call i32 @set_d(i32 4)
+        //  %r235 = call i32 @set_d(i32 4)
 
         mov     x0, #4
         stp     x9, x10, [sp, #-16]!
@@ -658,11 +613,11 @@ bb23:
         ldp     x11, x12, [sp], #16
         ldp     x9, x10, [sp], #16
         mov     x9, x0
-        //  %r137 = icmp ne i32 %r136, 0
+        //  %r236 = icmp ne i32 %r235, 0
 
-        mov     x14, #0
-        cmp     x9, x14
-        //  br i1 %r137, label %bb20, label %bb21
+        mov     x10, #0
+        cmp     x9, x10
+        //  br i1 %r236, label %bb20, label %bb21
 
 
         b.ne     bb20
@@ -737,28 +692,21 @@ bb22:
         ldp     x13, x14, [sp], #16
         ldp     x11, x12, [sp], #16
         ldp     x9, x10, [sp], #16
-        //  store i32 0, i32* %r139
+        //  %r216 = add i32 0, 0
 
-        mov     x9, #0
-        str     x9, [x11]
-        //  store i32 1, i32* %r140
+        mov     x14, #0
+        //  %r217 = add i32 1, 0
 
-        mov     x9, #1
-        str     x9, [x12]
-        //  store i32 2, i32* %r141
+        mov     x12, #1
+        //  %r218 = add i32 2, 0
 
-        mov     x9, #2
-        str     x9, [x13]
-        //  store i32 3, i32* %r142
+        mov     x11, #2
+        //  %r219 = add i32 3, 0
 
         mov     x9, #3
-        str     x9, [x10]
-        //  store i32 4, i32* %r143
+        //  %r220 = add i32 4, 0
 
-        mov     x9, #4
-        str     x9, [x17]
-        add     x17, sp, #32
-        str     x17, [x17]
+        mov     x10, #4
         //  br label %bb24
 
 
@@ -767,14 +715,11 @@ bb22:
 
 bb24:
 
-        //  %r145 = load i32, i32* %r139
+        //  %r221 = icmp ne i32 %r216, 0
 
-        ldr     x9, [x11]
-        //  %r146 = icmp ne i32 %r145, 0
-
-        mov     x14, #0
-        cmp     x9, x14
-        //  br i1 %r146, label %bb27, label %bb26
+        mov     x13, #0
+        cmp     x14, x13
+        //  br i1 %r221, label %bb27, label %bb26
 
 
         b.ne     bb27
@@ -783,14 +728,11 @@ bb24:
 
 bb27:
 
-        //  %r147 = load i32, i32* %r140
+        //  %r234 = icmp ne i32 %r217, 0
 
-        ldr     x9, [x12]
-        //  %r148 = icmp ne i32 %r147, 0
-
-        mov     x14, #0
-        cmp     x9, x14
-        //  br i1 %r148, label %bb25, label %bb26
+        mov     x13, #0
+        cmp     x12, x13
+        //  br i1 %r234, label %bb25, label %bb26
 
 
         b.ne     bb25
@@ -822,14 +764,11 @@ bb25:
 
 bb26:
 
-        //  %r150 = load i32, i32* %r139
+        //  %r222 = icmp ne i32 %r216, 0
 
-        ldr     x9, [x11]
-        //  %r151 = icmp ne i32 %r150, 0
-
-        mov     x14, #0
-        cmp     x9, x14
-        //  br i1 %r151, label %bb28, label %bb31
+        mov     x13, #0
+        cmp     x14, x13
+        //  br i1 %r222, label %bb28, label %bb31
 
 
         b.ne     bb28
@@ -838,14 +777,11 @@ bb26:
 
 bb31:
 
-        //  %r152 = load i32, i32* %r140
+        //  %r233 = icmp ne i32 %r217, 0
 
-        ldr     x9, [x12]
-        //  %r153 = icmp ne i32 %r152, 0
-
-        mov     x14, #0
-        cmp     x9, x14
-        //  br i1 %r153, label %bb28, label %bb29
+        mov     x13, #0
+        cmp     x12, x13
+        //  br i1 %r233, label %bb28, label %bb29
 
 
         b.ne     bb28
@@ -885,16 +821,10 @@ bb29:
 
 bb30:
 
-        //  %r155 = load i32, i32* %r139
+        //  %r223 = icmp sge i32 %r216, %r217
 
-        ldr     x9, [x11]
-        //  %r156 = load i32, i32* %r140
-
-        ldr     x14, [x12]
-        //  %r157 = icmp sge i32 %r155, %r156
-
-        cmp     x9, x14
-        //  br i1 %r157, label %bb32, label %bb35
+        cmp     x14, x12
+        //  br i1 %r223, label %bb32, label %bb35
 
 
         b.ge     bb32
@@ -903,16 +833,10 @@ bb30:
 
 bb35:
 
-        //  %r158 = load i32, i32* %r140
+        //  %r232 = icmp sle i32 %r217, %r216
 
-        ldr     x14, [x12]
-        //  %r159 = load i32, i32* %r139
-
-        ldr     x9, [x11]
-        //  %r160 = icmp sle i32 %r158, %r159
-
-        cmp     x14, x9
-        //  br i1 %r160, label %bb32, label %bb33
+        cmp     x12, x14
+        //  br i1 %r232, label %bb32, label %bb33
 
 
         b.le     bb32
@@ -952,16 +876,10 @@ bb33:
 
 bb34:
 
-        //  %r162 = load i32, i32* %r141
+        //  %r224 = icmp sge i32 %r218, %r217
 
-        ldr     x11, [x13]
-        //  %r163 = load i32, i32* %r140
-
-        ldr     x9, [x12]
-        //  %r164 = icmp sge i32 %r162, %r163
-
-        cmp     x11, x9
-        //  br i1 %r164, label %bb39, label %bb37
+        cmp     x11, x12
+        //  br i1 %r224, label %bb39, label %bb37
 
 
         b.ge     bb39
@@ -970,18 +888,10 @@ bb34:
 
 bb39:
 
-        //  %r165 = load i32, i32* %r143
+        //  %r231 = icmp ne i32 %r220, %r219
 
-        add     x18, sp, #32
-        ldr     x18, [x18]
-        ldr     x11, [x18]
-        //  %r166 = load i32, i32* %r142
-
-        ldr     x9, [x10]
-        //  %r167 = icmp ne i32 %r165, %r166
-
-        cmp     x11, x9
-        //  br i1 %r167, label %bb36, label %bb37
+        cmp     x10, x9
+        //  br i1 %r231, label %bb36, label %bb37
 
 
         b.ne     bb36
@@ -1021,14 +931,11 @@ bb37:
 
 bb38:
 
-        //  %r170 = load i32, i32* %r140
-
-        ldr     x9, [x12]
-        //  %r171 = icmp ne i32 %r170, 0
+        //  %r225 = icmp ne i32 %r217, 0
 
         mov     x11, #0
-        cmp     x9, x11
-        //  br i1 %r171, label %bb44, label %bb43
+        cmp     x12, x11
+        //  br i1 %r225, label %bb44, label %bb43
 
 
         b.ne     bb44
@@ -1037,16 +944,10 @@ bb38:
 
 bb44:
 
-        //  %r172 = load i32, i32* %r142
+        //  %r230 = icmp slt i32 %r219, %r219
 
-        ldr     x11, [x10]
-        //  %r173 = load i32, i32* %r142
-
-        ldr     x9, [x10]
-        //  %r174 = icmp slt i32 %r172, %r173
-
-        cmp     x11, x9
-        //  br i1 %r174, label %bb40, label %bb43
+        cmp     x9, x9
+        //  br i1 %r230, label %bb40, label %bb43
 
 
         b.lt     bb40
@@ -1055,20 +956,10 @@ bb44:
 
 bb43:
 
-        //  %r175 = load i32, i32* %r143
+        //  %r229 = icmp sge i32 %r220, %r220
 
-        add     x19, sp, #32
-        ldr     x19, [x19]
-        ldr     x9, [x19]
-        //  %r176 = load i32, i32* %r143
-
-        add     x16, sp, #32
-        ldr     x16, [x16]
-        ldr     x11, [x16]
-        //  %r177 = icmp sge i32 %r175, %r176
-
-        cmp     x9, x11
-        //  br i1 %r177, label %bb40, label %bb41
+        cmp     x10, x10
+        //  br i1 %r229, label %bb40, label %bb41
 
 
         b.ge     bb40
@@ -1108,14 +999,11 @@ bb41:
 
 bb42:
 
-        //  %r179 = load i32, i32* %r140
-
-        ldr     x9, [x12]
-        //  %r180 = icmp ne i32 %r179, 0
+        //  %r226 = icmp ne i32 %r217, 0
 
         mov     x11, #0
-        cmp     x9, x11
-        //  br i1 %r180, label %bb45, label %bb48
+        cmp     x12, x11
+        //  br i1 %r226, label %bb45, label %bb48
 
 
         b.ne     bb45
@@ -1124,16 +1012,10 @@ bb42:
 
 bb48:
 
-        //  %r182 = load i32, i32* %r142
+        //  %r227 = icmp slt i32 %r219, %r219
 
-        ldr     x9, [x10]
-        //  %r183 = load i32, i32* %r142
-
-        ldr     x10, [x10]
-        //  %r184 = icmp slt i32 %r182, %r183
-
-        cmp     x9, x10
-        //  br i1 %r184, label %bb49, label %bb46
+        cmp     x9, x9
+        //  br i1 %r227, label %bb49, label %bb46
 
 
         b.lt     bb49
@@ -1142,20 +1024,10 @@ bb48:
 
 bb49:
 
-        //  %r185 = load i32, i32* %r143
+        //  %r228 = icmp sge i32 %r220, %r220
 
-        add     x17, sp, #32
-        ldr     x17, [x17]
-        ldr     x10, [x17]
-        //  %r186 = load i32, i32* %r143
-
-        add     x18, sp, #32
-        ldr     x18, [x18]
-        ldr     x9, [x18]
-        //  %r187 = icmp sge i32 %r185, %r186
-
-        cmp     x10, x9
-        //  br i1 %r187, label %bb45, label %bb46
+        cmp     x10, x10
+        //  br i1 %r228, label %bb45, label %bb46
 
 
         b.ge     bb45
@@ -1212,7 +1084,7 @@ bb47:
         ldp     x9, x10, [sp], #16
         //  call void @_sysy_stoptime(i32 117)
 
-        mov     x0, #14
+        mov     x0, #9
         stp     x9, x10, [sp, #-16]!
         stp     x11, x12, [sp, #-16]!
         stp     x13, x14, [sp, #-16]!

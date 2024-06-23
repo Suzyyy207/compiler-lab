@@ -39,567 +39,452 @@ declare void @_sysy_stoptime( i32 )
 @a32 = global i32 16
 define i32 @func( i32 %r100, i32 %r102 ) {
 bb2:
-  %r143 = alloca i32
-  %r142 = alloca i32
-  %r141 = alloca i32
-  %r140 = alloca i32
-  %r139 = alloca i32
-  %r138 = alloca i32
-  %r137 = alloca i32
-  %r136 = alloca i32
-  %r135 = alloca i32
-  %r134 = alloca i32
-  %r133 = alloca i32
-  %r132 = alloca i32
-  %r131 = alloca i32
-  %r130 = alloca i32
-  %r129 = alloca i32
-  %r128 = alloca i32
-  %r127 = alloca i32
-  %r126 = alloca i32
-  %r125 = alloca i32
-  %r124 = alloca i32
-  %r123 = alloca i32
-  %r122 = alloca i32
-  %r121 = alloca i32
-  %r120 = alloca i32
-  %r119 = alloca i32
-  %r118 = alloca i32
-  %r117 = alloca i32
-  %r116 = alloca i32
-  %r115 = alloca i32
-  %r114 = alloca i32
-  %r113 = alloca i32
-  %r112 = alloca i32
-  %r111 = alloca i32
-  %r110 = alloca i32
-  %r109 = alloca i32
-  %r108 = alloca i32
-  %r104 = alloca i32
-  %r101 = alloca i32
-  store i32 %r100, i32* %r101
-  %r103 = alloca i32
-  store i32 %r102, i32* %r103
+  %r612 = add i32 0, 0
+  %r613 = add i32 0, 0
+  %r614 = add i32 0, 0
+  %r615 = add i32 0, 0
+  %r616 = add i32 0, 0
+  %r617 = add i32 0, 0
+  %r618 = add i32 0, 0
+  %r619 = add i32 0, 0
+  %r620 = add i32 0, 0
+  %r621 = add i32 0, 0
+  %r622 = add i32 0, 0
+  %r623 = add i32 0, 0
+  %r624 = add i32 0, 0
+  %r625 = add i32 0, 0
+  %r626 = add i32 0, 0
+  %r627 = add i32 0, 0
+  %r628 = add i32 0, 0
+  %r629 = add i32 0, 0
+  %r630 = add i32 0, 0
+  %r631 = add i32 0, 0
+  %r632 = add i32 0, 0
+  %r633 = add i32 0, 0
+  %r634 = add i32 0, 0
+  %r635 = add i32 0, 0
+  %r636 = add i32 0, 0
+  %r637 = add i32 0, 0
+  %r638 = add i32 0, 0
+  %r639 = add i32 0, 0
+  %r640 = add i32 0, 0
+  %r641 = add i32 0, 0
+  %r642 = add i32 0, 0
+  %r643 = add i32 0, 0
+  %r644 = add i32 0, 0
+  %r645 = add i32 0, 0
+  %r646 = add i32 0, 0
+  %r647 = add i32 0, 0
+  %r648 = add i32 0, 0
+  %r649 = add i32 0, 0
+  %r650 = add i32 %r100, 0
+  %r651 = add i32 0, 0
+  %r652 = add i32 %r102, 0
   br label %bb1
 
 bb1:
-  %r105 = load i32, i32* %r101
-  %r106 = load i32, i32* %r103
-  %r107 = add i32 %r105, %r106
-  store i32 %r107, i32* %r104
-  %r144 = call i32 @getint()
-  store i32 %r144, i32* %r108
-  %r145 = call i32 @getint()
-  store i32 %r145, i32* %r109
-  %r146 = call i32 @getint()
-  store i32 %r146, i32* %r110
-  %r147 = call i32 @getint()
-  store i32 %r147, i32* %r111
-  %r148 = load i32, i32* %r108
-  %r149 = add i32 1, %r148
+  %r653 = add i32 %r650, %r652
+  %r654 = add i32 %r653, 0
+  %r655 = call i32 @getint()
+  %r656 = add i32 %r655, 0
+  %r657 = call i32 @getint()
+  %r658 = add i32 %r657, 0
+  %r659 = call i32 @getint()
+  %r660 = add i32 %r659, 0
+  %r661 = call i32 @getint()
+  %r662 = add i32 %r661, 0
+  %r663 = add i32 1, %r656
   %r150 = load i32, i32* @a1
-  %r151 = add i32 %r149, %r150
-  store i32 %r151, i32* %r112
-  %r152 = load i32, i32* %r109
-  %r153 = add i32 2, %r152
+  %r664 = add i32 %r663, %r150
+  %r665 = add i32 %r664, 0
+  %r666 = add i32 2, %r658
   %r154 = load i32, i32* @a2
-  %r155 = add i32 %r153, %r154
-  store i32 %r155, i32* %r113
-  %r156 = load i32, i32* %r110
-  %r157 = add i32 3, %r156
+  %r667 = add i32 %r666, %r154
+  %r668 = add i32 %r667, 0
+  %r669 = add i32 3, %r660
   %r158 = load i32, i32* @a3
-  %r159 = add i32 %r157, %r158
-  store i32 %r159, i32* %r114
-  %r160 = load i32, i32* %r111
-  %r161 = add i32 4, %r160
+  %r670 = add i32 %r669, %r158
+  %r671 = add i32 %r670, 0
+  %r672 = add i32 4, %r662
   %r162 = load i32, i32* @a4
-  %r163 = add i32 %r161, %r162
-  store i32 %r163, i32* %r115
-  %r164 = load i32, i32* %r112
-  %r165 = add i32 1, %r164
+  %r673 = add i32 %r672, %r162
+  %r674 = add i32 %r673, 0
+  %r675 = add i32 1, %r665
   %r166 = load i32, i32* @a5
-  %r167 = add i32 %r165, %r166
-  store i32 %r167, i32* %r116
-  %r168 = load i32, i32* %r113
-  %r169 = add i32 2, %r168
+  %r676 = add i32 %r675, %r166
+  %r677 = add i32 %r676, 0
+  %r678 = add i32 2, %r668
   %r170 = load i32, i32* @a6
-  %r171 = add i32 %r169, %r170
-  store i32 %r171, i32* %r117
-  %r172 = load i32, i32* %r114
-  %r173 = add i32 3, %r172
+  %r679 = add i32 %r678, %r170
+  %r680 = add i32 %r679, 0
+  %r681 = add i32 3, %r671
   %r174 = load i32, i32* @a7
-  %r175 = add i32 %r173, %r174
-  store i32 %r175, i32* %r118
-  %r176 = load i32, i32* %r115
-  %r177 = add i32 4, %r176
+  %r682 = add i32 %r681, %r174
+  %r683 = add i32 %r682, 0
+  %r684 = add i32 4, %r674
   %r178 = load i32, i32* @a8
-  %r179 = add i32 %r177, %r178
-  store i32 %r179, i32* %r119
-  %r180 = load i32, i32* %r116
-  %r181 = add i32 1, %r180
+  %r685 = add i32 %r684, %r178
+  %r686 = add i32 %r685, 0
+  %r687 = add i32 1, %r677
   %r182 = load i32, i32* @a9
-  %r183 = add i32 %r181, %r182
-  store i32 %r183, i32* %r120
-  %r184 = load i32, i32* %r117
-  %r185 = add i32 2, %r184
+  %r688 = add i32 %r687, %r182
+  %r689 = add i32 %r688, 0
+  %r690 = add i32 2, %r680
   %r186 = load i32, i32* @a10
-  %r187 = add i32 %r185, %r186
-  store i32 %r187, i32* %r121
-  %r188 = load i32, i32* %r118
-  %r189 = add i32 3, %r188
+  %r691 = add i32 %r690, %r186
+  %r692 = add i32 %r691, 0
+  %r693 = add i32 3, %r683
   %r190 = load i32, i32* @a11
-  %r191 = add i32 %r189, %r190
-  store i32 %r191, i32* %r122
-  %r192 = load i32, i32* %r119
-  %r193 = add i32 4, %r192
+  %r694 = add i32 %r693, %r190
+  %r695 = add i32 %r694, 0
+  %r696 = add i32 4, %r686
   %r194 = load i32, i32* @a12
-  %r195 = add i32 %r193, %r194
-  store i32 %r195, i32* %r123
-  %r196 = load i32, i32* %r120
-  %r197 = add i32 1, %r196
+  %r697 = add i32 %r696, %r194
+  %r698 = add i32 %r697, 0
+  %r699 = add i32 1, %r689
   %r198 = load i32, i32* @a13
-  %r199 = add i32 %r197, %r198
-  store i32 %r199, i32* %r124
-  %r200 = load i32, i32* %r121
-  %r201 = add i32 2, %r200
+  %r700 = add i32 %r699, %r198
+  %r701 = add i32 %r700, 0
+  %r702 = add i32 2, %r692
   %r202 = load i32, i32* @a14
-  %r203 = add i32 %r201, %r202
-  store i32 %r203, i32* %r125
-  %r204 = load i32, i32* %r122
-  %r205 = add i32 3, %r204
+  %r703 = add i32 %r702, %r202
+  %r704 = add i32 %r703, 0
+  %r705 = add i32 3, %r695
   %r206 = load i32, i32* @a15
-  %r207 = add i32 %r205, %r206
-  store i32 %r207, i32* %r126
-  %r208 = load i32, i32* %r123
-  %r209 = add i32 4, %r208
+  %r706 = add i32 %r705, %r206
+  %r707 = add i32 %r706, 0
+  %r708 = add i32 4, %r698
   %r210 = load i32, i32* @a16
-  %r211 = add i32 %r209, %r210
-  store i32 %r211, i32* %r127
-  %r212 = load i32, i32* %r124
-  %r213 = add i32 1, %r212
+  %r709 = add i32 %r708, %r210
+  %r710 = add i32 %r709, 0
+  %r711 = add i32 1, %r701
   %r214 = load i32, i32* @a17
-  %r215 = add i32 %r213, %r214
-  store i32 %r215, i32* %r128
-  %r216 = load i32, i32* %r125
-  %r217 = add i32 2, %r216
+  %r712 = add i32 %r711, %r214
+  %r713 = add i32 %r712, 0
+  %r714 = add i32 2, %r704
   %r218 = load i32, i32* @a18
-  %r219 = add i32 %r217, %r218
-  store i32 %r219, i32* %r129
-  %r220 = load i32, i32* %r126
-  %r221 = add i32 3, %r220
+  %r715 = add i32 %r714, %r218
+  %r716 = add i32 %r715, 0
+  %r717 = add i32 3, %r707
   %r222 = load i32, i32* @a19
-  %r223 = add i32 %r221, %r222
-  store i32 %r223, i32* %r130
-  %r224 = load i32, i32* %r127
-  %r225 = add i32 4, %r224
+  %r718 = add i32 %r717, %r222
+  %r719 = add i32 %r718, 0
+  %r720 = add i32 4, %r710
   %r226 = load i32, i32* @a20
-  %r227 = add i32 %r225, %r226
-  store i32 %r227, i32* %r131
-  %r228 = load i32, i32* %r128
-  %r229 = add i32 1, %r228
+  %r721 = add i32 %r720, %r226
+  %r722 = add i32 %r721, 0
+  %r723 = add i32 1, %r713
   %r230 = load i32, i32* @a21
-  %r231 = add i32 %r229, %r230
-  store i32 %r231, i32* %r132
-  %r232 = load i32, i32* %r129
-  %r233 = add i32 2, %r232
+  %r724 = add i32 %r723, %r230
+  %r725 = add i32 %r724, 0
+  %r726 = add i32 2, %r716
   %r234 = load i32, i32* @a22
-  %r235 = add i32 %r233, %r234
-  store i32 %r235, i32* %r133
-  %r236 = load i32, i32* %r130
-  %r237 = add i32 3, %r236
+  %r727 = add i32 %r726, %r234
+  %r728 = add i32 %r727, 0
+  %r729 = add i32 3, %r719
   %r238 = load i32, i32* @a23
-  %r239 = add i32 %r237, %r238
-  store i32 %r239, i32* %r134
-  %r240 = load i32, i32* %r131
-  %r241 = add i32 4, %r240
+  %r730 = add i32 %r729, %r238
+  %r731 = add i32 %r730, 0
+  %r732 = add i32 4, %r722
   %r242 = load i32, i32* @a24
-  %r243 = add i32 %r241, %r242
-  store i32 %r243, i32* %r135
-  %r244 = load i32, i32* %r132
-  %r245 = add i32 1, %r244
+  %r733 = add i32 %r732, %r242
+  %r734 = add i32 %r733, 0
+  %r735 = add i32 1, %r725
   %r246 = load i32, i32* @a25
-  %r247 = add i32 %r245, %r246
-  store i32 %r247, i32* %r136
-  %r248 = load i32, i32* %r133
-  %r249 = add i32 2, %r248
+  %r736 = add i32 %r735, %r246
+  %r737 = add i32 %r736, 0
+  %r738 = add i32 2, %r728
   %r250 = load i32, i32* @a26
-  %r251 = add i32 %r249, %r250
-  store i32 %r251, i32* %r137
-  %r252 = load i32, i32* %r134
-  %r253 = add i32 3, %r252
+  %r739 = add i32 %r738, %r250
+  %r740 = add i32 %r739, 0
+  %r741 = add i32 3, %r731
   %r254 = load i32, i32* @a27
-  %r255 = add i32 %r253, %r254
-  store i32 %r255, i32* %r138
-  %r256 = load i32, i32* %r135
-  %r257 = add i32 4, %r256
+  %r742 = add i32 %r741, %r254
+  %r743 = add i32 %r742, 0
+  %r744 = add i32 4, %r734
   %r258 = load i32, i32* @a28
-  %r259 = add i32 %r257, %r258
-  store i32 %r259, i32* %r139
-  %r260 = load i32, i32* %r136
-  %r261 = add i32 1, %r260
+  %r745 = add i32 %r744, %r258
+  %r746 = add i32 %r745, 0
+  %r747 = add i32 1, %r737
   %r262 = load i32, i32* @a29
-  %r263 = add i32 %r261, %r262
-  store i32 %r263, i32* %r140
-  %r264 = load i32, i32* %r137
-  %r265 = add i32 2, %r264
+  %r748 = add i32 %r747, %r262
+  %r749 = add i32 %r748, 0
+  %r750 = add i32 2, %r740
   %r266 = load i32, i32* @a30
-  %r267 = add i32 %r265, %r266
-  store i32 %r267, i32* %r141
-  %r268 = load i32, i32* %r138
-  %r269 = add i32 3, %r268
+  %r751 = add i32 %r750, %r266
+  %r752 = add i32 %r751, 0
+  %r753 = add i32 3, %r743
   %r270 = load i32, i32* @a31
-  %r271 = add i32 %r269, %r270
-  store i32 %r271, i32* %r142
-  %r272 = load i32, i32* %r139
-  %r273 = add i32 4, %r272
+  %r754 = add i32 %r753, %r270
+  %r755 = add i32 %r754, 0
+  %r756 = add i32 4, %r746
   %r274 = load i32, i32* @a32
-  %r275 = add i32 %r273, %r274
-  store i32 %r275, i32* %r143
-  %r276 = load i32, i32* %r101
-  %r277 = load i32, i32* %r103
-  %r278 = sub i32 %r276, %r277
-  %r279 = add i32 %r278, 10
-  store i32 %r279, i32* %r104
-  %r280 = load i32, i32* %r136
-  %r281 = add i32 1, %r280
+  %r757 = add i32 %r756, %r274
+  %r758 = add i32 %r757, 0
+  %r759 = sub i32 %r650, %r652
+  %r760 = add i32 %r759, 10
+  %r761 = add i32 %r760, 0
+  %r762 = add i32 1, %r737
   %r282 = load i32, i32* @a29
-  %r283 = add i32 %r281, %r282
-  store i32 %r283, i32* %r140
-  %r284 = load i32, i32* %r137
-  %r285 = add i32 2, %r284
+  %r763 = add i32 %r762, %r282
+  %r764 = add i32 %r763, 0
+  %r765 = add i32 2, %r740
   %r286 = load i32, i32* @a30
-  %r287 = add i32 %r285, %r286
-  store i32 %r287, i32* %r141
-  %r288 = load i32, i32* %r138
-  %r289 = add i32 3, %r288
+  %r766 = add i32 %r765, %r286
+  %r767 = add i32 %r766, 0
+  %r768 = add i32 3, %r743
   %r290 = load i32, i32* @a31
-  %r291 = add i32 %r289, %r290
-  store i32 %r291, i32* %r142
-  %r292 = load i32, i32* %r139
-  %r293 = add i32 4, %r292
+  %r769 = add i32 %r768, %r290
+  %r770 = add i32 %r769, 0
+  %r771 = add i32 4, %r746
   %r294 = load i32, i32* @a32
-  %r295 = add i32 %r293, %r294
-  store i32 %r295, i32* %r143
-  %r296 = load i32, i32* %r132
-  %r297 = add i32 1, %r296
+  %r772 = add i32 %r771, %r294
+  %r773 = add i32 %r772, 0
+  %r774 = add i32 1, %r725
   %r298 = load i32, i32* @a25
-  %r299 = add i32 %r297, %r298
-  store i32 %r299, i32* %r136
-  %r300 = load i32, i32* %r133
-  %r301 = add i32 2, %r300
+  %r775 = add i32 %r774, %r298
+  %r776 = add i32 %r775, 0
+  %r777 = add i32 2, %r728
   %r302 = load i32, i32* @a26
-  %r303 = add i32 %r301, %r302
-  store i32 %r303, i32* %r137
-  %r304 = load i32, i32* %r134
-  %r305 = add i32 3, %r304
+  %r778 = add i32 %r777, %r302
+  %r779 = add i32 %r778, 0
+  %r780 = add i32 3, %r731
   %r306 = load i32, i32* @a27
-  %r307 = add i32 %r305, %r306
-  store i32 %r307, i32* %r138
-  %r308 = load i32, i32* %r135
-  %r309 = add i32 4, %r308
+  %r781 = add i32 %r780, %r306
+  %r782 = add i32 %r781, 0
+  %r783 = add i32 4, %r734
   %r310 = load i32, i32* @a28
-  %r311 = add i32 %r309, %r310
-  store i32 %r311, i32* %r139
-  %r312 = load i32, i32* %r128
-  %r313 = add i32 1, %r312
+  %r784 = add i32 %r783, %r310
+  %r785 = add i32 %r784, 0
+  %r786 = add i32 1, %r713
   %r314 = load i32, i32* @a21
-  %r315 = add i32 %r313, %r314
-  store i32 %r315, i32* %r132
-  %r316 = load i32, i32* %r129
-  %r317 = add i32 2, %r316
+  %r787 = add i32 %r786, %r314
+  %r788 = add i32 %r787, 0
+  %r789 = add i32 2, %r716
   %r318 = load i32, i32* @a22
-  %r319 = add i32 %r317, %r318
-  store i32 %r319, i32* %r133
-  %r320 = load i32, i32* %r130
-  %r321 = add i32 3, %r320
+  %r790 = add i32 %r789, %r318
+  %r791 = add i32 %r790, 0
+  %r792 = add i32 3, %r719
   %r322 = load i32, i32* @a23
-  %r323 = add i32 %r321, %r322
-  store i32 %r323, i32* %r134
-  %r324 = load i32, i32* %r131
-  %r325 = add i32 4, %r324
+  %r793 = add i32 %r792, %r322
+  %r794 = add i32 %r793, 0
+  %r795 = add i32 4, %r722
   %r326 = load i32, i32* @a24
-  %r327 = add i32 %r325, %r326
-  store i32 %r327, i32* %r135
-  %r328 = load i32, i32* %r124
-  %r329 = add i32 1, %r328
+  %r796 = add i32 %r795, %r326
+  %r797 = add i32 %r796, 0
+  %r798 = add i32 1, %r701
   %r330 = load i32, i32* @a17
-  %r331 = add i32 %r329, %r330
-  store i32 %r331, i32* %r128
-  %r332 = load i32, i32* %r125
-  %r333 = add i32 2, %r332
+  %r799 = add i32 %r798, %r330
+  %r800 = add i32 %r799, 0
+  %r801 = add i32 2, %r704
   %r334 = load i32, i32* @a18
-  %r335 = add i32 %r333, %r334
-  store i32 %r335, i32* %r129
-  %r336 = load i32, i32* %r126
-  %r337 = add i32 3, %r336
+  %r802 = add i32 %r801, %r334
+  %r803 = add i32 %r802, 0
+  %r804 = add i32 3, %r707
   %r338 = load i32, i32* @a19
-  %r339 = add i32 %r337, %r338
-  store i32 %r339, i32* %r130
-  %r340 = load i32, i32* %r127
-  %r341 = add i32 4, %r340
+  %r805 = add i32 %r804, %r338
+  %r806 = add i32 %r805, 0
+  %r807 = add i32 4, %r710
   %r342 = load i32, i32* @a20
-  %r343 = add i32 %r341, %r342
-  store i32 %r343, i32* %r131
-  %r344 = load i32, i32* %r120
-  %r345 = add i32 1, %r344
+  %r808 = add i32 %r807, %r342
+  %r809 = add i32 %r808, 0
+  %r810 = add i32 1, %r689
   %r346 = load i32, i32* @a13
-  %r347 = add i32 %r345, %r346
-  store i32 %r347, i32* %r124
-  %r348 = load i32, i32* %r121
-  %r349 = add i32 2, %r348
+  %r811 = add i32 %r810, %r346
+  %r812 = add i32 %r811, 0
+  %r813 = add i32 2, %r692
   %r350 = load i32, i32* @a14
-  %r351 = add i32 %r349, %r350
-  store i32 %r351, i32* %r125
-  %r352 = load i32, i32* %r122
-  %r353 = add i32 3, %r352
+  %r814 = add i32 %r813, %r350
+  %r815 = add i32 %r814, 0
+  %r816 = add i32 3, %r695
   %r354 = load i32, i32* @a15
-  %r355 = add i32 %r353, %r354
-  store i32 %r355, i32* %r126
-  %r356 = load i32, i32* %r123
-  %r357 = add i32 4, %r356
+  %r817 = add i32 %r816, %r354
+  %r818 = add i32 %r817, 0
+  %r819 = add i32 4, %r698
   %r358 = load i32, i32* @a16
-  %r359 = add i32 %r357, %r358
-  store i32 %r359, i32* %r127
-  %r360 = load i32, i32* %r116
-  %r361 = add i32 1, %r360
+  %r820 = add i32 %r819, %r358
+  %r821 = add i32 %r820, 0
+  %r822 = add i32 1, %r677
   %r362 = load i32, i32* @a9
-  %r363 = add i32 %r361, %r362
-  store i32 %r363, i32* %r120
-  %r364 = load i32, i32* %r117
-  %r365 = add i32 2, %r364
+  %r823 = add i32 %r822, %r362
+  %r824 = add i32 %r823, 0
+  %r825 = add i32 2, %r680
   %r366 = load i32, i32* @a10
-  %r367 = add i32 %r365, %r366
-  store i32 %r367, i32* %r121
-  %r368 = load i32, i32* %r118
-  %r369 = add i32 3, %r368
+  %r826 = add i32 %r825, %r366
+  %r827 = add i32 %r826, 0
+  %r828 = add i32 3, %r683
   %r370 = load i32, i32* @a11
-  %r371 = add i32 %r369, %r370
-  store i32 %r371, i32* %r122
-  %r372 = load i32, i32* %r119
-  %r373 = add i32 4, %r372
+  %r829 = add i32 %r828, %r370
+  %r830 = add i32 %r829, 0
+  %r831 = add i32 4, %r686
   %r374 = load i32, i32* @a12
-  %r375 = add i32 %r373, %r374
-  store i32 %r375, i32* %r123
-  %r376 = load i32, i32* %r112
-  %r377 = add i32 1, %r376
+  %r832 = add i32 %r831, %r374
+  %r833 = add i32 %r832, 0
+  %r834 = add i32 1, %r665
   %r378 = load i32, i32* @a5
-  %r379 = add i32 %r377, %r378
-  store i32 %r379, i32* %r116
-  %r380 = load i32, i32* %r113
-  %r381 = add i32 2, %r380
+  %r835 = add i32 %r834, %r378
+  %r836 = add i32 %r835, 0
+  %r837 = add i32 2, %r668
   %r382 = load i32, i32* @a6
-  %r383 = add i32 %r381, %r382
-  store i32 %r383, i32* %r117
-  %r384 = load i32, i32* %r114
-  %r385 = add i32 3, %r384
+  %r838 = add i32 %r837, %r382
+  %r839 = add i32 %r838, 0
+  %r840 = add i32 3, %r671
   %r386 = load i32, i32* @a7
-  %r387 = add i32 %r385, %r386
-  store i32 %r387, i32* %r118
-  %r388 = load i32, i32* %r115
-  %r389 = add i32 4, %r388
+  %r841 = add i32 %r840, %r386
+  %r842 = add i32 %r841, 0
+  %r843 = add i32 4, %r674
   %r390 = load i32, i32* @a8
-  %r391 = add i32 %r389, %r390
-  store i32 %r391, i32* %r119
-  %r392 = load i32, i32* %r108
-  %r393 = add i32 1, %r392
+  %r844 = add i32 %r843, %r390
+  %r845 = add i32 %r844, 0
+  %r846 = add i32 1, %r656
   %r394 = load i32, i32* @a1
-  %r395 = add i32 %r393, %r394
-  store i32 %r395, i32* %r112
-  %r396 = load i32, i32* %r109
-  %r397 = add i32 2, %r396
+  %r847 = add i32 %r846, %r394
+  %r848 = add i32 %r847, 0
+  %r849 = add i32 2, %r658
   %r398 = load i32, i32* @a2
-  %r399 = add i32 %r397, %r398
-  store i32 %r399, i32* %r113
-  %r400 = load i32, i32* %r110
-  %r401 = add i32 3, %r400
+  %r850 = add i32 %r849, %r398
+  %r851 = add i32 %r850, 0
+  %r852 = add i32 3, %r660
   %r402 = load i32, i32* @a3
-  %r403 = add i32 %r401, %r402
-  store i32 %r403, i32* %r114
-  %r404 = load i32, i32* %r111
-  %r405 = add i32 4, %r404
+  %r853 = add i32 %r852, %r402
+  %r854 = add i32 %r853, 0
+  %r855 = add i32 4, %r662
   %r406 = load i32, i32* @a4
-  %r407 = add i32 %r405, %r406
-  store i32 %r407, i32* %r115
-  %r408 = load i32, i32* %r108
-  %r409 = add i32 1, %r408
+  %r856 = add i32 %r855, %r406
+  %r857 = add i32 %r856, 0
+  %r858 = add i32 1, %r656
   %r410 = load i32, i32* @a1
-  %r411 = add i32 %r409, %r410
-  store i32 %r411, i32* %r112
-  %r412 = load i32, i32* %r109
-  %r413 = add i32 2, %r412
+  %r859 = add i32 %r858, %r410
+  %r860 = add i32 %r859, 0
+  %r861 = add i32 2, %r658
   %r414 = load i32, i32* @a2
-  %r415 = add i32 %r413, %r414
-  store i32 %r415, i32* %r113
-  %r416 = load i32, i32* %r110
-  %r417 = add i32 3, %r416
+  %r862 = add i32 %r861, %r414
+  %r863 = add i32 %r862, 0
+  %r864 = add i32 3, %r660
   %r418 = load i32, i32* @a3
-  %r419 = add i32 %r417, %r418
-  store i32 %r419, i32* %r114
-  %r420 = load i32, i32* %r111
-  %r421 = add i32 4, %r420
+  %r865 = add i32 %r864, %r418
+  %r866 = add i32 %r865, 0
+  %r867 = add i32 4, %r662
   %r422 = load i32, i32* @a4
-  %r423 = add i32 %r421, %r422
-  store i32 %r423, i32* %r115
-  %r424 = load i32, i32* %r104
-  %r425 = load i32, i32* %r108
-  %r426 = add i32 %r424, %r425
-  %r427 = load i32, i32* %r109
-  %r428 = add i32 %r426, %r427
-  %r429 = load i32, i32* %r110
-  %r430 = add i32 %r428, %r429
-  %r431 = load i32, i32* %r111
-  %r432 = add i32 %r430, %r431
-  %r433 = load i32, i32* %r112
-  %r434 = sub i32 %r432, %r433
-  %r435 = load i32, i32* %r113
-  %r436 = sub i32 %r434, %r435
-  %r437 = load i32, i32* %r114
-  %r438 = sub i32 %r436, %r437
-  %r439 = load i32, i32* %r115
-  %r440 = sub i32 %r438, %r439
-  %r441 = load i32, i32* %r116
-  %r442 = add i32 %r440, %r441
-  %r443 = load i32, i32* %r117
-  %r444 = add i32 %r442, %r443
-  %r445 = load i32, i32* %r118
-  %r446 = add i32 %r444, %r445
-  %r447 = load i32, i32* %r119
-  %r448 = add i32 %r446, %r447
-  %r449 = load i32, i32* %r120
-  %r450 = sub i32 %r448, %r449
-  %r451 = load i32, i32* %r121
-  %r452 = sub i32 %r450, %r451
-  %r453 = load i32, i32* %r122
-  %r454 = sub i32 %r452, %r453
-  %r455 = load i32, i32* %r123
-  %r456 = sub i32 %r454, %r455
-  %r457 = load i32, i32* %r124
-  %r458 = add i32 %r456, %r457
-  %r459 = load i32, i32* %r125
-  %r460 = add i32 %r458, %r459
-  %r461 = load i32, i32* %r126
-  %r462 = add i32 %r460, %r461
-  %r463 = load i32, i32* %r127
-  %r464 = add i32 %r462, %r463
-  %r465 = load i32, i32* %r128
-  %r466 = sub i32 %r464, %r465
-  %r467 = load i32, i32* %r129
-  %r468 = sub i32 %r466, %r467
-  %r469 = load i32, i32* %r130
-  %r470 = sub i32 %r468, %r469
-  %r471 = load i32, i32* %r131
-  %r472 = sub i32 %r470, %r471
-  %r473 = load i32, i32* %r132
-  %r474 = add i32 %r472, %r473
-  %r475 = load i32, i32* %r133
-  %r476 = add i32 %r474, %r475
-  %r477 = load i32, i32* %r134
-  %r478 = add i32 %r476, %r477
-  %r479 = load i32, i32* %r135
-  %r480 = add i32 %r478, %r479
-  %r481 = load i32, i32* %r136
-  %r482 = sub i32 %r480, %r481
-  %r483 = load i32, i32* %r137
-  %r484 = sub i32 %r482, %r483
-  %r485 = load i32, i32* %r138
-  %r486 = sub i32 %r484, %r485
-  %r487 = load i32, i32* %r139
-  %r488 = sub i32 %r486, %r487
-  %r489 = load i32, i32* %r140
-  %r490 = add i32 %r488, %r489
-  %r491 = load i32, i32* %r141
-  %r492 = add i32 %r490, %r491
-  %r493 = load i32, i32* %r142
-  %r494 = add i32 %r492, %r493
-  %r495 = load i32, i32* %r143
-  %r496 = add i32 %r494, %r495
+  %r868 = add i32 %r867, %r422
+  %r869 = add i32 %r868, 0
+  %r870 = add i32 %r761, %r656
+  %r871 = add i32 %r870, %r658
+  %r872 = add i32 %r871, %r660
+  %r873 = add i32 %r872, %r662
+  %r874 = sub i32 %r873, %r860
+  %r875 = sub i32 %r874, %r863
+  %r876 = sub i32 %r875, %r866
+  %r877 = sub i32 %r876, %r869
+  %r878 = add i32 %r877, %r836
+  %r879 = add i32 %r878, %r839
+  %r880 = add i32 %r879, %r842
+  %r881 = add i32 %r880, %r845
+  %r882 = sub i32 %r881, %r824
+  %r883 = sub i32 %r882, %r827
+  %r884 = sub i32 %r883, %r830
+  %r885 = sub i32 %r884, %r833
+  %r886 = add i32 %r885, %r812
+  %r887 = add i32 %r886, %r815
+  %r888 = add i32 %r887, %r818
+  %r889 = add i32 %r888, %r821
+  %r890 = sub i32 %r889, %r800
+  %r891 = sub i32 %r890, %r803
+  %r892 = sub i32 %r891, %r806
+  %r893 = sub i32 %r892, %r809
+  %r894 = add i32 %r893, %r788
+  %r895 = add i32 %r894, %r791
+  %r896 = add i32 %r895, %r794
+  %r897 = add i32 %r896, %r797
+  %r898 = sub i32 %r897, %r776
+  %r899 = sub i32 %r898, %r779
+  %r900 = sub i32 %r899, %r782
+  %r901 = sub i32 %r900, %r785
+  %r902 = add i32 %r901, %r764
+  %r903 = add i32 %r902, %r767
+  %r904 = add i32 %r903, %r770
+  %r905 = add i32 %r904, %r773
   %r497 = load i32, i32* @a1
-  %r498 = add i32 %r496, %r497
+  %r906 = add i32 %r905, %r497
   %r499 = load i32, i32* @a2
-  %r500 = sub i32 %r498, %r499
+  %r907 = sub i32 %r906, %r499
   %r501 = load i32, i32* @a3
-  %r502 = add i32 %r500, %r501
+  %r908 = add i32 %r907, %r501
   %r503 = load i32, i32* @a4
-  %r504 = sub i32 %r502, %r503
+  %r909 = sub i32 %r908, %r503
   %r505 = load i32, i32* @a5
-  %r506 = add i32 %r504, %r505
+  %r910 = add i32 %r909, %r505
   %r507 = load i32, i32* @a6
-  %r508 = sub i32 %r506, %r507
+  %r911 = sub i32 %r910, %r507
   %r509 = load i32, i32* @a7
-  %r510 = add i32 %r508, %r509
+  %r912 = add i32 %r911, %r509
   %r511 = load i32, i32* @a8
-  %r512 = sub i32 %r510, %r511
+  %r913 = sub i32 %r912, %r511
   %r513 = load i32, i32* @a9
-  %r514 = add i32 %r512, %r513
+  %r914 = add i32 %r913, %r513
   %r515 = load i32, i32* @a10
-  %r516 = sub i32 %r514, %r515
+  %r915 = sub i32 %r914, %r515
   %r517 = load i32, i32* @a11
-  %r518 = add i32 %r516, %r517
+  %r916 = add i32 %r915, %r517
   %r519 = load i32, i32* @a12
-  %r520 = sub i32 %r518, %r519
+  %r917 = sub i32 %r916, %r519
   %r521 = load i32, i32* @a13
-  %r522 = add i32 %r520, %r521
+  %r918 = add i32 %r917, %r521
   %r523 = load i32, i32* @a14
-  %r524 = sub i32 %r522, %r523
+  %r919 = sub i32 %r918, %r523
   %r525 = load i32, i32* @a15
-  %r526 = add i32 %r524, %r525
+  %r920 = add i32 %r919, %r525
   %r527 = load i32, i32* @a16
-  %r528 = sub i32 %r526, %r527
+  %r921 = sub i32 %r920, %r527
   %r529 = load i32, i32* @a17
-  %r530 = add i32 %r528, %r529
+  %r922 = add i32 %r921, %r529
   %r531 = load i32, i32* @a18
-  %r532 = sub i32 %r530, %r531
+  %r923 = sub i32 %r922, %r531
   %r533 = load i32, i32* @a19
-  %r534 = add i32 %r532, %r533
+  %r924 = add i32 %r923, %r533
   %r535 = load i32, i32* @a20
-  %r536 = sub i32 %r534, %r535
+  %r925 = sub i32 %r924, %r535
   %r537 = load i32, i32* @a21
-  %r538 = add i32 %r536, %r537
+  %r926 = add i32 %r925, %r537
   %r539 = load i32, i32* @a22
-  %r540 = sub i32 %r538, %r539
+  %r927 = sub i32 %r926, %r539
   %r541 = load i32, i32* @a23
-  %r542 = add i32 %r540, %r541
+  %r928 = add i32 %r927, %r541
   %r543 = load i32, i32* @a24
-  %r544 = sub i32 %r542, %r543
+  %r929 = sub i32 %r928, %r543
   %r545 = load i32, i32* @a25
-  %r546 = add i32 %r544, %r545
+  %r930 = add i32 %r929, %r545
   %r547 = load i32, i32* @a26
-  %r548 = sub i32 %r546, %r547
+  %r931 = sub i32 %r930, %r547
   %r549 = load i32, i32* @a27
-  %r550 = add i32 %r548, %r549
+  %r932 = add i32 %r931, %r549
   %r551 = load i32, i32* @a28
-  %r552 = sub i32 %r550, %r551
+  %r933 = sub i32 %r932, %r551
   %r553 = load i32, i32* @a29
-  %r554 = add i32 %r552, %r553
+  %r934 = add i32 %r933, %r553
   %r555 = load i32, i32* @a30
-  %r556 = sub i32 %r554, %r555
+  %r935 = sub i32 %r934, %r555
   %r557 = load i32, i32* @a31
-  %r558 = add i32 %r556, %r557
+  %r936 = add i32 %r935, %r557
   %r559 = load i32, i32* @a32
-  %r560 = sub i32 %r558, %r559
-  ret i32 %r560
+  %r937 = sub i32 %r936, %r559
+  ret i32 %r937
 }
 
 define i32 @main( ) {
 bb3:
   call void @_sysy_starttime(i32 87)
-  %r561 = alloca i32
-  %r562 = alloca i32
-  %r563 = call i32 @getint()
-  store i32 %r563, i32* %r561
-  %r564 = load i32, i32* %r561
-  %r565 = mul i32 2, 9
-  %r566 = add i32 %r564, %r565
-  store i32 %r566, i32* %r562
-  %r567 = load i32, i32* %r561
-  %r568 = load i32, i32* %r562
-  %r569 = call i32 @func(i32 %r567, i32 %r568)
-  store i32 %r569, i32* %r561
-  %r570 = load i32, i32* %r561
-  %r571 = load i32, i32* %r561
-  call void @putint(i32 %r571)
+  %r940 = add i32 0, 0
+  %r941 = add i32 0, 0
+  %r942 = call i32 @getint()
+  %r943 = add i32 %r942, 0
+  %r944 = mul i32 2, 9
+  %r945 = add i32 %r943, %r944
+  %r946 = add i32 %r945, 0
+  %r947 = call i32 @func(i32 %r943, i32 %r946)
+  %r948 = add i32 %r947, 0
+  call void @putint(i32 %r948)
   call void @_sysy_stoptime(i32 93)
-  %r572 = load i32, i32* %r561
-  ret i32 %r572
+  ret i32 %r948
 }
 

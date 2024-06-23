@@ -15,20 +15,18 @@ a:
         sub     sp, sp, #0
 foo:
 
-        //101:x29,#-8
-
         //bb2:
 
 bb2:
 
-        //  %r101 = alloca i32
+        //  %r113 = add i32 0, 0
 
-        mov     x16, #16
+        mov     x16, #0
         sub     sp, sp, x16
         mov     x9, x0
-        //  store i32 %r100, i32* %r101
+        //  %r114 = add i32 %r100, 0
 
-        str     x9, [x10]
+        mov     x9, x9
         //  br label %bb1
 
 
@@ -37,10 +35,7 @@ bb2:
 
 bb1:
 
-        //  %r102 = load i32, i32* %r101
-
-        ldr     x9, [x10]
-        //  store i32 %r102, i32* @a
+        //  store i32 %r114, i32* @a
 
         adrp     x10, a
         add     x10, x10, #:lo12:a
@@ -54,15 +49,13 @@ bb1:
         sub     sp, sp, #0
 main:
 
-        //103:x29,#-8
-
         //bb3:
 
 bb3:
 
         //  call void @_sysy_starttime(i32 9)
 
-        mov     x16, #16
+        mov     x16, #0
         sub     sp, sp, x16
         mov     x0, #9
         stp     x9, x10, [sp, #-16]!
@@ -77,13 +70,12 @@ bb3:
         ldp     x13, x14, [sp], #16
         ldp     x11, x12, [sp], #16
         ldp     x9, x10, [sp], #16
-        //  %r103 = alloca i32
+        //  %r116 = add i32 0, 0
 
-        //  store i32 1, i32* %r103
+        //  %r117 = add i32 1, 0
 
         mov     x10, #1
-        str     x10, [x9]
-        //  %r105 = call i32 @foo(i32 2)
+        //  %r118 = call i32 @foo(i32 2)
 
         mov     x0, #2
         stp     x9, x10, [sp, #-16]!
@@ -98,12 +90,12 @@ bb3:
         ldp     x13, x14, [sp], #16
         ldp     x11, x12, [sp], #16
         ldp     x9, x10, [sp], #16
-        mov     x10, x0
-        //  %r106 = icmp sgt i32 %r105, 0
+        mov     x9, x0
+        //  %r119 = icmp sgt i32 %r118, 0
 
         mov     x11, #0
-        cmp     x10, x11
-        //  br i1 %r106, label %bb4, label %bb7
+        cmp     x9, x11
+        //  br i1 %r119, label %bb4, label %bb7
 
 
         b.gt     bb4
@@ -112,7 +104,7 @@ bb3:
 
 bb7:
 
-        //  %r107 = call i32 @foo(i32 3)
+        //  %r122 = call i32 @foo(i32 3)
 
         mov     x0, #3
         stp     x9, x10, [sp, #-16]!
@@ -127,12 +119,12 @@ bb7:
         ldp     x13, x14, [sp], #16
         ldp     x11, x12, [sp], #16
         ldp     x9, x10, [sp], #16
-        mov     x11, x0
-        //  %r108 = icmp sgt i32 %r107, 0
+        mov     x9, x0
+        //  %r123 = icmp sgt i32 %r122, 0
 
-        mov     x10, #0
-        cmp     x11, x10
-        //  br i1 %r108, label %bb4, label %bb5
+        mov     x11, #0
+        cmp     x9, x11
+        //  br i1 %r123, label %bb4, label %bb5
 
 
         b.gt     bb4
@@ -141,10 +133,10 @@ bb7:
 
 bb4:
 
-        //  store i32 2, i32* %r103
+        //  %r121 = add i32 2, 0
 
-        mov     x10, #2
-        str     x10, [x9]
+        mov     x9, #2
+        mov     x10, x9
         //  br label %bb6
 
 
@@ -153,6 +145,7 @@ bb4:
 
 bb5:
 
+        mov     x10, x10
         //  br label %bb6
 
 
@@ -161,14 +154,16 @@ bb5:
 
 bb6:
 
+        //  %r120 = phi i32 [ %r121, %bb4 ], [ %r117, %bb5 ]
+
         //  %r109 = load i32, i32* @a
 
-        adrp     x10, a
-        add     x10, x10, #:lo12:a
-        ldr     x10, [x10]
+        adrp     x9, a
+        add     x9, x9, #:lo12:a
+        ldr     x9, [x9]
         //  call void @putint(i32 %r109)
 
-        mov     x0, x10
+        mov     x0, x9
         stp     x9, x10, [sp, #-16]!
         stp     x11, x12, [sp, #-16]!
         stp     x13, x14, [sp, #-16]!
@@ -181,14 +176,9 @@ bb6:
         ldp     x13, x14, [sp], #16
         ldp     x11, x12, [sp], #16
         ldp     x9, x10, [sp], #16
-        //  %r110 = load i32, i32* %r103
+        //  call void @putint(i32 %r120)
 
-        //  %r111 = load i32, i32* %r103
-
-        ldr     x9, [x9]
-        //  call void @putint(i32 %r111)
-
-        mov     x0, x9
+        mov     x0, x10
         stp     x9, x10, [sp, #-16]!
         stp     x11, x12, [sp, #-16]!
         stp     x13, x14, [sp, #-16]!

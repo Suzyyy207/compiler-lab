@@ -62,18 +62,18 @@ bb1:
 
         //  %r240 = add i32 %r238, 0
 
-        mov     x10, x9
+        mov     x9, x9
         //  %r241 = add i32 0, 0
 
         //  %r242 = add i32 0, 0
 
-        mov     x9, #0
+        mov     x10, #0
         //  %r243 = add i32 0, 0
 
         //  %r244 = add i32 0, 0
 
         mov     x11, #0
-        mov     x10, x10
+        mov     x12, x9
         mov     x11, x11
         //  br label %bb2
 
@@ -89,8 +89,8 @@ bb2:
 
         //  %r247 = icmp slt i32 %r245, 48
 
-        mov     x12, #48
-        cmp     x10, x12
+        mov     x9, #48
+        cmp     x12, x9
         //  br i1 %r247, label %bb3, label %bb5
 
 
@@ -102,8 +102,8 @@ bb5:
 
         //  %r253 = icmp sgt i32 %r245, 57
 
-        mov     x12, #57
-        cmp     x10, x12
+        mov     x9, #57
+        cmp     x12, x9
         //  br i1 %r253, label %bb3, label %bb4
 
 
@@ -115,8 +115,8 @@ bb3:
 
         //  %r248 = icmp eq i32 %r245, 45
 
-        mov     x12, #45
-        cmp     x10, x12
+        mov     x9, #45
+        cmp     x12, x9
         //  br i1 %r248, label %bb6, label %bb7
 
 
@@ -128,8 +128,8 @@ bb6:
 
         //  %r252 = add i32 1, 0
 
-        mov     x10, #1
-        mov     x11, x10
+        mov     x9, #1
+        mov     x11, x9
         //  br label %bb8
 
 
@@ -163,11 +163,11 @@ bb8:
         ldp     x13, x14, [sp], #16
         ldp     x11, x12, [sp], #16
         ldp     x9, x10, [sp], #16
-        mov     x10, x0
+        mov     x9, x0
         //  %r251 = add i32 %r250, 0
 
-        mov     x10, x10
-        mov     x10, x10
+        mov     x9, x9
+        mov     x12, x9
         mov     x11, x11
         //  br label %bb2
 
@@ -177,7 +177,7 @@ bb8:
 
 bb4:
 
-        mov     x9, x9
+        mov     x9, x12
         mov     x12, x10
         //  br label %bb9
 
@@ -187,14 +187,14 @@ bb4:
 
 bb9:
 
-        //  %r254 = phi i32 [ %r242, %bb4 ], [ %r263, %bb10 ]
+        //  %r254 = phi i32 [ %r245, %bb4 ], [ %r265, %bb10 ]
 
-        //  %r255 = phi i32 [ %r245, %bb4 ], [ %r265, %bb10 ]
+        //  %r255 = phi i32 [ %r242, %bb4 ], [ %r263, %bb10 ]
 
-        //  %r256 = icmp sge i32 %r255, 48
+        //  %r256 = icmp sge i32 %r254, 48
 
         mov     x10, #48
-        cmp     x12, x10
+        cmp     x9, x10
         //  br i1 %r256, label %bb12, label %bb11
 
 
@@ -204,10 +204,10 @@ bb9:
 
 bb12:
 
-        //  %r259 = icmp sle i32 %r255, 57
+        //  %r259 = icmp sle i32 %r254, 57
 
         mov     x10, #57
-        cmp     x12, x10
+        cmp     x9, x10
         //  br i1 %r259, label %bb10, label %bb11
 
 
@@ -217,20 +217,20 @@ bb12:
 
 bb10:
 
-        //  %r260 = mul i32 %r254, 10
+        //  %r260 = mul i32 %r255, 10
 
         mov     x10, #10
-        mul     x9, x9, x10
-        //  %r261 = add i32 %r260, %r255
+        mul     x10, x12, x10
+        //  %r261 = add i32 %r260, %r254
 
-        add     x9, x9, x12
+        add     x9, x10, x9
         //  %r262 = sub i32 %r261, 48
 
         mov     x10, #48
         sub     x9, x9, x10
         //  %r263 = add i32 %r262, 0
 
-        mov     x12, x9
+        mov     x10, x9
         //  %r264 = call i32 @getch()
 
         stp     x9, x10, [sp, #-16]!
@@ -248,8 +248,8 @@ bb10:
         mov     x9, x0
         //  %r265 = add i32 %r264, 0
 
-        mov     x10, x9
-        mov     x9, x12
+        mov     x9, x9
+        mov     x9, x9
         mov     x12, x10
         //  br label %bb9
 
@@ -261,8 +261,8 @@ bb11:
 
         //  %r257 = icmp ne i32 %r246, 0
 
-        mov     x10, #0
-        cmp     x11, x10
+        mov     x9, #0
+        cmp     x11, x9
         //  br i1 %r257, label %bb13, label %bb14
 
 
@@ -272,10 +272,10 @@ bb11:
 
 bb13:
 
-        //  %r258 = sub i32 0, %r254
+        //  %r258 = sub i32 0, %r255
 
-        mov     x10, #0
-        sub     x9, x10, x9
+        mov     x9, #0
+        sub     x9, x9, x12
         //  ret i32 %r258
 
         mov     x0, x9
@@ -285,9 +285,9 @@ bb13:
 
 bb14:
 
-        //  ret i32 %r254
+        //  ret i32 %r255
 
-        mov     x0, x9
+        mov     x0, x12
         mov     sp, x29
         ret
         sub     sp, sp, #0
